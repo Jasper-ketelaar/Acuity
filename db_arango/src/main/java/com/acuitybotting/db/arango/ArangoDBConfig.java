@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango.repositories" })
 public class ArangoDBConfig extends AbstractArangoConfiguration{
 
-
     @Override
     public Builder arango() {
         Credentials credentials = new Gson().fromJson(SecretManager.getSecret("secretsmanager.us-east-1.amazonaws.com", "us-east-1", "ArangoDBAccess").orElseThrow(() -> new RuntimeException("Failed to access Arango secret.")), Credentials.class);
@@ -24,5 +23,4 @@ public class ArangoDBConfig extends AbstractArangoConfiguration{
     public String database() {
         return "AcuityBotting";
     }
-
 }
