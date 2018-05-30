@@ -4,28 +4,32 @@ import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.GeoIndexed;
 import com.arangodb.springframework.annotation.Key;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
 
 /**
  * Created by Zachary Herridge on 5/30/2018.
  */
-@Document("TileFlag")
+@Document("SceneEntity")
 @Builder
+@Setter
+@Getter
 @ToString
-public class TileFlagData {
+public class SceneEntity {
 
     @Id
     private String id;
     @Key
     private String key;
 
+    private String name;
+    private String entityID;
+
+    private int plane;
     @GeoIndexed
     private int[] location;
-    private int plane;
 
-    private int flag;
-
-    private String requestID;
+    private String[] actions;
 }
