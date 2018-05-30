@@ -8,12 +8,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RegionData {
+public class TileCaptureCheck {
 
     private int x, y, z;
     private int width, height;
-
-    public Location getBase(){
-        return new Location(x, y, z);
-    }
 }

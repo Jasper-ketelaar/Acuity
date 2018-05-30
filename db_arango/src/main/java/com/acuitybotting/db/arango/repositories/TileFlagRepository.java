@@ -11,4 +11,6 @@ import org.springframework.data.geo.Polygon;
 public interface TileFlagRepository extends ArangoRepository<TileFlagData> {
 
     Iterable<TileFlagData> findByLocationWithinAndPlane(Polygon polygon, int plane);
+
+    long countByLocationWithinAndPlane(Polygon polygon, int plane);
 }

@@ -1,23 +1,38 @@
 package com.acuitybotting.pathfinding.backend.services.tile_data.handler.aws;
 
-import com.acuitybotting.pathfinding.backend.services.tile_data.domain.RegionData;
-import com.acuitybotting.pathfinding.backend.services.tile_data.utils.Constants;
-import com.acuitybotting.pathfinding.backend.services.tile_data.utils.Regions;
+import com.acuitybotting.db.arango.repositories.TileFlagRepository;
+import com.acuitybotting.pathfinding.backend.services.tile_data.domain.TileCaptureCheck;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.geo.Point;
+import org.springframework.data.geo.Polygon;
+
+import java.util.Arrays;
 
 /**
  * Created by Zachary Herridge on 5/29/2018.
  */
-public class RegionUploadRequest implements RequestHandler<RegionData, String> {
+@ComponentScan("com.acuitybotting.db.arango.repositories")
+public class RegionUploadRequest implements RequestHandler<TileCaptureCheck, String> {
+
+    @Autowired
+    private TileFlagRepository repository;
+
 
     @Override
-    public String handleRequest(RegionData regionData, Context context) {
-        String regionName = regionData.getBase().getRegionBase().toKey();
-        AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
-        if (!s3.doesObjectExist(Constants.BUCKET_NAME, regionName)) return "true";
-        return "false";
+    public String handleRequest(TileCaptureCheck tileCaptureCheck, Context context) {
+
+        long flagsFound = repository.countByLocationWithinAndPlane(new Polygon(Arrays.asList(
+                new Point(tileCaptureCheck.getX(), tileCaptureCheck.getY()),
+                new Point(tileCaptureCheck.getX() + tileCaptureCheck.getWidth(), tileCaptureCheck.getY()),
+                new Point(tileCaptureCheck.getX() + tileCaptureCheck.getWidth(), tileCaptureCheck.getY() + tileCaptureCheck.getHeight()),
+                new Point(tileCaptureCheck.getX(), tileCaptureCheck.getY() + tileCaptureCheck.getHeight())
+                )),
+                tileCaptureCheck.getZ()
+        );
+
+        return String.valueOf(flagsFound < tileCaptureCheck.getHeight() * tileCaptureCheck.getWidth());
     }
 }

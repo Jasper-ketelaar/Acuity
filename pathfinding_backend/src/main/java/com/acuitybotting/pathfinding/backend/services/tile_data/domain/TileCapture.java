@@ -1,22 +1,22 @@
 package com.acuitybotting.pathfinding.backend.services.tile_data.domain;
 
+import com.acuitybotting.db.arango.entities.SceneEntity;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * Created by Zachary Herridge on 5/29/2018.
  */
 @Setter
 @Getter
-@NoArgsConstructor
-public class Region {
+@Builder
+public class TileCapture {
 
-    private Location base;
+    private int x, y, plane;
     private int[][] flags;
+    private List<SceneEntity> entities;
 
-    public Region(Location location) {
-        this.base = location;
-        flags = new int[10][10];
-    }
 }
