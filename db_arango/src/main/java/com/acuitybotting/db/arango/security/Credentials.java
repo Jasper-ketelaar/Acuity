@@ -7,8 +7,8 @@ import lombok.Setter;
 @Getter
 public class Credentials {
 
-    private String host;
-    private String username;
-    private String password;
-    private String port;
+    private String arangoHost;
+    private String arangoUsername;
+    private String arangoPassword;
+    private String arangoPort;
 }

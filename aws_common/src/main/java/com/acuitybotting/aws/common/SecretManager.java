@@ -1,5 +1,6 @@
 package com.acuitybotting.aws.common;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
@@ -29,6 +30,8 @@ public class SecretManager {
             System.out.println("The request was invalid due to: " + e.getMessage());
         } catch (InvalidParameterException e) {
             System.out.println("The request had invalid params: " + e.getMessage());
+        } catch (SdkClientException e){
+            System.out.println("Failed to load AWS provider." + e.getMessage());
         }
 
         if(getSecretValueResponse == null) {
