@@ -31,7 +31,9 @@ public class SecretManager {
             System.out.println("The request had invalid params: " + e.getMessage());
         }
 
-        if(getSecretValueResponse == null) return Optional.empty();
+        if(getSecretValueResponse == null) {
+            return Optional.ofNullable(System.getenv(secretName));
+        }
         return Optional.ofNullable(getSecretValueResponse.getSecretString());
     }
 }
