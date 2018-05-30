@@ -3,10 +3,7 @@ package com.acuitybotting.db.arango.entities;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.GeoIndexed;
 import com.arangodb.springframework.annotation.Key;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 
 /**
@@ -14,9 +11,7 @@ import org.springframework.data.annotation.Id;
  */
 @Document("SceneEntity")
 @Builder
-@Setter
-@Getter
-@ToString
+@Data
 public class SceneEntity {
 
     @Id

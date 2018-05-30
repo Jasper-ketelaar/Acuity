@@ -3,7 +3,7 @@ package com.acuitybotting.db.arango;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.acuitybotting")
 public class AcutiyArangoDBApplication {
 
     public static void main(String[] args) {

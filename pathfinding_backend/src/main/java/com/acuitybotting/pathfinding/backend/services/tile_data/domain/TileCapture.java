@@ -2,16 +2,14 @@ package com.acuitybotting.pathfinding.backend.services.tile_data.domain;
 
 import com.acuitybotting.db.arango.entities.SceneEntity;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
 /**
  * Created by Zachary Herridge on 5/29/2018.
  */
-@Setter
-@Getter
+@Data
 @Builder
 public class TileCapture {
 
