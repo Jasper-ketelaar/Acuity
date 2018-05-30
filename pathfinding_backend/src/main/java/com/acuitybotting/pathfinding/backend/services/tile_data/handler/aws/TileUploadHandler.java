@@ -31,35 +31,6 @@ public class TileUploadHandler implements RequestHandler<TileUpload, String> {
     @Override
     public String handleRequest(TileUpload tileUpload, Context context) {
         String json = gson.toJson(tileUpload);
-        return "Sec: " + decryptKey();
-    }
-
-    private static String decryptKey() {
-        String secretName = "MongoAcess";
-        String endpoint = "secretsmanager.us-east-1.amazonaws.com";
-        String region = "us-east-1";
-
-        AwsClientBuilder.EndpointConfiguration config = new AwsClientBuilder.EndpointConfiguration(endpoint, region);
-        AWSSecretsManagerClientBuilder clientBuilder = AWSSecretsManagerClientBuilder.standard();
-        clientBuilder.setEndpointConfiguration(config);
-        AWSSecretsManager client = clientBuilder.build();
-
-        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest().withSecretId(secretName);
-        GetSecretValueResult getSecretValueResponse = null;
-        try {
-            getSecretValueResponse = client.getSecretValue(getSecretValueRequest);
-        } catch(ResourceNotFoundException e) {
-            System.out.println("The requested secret " + secretName + " was not found");
-        } catch (InvalidRequestException e) {
-            System.out.println("The request was invalid due to: " + e.getMessage());
-        } catch (InvalidParameterException e) {
-            System.out.println("The request had invalid params: " + e.getMessage());
-        }
-
-        if(getSecretValueResponse == null) {
-            return null;
-        }
-
-        return getSecretValueResponse.getSecretString();
+        return "Sec: ";
     }
 }
