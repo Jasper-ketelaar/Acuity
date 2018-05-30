@@ -2,6 +2,7 @@ package com.acuitybotting.db.arango;
 
 import com.acuitybotting.db.arango.entities.TileFlagData;
 import com.acuitybotting.db.arango.repositories.TileFlagRepository;
+import com.arangodb.springframework.core.ArangoOperations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.ComponentScan;
@@ -17,15 +18,11 @@ public class Runner implements CommandLineRunner {
     @Autowired
     private TileFlagRepository tileFlagRepository;
 
+    @Autowired
+    private ArangoOperations arangoOperations;
+
     @Override
     public void run(String... strings) throws Exception {
-
-
-        Iterable<TileFlagData> byLocationWithinAndPlane = tileFlagRepository.findByLocationWithinAndPlane(new Polygon(new Point(0, 0), new Point(0, 100), new Point(100, 100), new Point(100, 0)), 1);
-        for (TileFlagData tileFlagData : byLocationWithinAndPlane) {
-            System.out.println(tileFlagData);
-        }
-
+        System.out.println(arangoOperations.getVersion().getVersion());
     }
-
 }
