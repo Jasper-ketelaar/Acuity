@@ -1,16 +1,20 @@
 package com.acuitybotting.db.arango;
 
 import com.acuitybotting.aws.common.SecretManager;
+import com.acuitybotting.db.arango.repositories.TileFlagRepository;
 import com.acuitybotting.db.arango.security.Credentials;
 import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDB.Builder;
 import com.arangodb.springframework.annotation.EnableArangoRepositories;
 import com.arangodb.springframework.config.AbstractArangoConfiguration;
+import com.arangodb.springframework.core.ArangoOperations;
 import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango.repositories" })
+@EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango" })
 public class ArangoDBConfig extends AbstractArangoConfiguration{
 
     @Override
@@ -22,9 +26,5 @@ public class ArangoDBConfig extends AbstractArangoConfiguration{
     @Override
     public String database() {
         return "AcuityBotting";
-    }
-
-    public static void main(String[] args) {
-        System.out.println(new ArangoDBConfig().arango().build().getDatabases());
     }
 }

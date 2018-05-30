@@ -1,19 +1,13 @@
-package com.acuitybotting.pathfinding.backend.services.tile_data;
-
+package com.acuitybotting.db.arango;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-
-/**
- * Created by Zachary Herridge on 5/29/2018.
- */
-
 @SpringBootApplication
-public class PathFindingApplication {
+public class AcutiyArangoDBApplication {
 
     public static void main(String[] args) {
-        Class[] runner = new Class[]{};
+        Class[] runner = new Class[]{Runner.class};
         SpringApplication.run(runner, args);
     }
 }
