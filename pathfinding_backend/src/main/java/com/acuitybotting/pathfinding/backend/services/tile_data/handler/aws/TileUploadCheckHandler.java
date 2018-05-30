@@ -15,7 +15,7 @@ import java.util.Arrays;
  * Created by Zachary Herridge on 5/29/2018.
  */
 @ComponentScan("com.acuitybotting.db.arango.repositories")
-public class RegionUploadRequest implements RequestHandler<TileCaptureCheck, String> {
+public class TileUploadCheckHandler implements RequestHandler<TileCaptureCheck, String> {
 
     @Autowired
     private TileFlagRepository repository;
