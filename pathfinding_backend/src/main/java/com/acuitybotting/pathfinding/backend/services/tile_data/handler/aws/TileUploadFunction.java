@@ -4,7 +4,6 @@ import com.acuitybotting.db.arango.entities.TileFlagData;
 import com.acuitybotting.pathfinding.backend.services.tile_data.domain.TileCapture;
 import com.arangodb.springframework.core.ArangoOperations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
