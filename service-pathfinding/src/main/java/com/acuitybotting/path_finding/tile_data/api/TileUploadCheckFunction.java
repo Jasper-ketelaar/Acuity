@@ -24,7 +24,7 @@ public class TileUploadCheckFunction implements Function<TileCaptureCheck, Strin
                 new Point(tileCaptureCheck.getX() + tileCaptureCheck.getWidth(), tileCaptureCheck.getY() + tileCaptureCheck.getHeight()),
                 new Point(tileCaptureCheck.getX(), tileCaptureCheck.getY() + tileCaptureCheck.getHeight())
                 )),
-                tileCaptureCheck.getZ()
+                tileCaptureCheck.getPlane()
         );
 
         int capturedTiles = tileCaptureCheck.getHeight() * tileCaptureCheck.getWidth();

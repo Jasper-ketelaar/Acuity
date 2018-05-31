@@ -10,6 +10,6 @@ import lombok.Data;
 @Builder
 public class TileCaptureCheck {
 
-    private int x, y, z;
+    private int x, y, plane;
     private int width, height;
 }
