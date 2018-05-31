@@ -1,6 +1,6 @@
 package com.acuitybotting.db.arango.repositories;
 
-import com.acuitybotting.db.arango.entities.TileFlagData;
+import com.acuitybotting.db.arango.domain.TileFlagData;
 import com.arangodb.springframework.repository.ArangoRepository;
 import org.springframework.data.geo.Polygon;
 

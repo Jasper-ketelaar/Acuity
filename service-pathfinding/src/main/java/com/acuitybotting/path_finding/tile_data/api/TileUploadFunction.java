@@ -1,7 +1,7 @@
-package com.acuitybotting.pathfinding.backend.services.tile_data.handler.aws;
+package com.acuitybotting.path_finding.tile_data.api;
 
-import com.acuitybotting.db.arango.entities.TileFlagData;
-import com.acuitybotting.pathfinding.backend.services.tile_data.domain.TileCapture;
+import com.acuitybotting.db.arango.domain.TileFlagData;
+import com.acuitybotting.path_finding.tile_data.domain.TileCapture;
 import com.arangodb.springframework.core.ArangoOperations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

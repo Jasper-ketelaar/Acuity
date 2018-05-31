@@ -1,6 +1,6 @@
-package com.acuitybotting.pathfinding.backend.services.tile_data.domain;
+package com.acuitybotting.path_finding.tile_data.domain;
 
-import com.acuitybotting.db.arango.entities.SceneEntity;
+import com.acuitybotting.db.arango.domain.SceneEntity;
 import lombok.Builder;
 import lombok.Data;
 
