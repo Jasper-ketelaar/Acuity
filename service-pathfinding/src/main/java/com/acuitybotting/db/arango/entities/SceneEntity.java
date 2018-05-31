@@ -3,7 +3,8 @@ package com.acuitybotting.db.arango.entities;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.GeoIndexed;
 import com.arangodb.springframework.annotation.Key;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 
 /**

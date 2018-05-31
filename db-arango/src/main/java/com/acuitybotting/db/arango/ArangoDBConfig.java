@@ -8,7 +8,7 @@ import com.arangodb.springframework.config.AbstractArangoConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango" })
+@EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango.repositories" })
 public class ArangoDBConfig extends AbstractArangoConfiguration{
 
     @Override

@@ -5,7 +5,6 @@ import com.arangodb.springframework.annotation.GeoIndexed;
 import com.arangodb.springframework.annotation.Key;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
 
