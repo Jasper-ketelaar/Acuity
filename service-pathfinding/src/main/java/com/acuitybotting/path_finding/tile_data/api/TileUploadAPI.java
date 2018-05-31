@@ -1,26 +1,47 @@
 package com.acuitybotting.path_finding.tile_data.api;
 
 import com.acuitybotting.db.arango.domain.TileFlagData;
+import com.acuitybotting.db.arango.repositories.TileFlagRepository;
 import com.acuitybotting.path_finding.tile_data.domain.TileCapture;
+import com.acuitybotting.path_finding.tile_data.domain.TileCaptureCheck;
 import com.arangodb.springframework.core.ArangoOperations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.data.geo.Point;
+import org.springframework.data.geo.Polygon;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.function.Function;
 
-/**
- * Created by Zachary Herridge on 5/30/2018.
- */
-@Component("tileUploadFunction")
-public class TileUploadFunction implements Function<TileCapture, String> {
+@RestController
+public class TileUploadAPI {
+
+    @Autowired
+    private TileFlagRepository repository;
 
     @Autowired
     private ArangoOperations arangoOperations;
 
-    @Override
-    public String apply(TileCapture tileCapture) {
+    @RequestMapping(value = "tileCheck", method = RequestMethod.POST)
+    public String tileCheck(TileCaptureCheck tileCaptureCheck) {
+        long tilesFound = repository.countByLocationWithinAndPlane(new Polygon(Arrays.asList(
+                new Point(tileCaptureCheck.getX(), tileCaptureCheck.getY()),
+                new Point(tileCaptureCheck.getX() + tileCaptureCheck.getWidth(), tileCaptureCheck.getY()),
+                new Point(tileCaptureCheck.getX() + tileCaptureCheck.getWidth(), tileCaptureCheck.getY() + tileCaptureCheck.getHeight()),
+                new Point(tileCaptureCheck.getX(), tileCaptureCheck.getY() + tileCaptureCheck.getHeight())
+                )),
+                tileCaptureCheck.getPlane()
+        );
+
+        int capturedTiles = tileCaptureCheck.getHeight() * tileCaptureCheck.getWidth();
+        return tileCaptureCheck.toString() + " : " + String.valueOf(tilesFound < capturedTiles);
+    }
+
+    @RequestMapping(value = "tileUpload", method = RequestMethod.POST)
+    public String tileUpload(TileCapture tileCapture) {
         int[][] map = tileCapture.getFlags();
         if (map != null){
             Collection<TileFlagData> data = new HashSet<>();
