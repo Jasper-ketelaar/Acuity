@@ -1,6 +1,6 @@
 package com.acuitybotting.path_finding.tile_data.api;
 
-import com.acuitybotting.db.arango.domain.TileFlagData;
+import com.acuitybotting.db.arango.domain.TileFlag;
 import com.acuitybotting.db.arango.repositories.TileFlagRepository;
 import com.acuitybotting.path_finding.tile_data.domain.TileCapture;
 import com.acuitybotting.path_finding.tile_data.domain.TileCaptureCheck;
@@ -25,7 +25,7 @@ public class TileUploadAPI {
     @Autowired
     private ArangoOperations arangoOperations;
 
-    @RequestMapping(value = "tileCheck", method = RequestMethod.POST)
+    @RequestMapping(value = "tileCaptureCheck", method = RequestMethod.POST)
     public String tileCheck(TileCaptureCheck tileCaptureCheck) {
         long tilesFound = repository.countByLocationWithinAndPlane(new Polygon(Arrays.asList(
                 new Point(tileCaptureCheck.getX(), tileCaptureCheck.getY()),
@@ -40,11 +40,11 @@ public class TileUploadAPI {
         return tileCaptureCheck.toString() + " : " + String.valueOf(tilesFound < capturedTiles);
     }
 
-    @RequestMapping(value = "tileUpload", method = RequestMethod.POST)
+    @RequestMapping(value = "tileCapture", method = RequestMethod.POST)
     public String tileUpload(TileCapture tileCapture) {
         int[][] map = tileCapture.getFlags();
         if (map != null){
-            Collection<TileFlagData> data = new HashSet<>();
+            Collection<TileFlag> data = new HashSet<>();
             for (int y = 0; y < map.length; y++) {
                 int[] flags = map[y];
                 for (int x = 0; x < flags.length; x++) {
@@ -55,7 +55,7 @@ public class TileUploadAPI {
                     int plane = tileCapture.getPlane();
 
 
-                    TileFlagData build = TileFlagData.builder()
+                    TileFlag build = TileFlag.builder()
                             .plane(plane)
                             .location(new int[]{worldX, worldY})
                             .key(worldX + "_" + worldY + "_" + plane)

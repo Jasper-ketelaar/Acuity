@@ -13,9 +13,8 @@ import org.springframework.data.annotation.Id;
  */
 @Document("TileFlag")
 @Builder
-@ToString
 @Data
-public class TileFlagData {
+public class TileFlag {
 
     @Id
     private String id;
