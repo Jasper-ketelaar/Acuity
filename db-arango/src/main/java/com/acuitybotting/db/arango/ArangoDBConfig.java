@@ -7,13 +7,15 @@ import com.arangodb.ArangoDB.Builder;
 import com.arangodb.springframework.annotation.EnableArangoRepositories;
 import com.arangodb.springframework.config.AbstractArangoConfiguration;
 import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango.repositories" })
 public class ArangoDBConfig extends AbstractArangoConfiguration{
 
-    private AwsSecretService secretService = new AwsSecretService();
+    @Autowired
+    private AwsSecretService secretService;
 
     @Override
     public Builder arango() {

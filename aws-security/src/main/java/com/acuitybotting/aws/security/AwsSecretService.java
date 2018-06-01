@@ -7,6 +7,7 @@ import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
 import com.amazonaws.services.secretsmanager.model.InvalidRequestException;
 import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
 import java.util.Optional;
@@ -14,6 +15,7 @@ import java.util.Optional;
 /**
  * Created by Zachary Herridge on 6/1/2018.
  */
+@Service
 public class AwsSecretService {
 
     public Optional<String> getSecret(String endpoint, String region, String secretName){
