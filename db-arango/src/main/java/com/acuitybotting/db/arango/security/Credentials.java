@@ -1,10 +1,8 @@
 package com.acuitybotting.db.arango.security;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
+@Data
 public class Credentials {
 
     private String arangoHost;

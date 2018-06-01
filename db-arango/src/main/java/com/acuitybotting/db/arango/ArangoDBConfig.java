@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango.repositories" })
+@EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango" })
 public class ArangoDBConfig extends AbstractArangoConfiguration{
 
     private final AwsSecretService secretService;

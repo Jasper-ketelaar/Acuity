@@ -1,4 +1,4 @@
-package com.acuitybotting.path_finding.tile_data.domain;
+package com.acuitybotting.path_finding.tile_capture.domain;
 
 import lombok.Builder;
 import lombok.Data;

@@ -1,8 +1,8 @@
-package com.acuitybotting.path_finding.tile_data.api;
+package com.acuitybotting.path_finding.tile_capture.api;
 
-import com.acuitybotting.path_finding.tile_data.domain.TileCapture;
-import com.acuitybotting.path_finding.tile_data.domain.TileCaptureCheck;
-import com.acuitybotting.path_finding.tile_data.service.TileCaptureService;
+import com.acuitybotting.path_finding.tile_capture.domain.TileCapture;
+import com.acuitybotting.path_finding.tile_capture.domain.TileCaptureCheck;
+import com.acuitybotting.path_finding.tile_capture.service.TileCaptureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,9 +1,9 @@
-package com.acuitybotting.path_finding.tile_data.service;
+package com.acuitybotting.path_finding.tile_capture.service;
 
-import com.acuitybotting.db.arango.domain.TileFlag;
-import com.acuitybotting.db.arango.repositories.TileFlagRepository;
-import com.acuitybotting.path_finding.tile_data.domain.TileCapture;
-import com.acuitybotting.path_finding.tile_data.domain.TileCaptureCheck;
+import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
+import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
+import com.acuitybotting.path_finding.tile_capture.domain.TileCapture;
+import com.acuitybotting.path_finding.tile_capture.domain.TileCaptureCheck;
 import com.arangodb.springframework.core.ArangoOperations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.geo.Point;
@@ -56,7 +56,6 @@ public class TileCaptureService {
                     int worldY = tileCapture.getY() + y;
                     int worldX = tileCapture.getX() + x;
                     int plane = tileCapture.getPlane();
-
 
                     TileFlag build = TileFlag.builder()
                             .plane(plane)
