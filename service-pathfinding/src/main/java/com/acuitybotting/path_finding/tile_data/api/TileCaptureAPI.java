@@ -2,7 +2,7 @@ package com.acuitybotting.path_finding.tile_data.api;
 
 import com.acuitybotting.path_finding.tile_data.domain.TileCapture;
 import com.acuitybotting.path_finding.tile_data.domain.TileCaptureCheck;
-import com.acuitybotting.path_finding.tile_data.service.TileUploadService;
+import com.acuitybotting.path_finding.tile_data.service.TileCaptureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class TileUploadAPI {
+public class TileCaptureAPI {
 
-    private final TileUploadService service;
+    private final TileCaptureService service;
 
     @Autowired
-    public TileUploadAPI(TileUploadService service) {
+    public TileCaptureAPI(TileCaptureService service) {
         this.service = service;
     }
 

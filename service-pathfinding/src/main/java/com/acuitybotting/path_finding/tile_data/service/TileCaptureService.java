@@ -18,14 +18,14 @@ import java.util.HashSet;
  * Created by Zachary Herridge on 6/1/2018.
  */
 @Service
-public class TileUploadService {
+public class TileCaptureService {
 
     private final TileFlagRepository repository;
 
     private final ArangoOperations arangoOperations;
 
     @Autowired
-    public TileUploadService(TileFlagRepository repository, ArangoOperations arangoOperations) {
+    public TileCaptureService(TileFlagRepository repository, ArangoOperations arangoOperations) {
         this.repository = repository;
         this.arangoOperations = arangoOperations;
     }
