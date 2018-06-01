@@ -12,6 +12,7 @@
     <modules>
         <module>db-arango</module>
         <module>service-pathfinding</module>
+        <module>aws-security</module>
     </modules>
 
     <properties>

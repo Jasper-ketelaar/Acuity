@@ -7,7 +7,6 @@ import org.springframework.data.geo.Polygon;
 /**
  * Created by Zachary Herridge on 5/30/2018.
  */
-
 public interface TileFlagRepository extends ArangoRepository<TileFlag> {
 
     Iterable<TileFlag> findByLocationWithinAndPlane(Polygon polygon, int plane);

@@ -15,6 +15,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.acuitybotting</groupId>
+            <artifactId>aws-security</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>RELEASE</version>

@@ -25,7 +25,7 @@ public class TileUploadAPI {
     @Autowired
     private ArangoOperations arangoOperations;
 
-    @RequestMapping(value = "tileCaptureCheck", method = RequestMethod.POST)
+    @RequestMapping(value = "/TileCaptureCheck", method = RequestMethod.GET)
     public String tileCheck(TileCaptureCheck tileCaptureCheck) {
         long tilesFound = repository.countByLocationWithinAndPlane(new Polygon(Arrays.asList(
                 new Point(tileCaptureCheck.getX(), tileCaptureCheck.getY()),
@@ -40,7 +40,7 @@ public class TileUploadAPI {
         return tileCaptureCheck.toString() + " : " + String.valueOf(tilesFound < capturedTiles);
     }
 
-    @RequestMapping(value = "tileCapture", method = RequestMethod.POST)
+    @RequestMapping(value = "/TileCapture", method = RequestMethod.GET)
     public String tileUpload(TileCapture tileCapture) {
         int[][] map = tileCapture.getFlags();
         if (map != null){
