@@ -27,6 +27,11 @@
             <version>5.0.6.RELEASE</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>RELEASE</version>
@@ -36,10 +41,6 @@
             <groupId>com.acuitybotting</groupId>
             <artifactId>db-arango</artifactId>
             <version>1.0.0.BUILD-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
     </dependencies>
 
