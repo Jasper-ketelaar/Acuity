@@ -30,7 +30,7 @@ public class TileCaptureService {
         this.arangoOperations = arangoOperations;
     }
 
-    public String tileCheck(TileCaptureCheck tileCaptureCheck) {
+    public long getTileDifference(TileCaptureCheck tileCaptureCheck) {
         long tilesFound = repository.countByLocationWithinAndPlane(new Polygon(Arrays.asList(
                 new Point(tileCaptureCheck.getX(), tileCaptureCheck.getY()),
                 new Point(tileCaptureCheck.getX() + tileCaptureCheck.getWidth(), tileCaptureCheck.getY()),
@@ -41,10 +41,10 @@ public class TileCaptureService {
         );
 
         int capturedTiles = tileCaptureCheck.getHeight() * tileCaptureCheck.getWidth();
-        return tileCaptureCheck.toString() + " : " + String.valueOf(tilesFound < capturedTiles);
+        return tilesFound - capturedTiles;
     }
 
-    public String tileUpload(TileCapture tileCapture) {
+    public boolean save(TileCapture tileCapture) {
         int[][] map = tileCapture.getFlags();
         if (map != null){
             Collection<TileFlag> data = new HashSet<>();
@@ -74,6 +74,6 @@ public class TileCaptureService {
             arangoOperations.upsert(tileCapture.getEntities(), ArangoOperations.UpsertStrategy.REPLACE);
         }
 
-        return "Success";
+        return true;
     }
 }
