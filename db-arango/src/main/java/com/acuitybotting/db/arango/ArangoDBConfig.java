@@ -14,8 +14,12 @@ import org.springframework.context.annotation.Configuration;
 @EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango.repositories" })
 public class ArangoDBConfig extends AbstractArangoConfiguration{
 
+    private final AwsSecretService secretService;
+
     @Autowired
-    private AwsSecretService secretService;
+    public ArangoDBConfig(AwsSecretService secretService) {
+        this.secretService = secretService;
+    }
 
     @Override
     public Builder arango() {
