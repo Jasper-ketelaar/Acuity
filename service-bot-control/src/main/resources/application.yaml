@@ -1,4 +1,0 @@
-cloud:
-    aws:
-        region:
-            static: us-east-2
