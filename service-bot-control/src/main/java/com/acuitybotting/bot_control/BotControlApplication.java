@@ -13,6 +13,5 @@ public class BotControlApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(BotControlApplication.class, args);
-        new BotControlApplication();
     }
 }
