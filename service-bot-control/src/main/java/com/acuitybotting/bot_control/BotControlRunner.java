@@ -1,7 +1,6 @@
 package com.acuitybotting.bot_control;
 
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
-import com.acuitybotting.db.arango.bot_control.domain.BotInstance;
 import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -24,6 +23,6 @@ public class BotControlRunner implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
-        repository.updateHeartbeat("BotInstance/315701", System.currentTimeMillis());
+
     }
 }
