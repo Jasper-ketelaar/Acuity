@@ -1,6 +1,7 @@
 package com.acuitybotting.db.arango.bot_control.domain;
 
 import com.arangodb.springframework.annotation.Document;
+import com.arangodb.springframework.annotation.Key;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
@@ -13,6 +14,9 @@ public class BotInstance {
 
     @Id
     private String id;
+
+    @Key
+    private String key;
 
     private long lastHeartbeat;
 

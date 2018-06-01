@@ -1,6 +1,7 @@
 package com.acuitybotting.bot_control.services.messaging;
 
 import com.acuitybotting.aws.security.AwsSecretService;
+import com.acuitybotting.bot_control.services.messaging.domain.Credentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;

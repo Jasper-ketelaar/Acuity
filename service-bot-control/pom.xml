@@ -16,6 +16,11 @@
     
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>5.0.6.RELEASE</version>
+        </dependency>
+        <dependency>
             <groupId>com.acuitybotting</groupId>
             <artifactId>db-arango</artifactId>
             <version>1.0.0.BUILD-SNAPSHOT</version>

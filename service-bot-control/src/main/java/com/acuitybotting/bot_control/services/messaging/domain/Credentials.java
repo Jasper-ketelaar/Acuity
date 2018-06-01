@@ -1,4 +1,4 @@
-package com.acuitybotting.bot_control.services.messaging;
+package com.acuitybotting.bot_control.services.messaging.domain;
 
 import lombok.Data;
 
