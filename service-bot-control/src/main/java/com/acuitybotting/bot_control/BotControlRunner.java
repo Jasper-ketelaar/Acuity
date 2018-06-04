@@ -21,7 +21,6 @@ public class BotControlRunner implements CommandLineRunner{
     private final CognitoService cognitoService;
     private final BotInstanceRepository repository;
 
-
     @Autowired
     public BotControlRunner(BotControlMessagingService service, CognitoService cognitoService, BotInstanceRepository repository) {
         this.service = service;

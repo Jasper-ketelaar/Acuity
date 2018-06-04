@@ -47,7 +47,7 @@ final class AuthHttpClient {
         BufferedReader br = null;
         try {
             // Request header
-            httpsURLConnection.setRequestMethod(Constants.HTTP_REQUEST_TYPE_POST);
+            httpsURLConnection.setRequestMethod(CognitoConstants.HTTP_REQUEST_TYPE_POST);
             httpsURLConnection.setDoOutput(true);
             Map<String, String> headerParams = getHttpHeader();
             for (Map.Entry<String, String> param : headerParams.entrySet()) {
@@ -120,8 +120,8 @@ final class AuthHttpClient {
      */
     private Map<String, String> getHttpHeader() {
         Map<String, String> httpHeaderParams = new HashMap<String, String>();
-        httpHeaderParams.put(Constants.HTTP_HEADER_PROP_CONTENT_TYPE,
-                Constants.HTTP_HEADER_PROP_CONTENT_TYPE_DEFAULT);
+        httpHeaderParams.put(CognitoConstants.HTTP_HEADER_PROP_CONTENT_TYPE,
+                CognitoConstants.HTTP_HEADER_PROP_CONTENT_TYPE_DEFAULT);
         return httpHeaderParams;
     }
 

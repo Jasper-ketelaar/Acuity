@@ -31,8 +31,6 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -161,30 +159,22 @@ class AuthenticationHelper {
      * @param password Password for the SRP request
      * @return the JWT token if the request is successful else null.
      */
-    String performSRPAuthentication(String username, String password) {
-        String authresult = null;
-
+    RespondToAuthChallengeResult performSRPAuthentication(String username, String password) {
         InitiateAuthRequest initiateAuthRequest = initiateUserSrpAuthRequest(username);
-        try {
-            AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
-            AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
-                    .standard()
-                    .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                    .withRegion(Regions.fromName(this.region))
-                    .build();
-            InitiateAuthResult initiateAuthResult = cognitoIdentityProvider.initiateAuth(initiateAuthRequest);
-            if (ChallengeNameType.PASSWORD_VERIFIER.toString().equals(initiateAuthResult.getChallengeName())) {
-                RespondToAuthChallengeRequest challengeRequest = userSrpAuthRequest(initiateAuthResult, password);
-                RespondToAuthChallengeResult result = cognitoIdentityProvider.respondToAuthChallenge(challengeRequest);
-                //System.out.println(result);
-                System.out.println(CognitoJWTParser.getPayload(result.getAuthenticationResult().getIdToken()));
-                authresult = result.getAuthenticationResult().getIdToken();
-            }
-        } catch (final Exception ex) {
-            System.out.println("Exception" + ex);
+        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
+        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
+                .standard()
+                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                .withRegion(Regions.fromName(this.region))
+                .build();
 
+        InitiateAuthResult initiateAuthResult = cognitoIdentityProvider.initiateAuth(initiateAuthRequest);
+        if (ChallengeNameType.PASSWORD_VERIFIER.toString().equals(initiateAuthResult.getChallengeName())) {
+            RespondToAuthChallengeRequest challengeRequest = userSrpAuthRequest(initiateAuthResult, password);
+            return cognitoIdentityProvider.respondToAuthChallenge(challengeRequest);
         }
-        return authresult;
+
+        return null;
     }
 
     /**

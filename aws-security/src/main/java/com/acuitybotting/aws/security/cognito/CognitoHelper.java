@@ -119,7 +119,7 @@ class CognitoHelper {
      * @param code     Verification code delivered to the user.
      * @return if the verification is successful.
      */
-    boolean verifyAccessCode(String username, String code) {
+    ConfirmSignUpResult verifyAccessCode(String username, String code) {
         AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
         AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
                 .standard()
@@ -132,18 +132,7 @@ class CognitoHelper {
         confirmSignUpRequest.setConfirmationCode(code);
         confirmSignUpRequest.setClientId(clientappId);
 
-        System.out.println("username=" + username);
-        System.out.println("code=" + code);
-        System.out.println("clientid=" + clientappId);
-
-        try {
-            ConfirmSignUpResult confirmSignUpResult = cognitoIdentityProvider.confirmSignUp(confirmSignUpRequest);
-            System.out.println("confirmSignupResult=" + confirmSignUpResult.toString());
-        } catch (Exception ex) {
-            System.out.println(ex);
-            return false;
-        }
-        return true;
+        return cognitoIdentityProvider.confirmSignUp(confirmSignUpRequest);
     }
 
     /**
@@ -153,7 +142,7 @@ class CognitoHelper {
      * @param password represents the password in the cognito user pool
      * @return returns the JWT token after the validation
      */
-    String validateUser(String username, String password) {
+    RespondToAuthChallengeResult validateUser(String username, String password) {
         AuthenticationHelper helper = new AuthenticationHelper(poolId, clientappId, secretKey, region);
         return helper.performSRPAuthentication(username, password);
     }
@@ -197,10 +186,10 @@ class CognitoHelper {
 
         try {
             Map<String, String> httpBodyParams = new HashMap<String, String>();
-            httpBodyParams.put(Constants.TOKEN_GRANT_TYPE, Constants.TOKEN_GRANT_TYPE_AUTH_CODE);
-            httpBodyParams.put(Constants.DOMAIN_QUERY_PARAM_CLIENT_ID, clientappId);
-            httpBodyParams.put(Constants.DOMAIN_QUERY_PARAM_REDIRECT_URI, redirectUrl);
-            httpBodyParams.put(Constants.TOKEN_AUTH_TYPE_CODE, accesscode);
+            httpBodyParams.put(CognitoConstants.TOKEN_GRANT_TYPE, CognitoConstants.TOKEN_GRANT_TYPE_AUTH_CODE);
+            httpBodyParams.put(CognitoConstants.DOMAIN_QUERY_PARAM_CLIENT_ID, clientappId);
+            httpBodyParams.put(CognitoConstants.DOMAIN_QUERY_PARAM_REDIRECT_URI, redirectUrl);
+            httpBodyParams.put(CognitoConstants.TOKEN_AUTH_TYPE_CODE, accesscode);
 
             AuthHttpClient httpClient = new AuthHttpClient();
             URL url = new URL(GetTokenURL());

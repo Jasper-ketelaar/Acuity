@@ -17,12 +17,8 @@
 
 package com.acuitybotting.aws.security.cognito;
 
-/**
- * Local SDK constants.
- */
 
-@SuppressWarnings("checkstyle:javadocmethod")
-abstract class Constants {
+abstract class CognitoConstants {
     static final String DOMAIN_QUERY_PARAM_CLIENT_ID = "client_id";
 
     static final String DOMAIN_QUERY_PARAM_REDIRECT_URI = "redirect_uri";
