@@ -1,6 +1,6 @@
 package com.acuitybotting.db.arango;
 
-import com.acuitybotting.aws.security.AwsSecretService;
+import com.acuitybotting.aws.security.secrets.AwsSecretService;
 import com.acuitybotting.db.arango.security.Credentials;
 import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDB.Builder;
