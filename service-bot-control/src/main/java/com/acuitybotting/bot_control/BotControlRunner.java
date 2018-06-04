@@ -5,6 +5,7 @@ import com.acuitybotting.aws.security.cognito.domain.CognitoConfig;
 import com.acuitybotting.aws.security.cognito.domain.CognitoLoginResult;
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
 import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
+import com.amazonaws.services.cognitoidentity.model.Credentials;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -39,7 +40,10 @@ public class BotControlRunner implements CommandLineRunner{
                 .redirectUrl("https://rspeer.org/")
                 .build();
 
-        Optional<CognitoLoginResult> zach = cognitoService.login(acuitybotting, "Zach", System.getenv("CognitoPassword"));
+        CognitoLoginResult zach = cognitoService.login(acuitybotting, "Zach", System.getenv("CognitoPassword")).orElseThrow(() -> new RuntimeException("Failed to login."));
+        Credentials credentials = cognitoService.getCredentials(acuitybotting, zach).orElseThrow(() -> new RuntimeException("Failed to get creds."));
+        service.connect("us-east-1", credentials);
+
         System.out.println();
     }
 }
