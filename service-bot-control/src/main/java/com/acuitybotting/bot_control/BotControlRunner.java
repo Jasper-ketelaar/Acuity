@@ -8,15 +8,13 @@ import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepositor
 import com.amazonaws.services.cognitoidentity.model.Credentials;
 import com.amazonaws.services.cognitoidp.model.ListUsersRequest;
 import com.amazonaws.services.sns.model.AddPermissionRequest;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
-import com.amazonaws.services.sqs.model.ReceiveMessageResult;
-import com.amazonaws.services.sqs.model.SetQueueAttributesRequest;
-import com.amazonaws.services.sqs.model.SetQueueAttributesResult;
+import com.amazonaws.services.sqs.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.concurrent.Executors;
 
 /**
  * Created by Zachary Herridge on 6/1/2018.
@@ -57,12 +55,20 @@ public class BotControlRunner implements CommandLineRunner{
     }
 
     private void read(){
-        ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest();
-        receiveMessageRequest.withQueueUrl("https://sqs.us-west-2.amazonaws.com/604080725100/Test2.fifo");
-        receiveMessageRequest.withMaxNumberOfMessages(10);
-        receiveMessageRequest.withWaitTimeSeconds(3);
-        ReceiveMessageResult receiveMessageResult = service.getSQS().receiveMessage(receiveMessageRequest);
-        System.out.println(receiveMessageResult.getMessages());
+        Executors.newSingleThreadExecutor().submit(() -> {
+            while (true){
+                ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest();
+                receiveMessageRequest.withQueueUrl("https://sqs.us-west-2.amazonaws.com/604080725100/Test2.fifo");
+                receiveMessageRequest.withMaxNumberOfMessages(10);
+                receiveMessageRequest.withWaitTimeSeconds(20);
+                ReceiveMessageResult receiveMessageResult = service.getSQS().receiveMessage(receiveMessageRequest);
+
+                for (Message message : receiveMessageResult.getMessages()) {
+                    System.out.println("Got message: " + message.getBody());
+                    service.getSQS().deleteMessage(new DeleteMessageRequest().withQueueUrl("https://sqs.us-west-2.amazonaws.com/604080725100/Test2.fifo").withReceiptHandle(message.getReceiptHandle()));
+                }
+            }
+        });
     }
 
     private void setPolicy(){
