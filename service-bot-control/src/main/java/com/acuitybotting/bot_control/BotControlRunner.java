@@ -39,7 +39,7 @@ public class BotControlRunner implements CommandLineRunner{
                 .redirectUrl("https://rspeer.org/")
                 .build();
 
-        Optional<CognitoLoginResult> zach = cognitoService.login(acuitybotting, "Zach", "");
+        Optional<CognitoLoginResult> zach = cognitoService.login(acuitybotting, "Zach", System.getenv("CognitoPassword"));
         System.out.println();
     }
 }
