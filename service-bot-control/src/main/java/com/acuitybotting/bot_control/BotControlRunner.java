@@ -5,6 +5,12 @@ import com.acuitybotting.aws.security.cognito.domain.CognitoConfig;
 import com.acuitybotting.aws.security.cognito.domain.CognitoLoginResult;
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
 import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
+import com.amazonaws.auth.policy.Policy;
+import com.amazonaws.auth.policy.Principal;
+import com.amazonaws.auth.policy.Statement;
+import com.amazonaws.auth.policy.actions.SQSActions;
+import com.amazonaws.auth.policy.conditions.ConditionFactory;
+import com.amazonaws.auth.policy.conditions.StringCondition;
 import com.amazonaws.services.cognitoidentity.model.Credentials;
 import com.amazonaws.services.cognitoidp.model.ListUsersRequest;
 import com.amazonaws.services.sns.model.AddPermissionRequest;
@@ -14,6 +20,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 /**
@@ -48,47 +56,23 @@ public class BotControlRunner implements CommandLineRunner{
         Credentials credentials = cognitoService.getCredentials(acuitybotting, zach).orElseThrow(() -> new RuntimeException("Failed to get creds."));
         service.connect("us-east-1", credentials);
 
-        ListUsersRequest as = new ListUsersRequest();
-
-
-        read();
+        read(service.createQueue("testQueue2.fifo", "139.225.128.101").getQueueUrl());
     }
 
-    private void read(){
+    private void read(String queueUrl){
         Executors.newSingleThreadExecutor().submit(() -> {
             while (true){
                 ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest();
-                receiveMessageRequest.withQueueUrl("https://sqs.us-west-2.amazonaws.com/604080725100/Test2.fifo");
+                receiveMessageRequest.withQueueUrl(queueUrl);
                 receiveMessageRequest.withMaxNumberOfMessages(10);
                 receiveMessageRequest.withWaitTimeSeconds(20);
                 ReceiveMessageResult receiveMessageResult = service.getSQS().receiveMessage(receiveMessageRequest);
 
                 for (Message message : receiveMessageResult.getMessages()) {
                     System.out.println("Got message: " + message.getBody());
-                    service.getSQS().deleteMessage(new DeleteMessageRequest().withQueueUrl("https://sqs.us-west-2.amazonaws.com/604080725100/Test2.fifo").withReceiptHandle(message.getReceiptHandle()));
+                    service.getSQS().deleteMessage(new DeleteMessageRequest().withQueueUrl(queueUrl).withReceiptHandle(message.getReceiptHandle()));
                 }
             }
         });
-    }
-
-    private void setPolicy(){
-        String policy = "{\n" +
-                "    \"Version\": \"2012-10-17\",\n" +
-                "    \"Statement\": [{\n" +
-                "        \"Effect\": \"Deny\",\n" +
-                "        \"Action\": \"s3:*\",\n" +
-                "\t\t\"Principal\": {\n" +
-                "\t\t\t\"Federated\": \"cognito-identity.amazonaws.com\"\n" +
-                "\t\t},\n" +
-                "\t\t\"Condition\": {\n" +
-                "\t\t\t\"StringEquals\": {\n" +
-                "\t\t\t  \"cognito-identity.amazonaws.com:aud\": \"us-east-1:4a6d7e43-4522-41fb-9248-b5b79933b8e9\"\n" +
-                "\t\t\t}\n" +
-                "\t\t}\n" +
-                "    }]\n" +
-                "}";
-        SetQueueAttributesRequest attributesRequest = new SetQueueAttributesRequest();
-        attributesRequest.setQueueUrl("https://sqs.us-east-1.amazonaws.com/604080725100/test.fifo");
-        attributesRequest.setAttributes(Collections.singletonMap("Policy", policy));
     }
 }
