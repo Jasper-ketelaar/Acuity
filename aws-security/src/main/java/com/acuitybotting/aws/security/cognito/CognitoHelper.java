@@ -154,7 +154,7 @@ class CognitoHelper {
      * @return returns the JWT token after the validation
      */
     String validateUser(String username, String password) {
-        AuthenticationHelper helper = new AuthenticationHelper(poolId, clientappId, secretKey);
+        AuthenticationHelper helper = new AuthenticationHelper(poolId, clientappId, secretKey, region);
         return helper.performSRPAuthentication(username, password);
     }
 

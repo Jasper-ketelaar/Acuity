@@ -32,16 +32,10 @@
             <artifactId>aws-java-sdk</artifactId>
             <version>${aws-sdk.version}</version>
         </dependency>
-
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-secretsmanager</artifactId>
-            <version>${aws-sdk.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-cognitoidp</artifactId>
-            <version>${aws-sdk.version}</version>
+            <version>RELEASE</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

@@ -95,12 +95,13 @@ class AuthenticationHelper {
 
     private BigInteger a;
     private BigInteger A;
+
     private String userPoolID;
     private String clientId;
     private String secretKey;
     private String region;
 
-    AuthenticationHelper(String userPoolID, String clientid, String secretKey) {
+    AuthenticationHelper(String userPoolID, String clientid, String secretKey, String region) {
         do {
             a = new BigInteger(EPHEMERAL_KEY_LENGTH, SECURE_RANDOM).mod(N);
             A = g.modPow(a, N);
@@ -110,30 +111,6 @@ class AuthenticationHelper {
         this.clientId = clientid;
         this.region = region;
         this.secretKey = secretKey;
-
-        Properties prop = new Properties();
-        InputStream input = null;
-
-        try {
-            input = getClass().getClassLoader().getResourceAsStream("config.properties");
-
-            // load a properties file
-            prop.load(input);
-
-            // Read the property values
-            this.region = prop.getProperty("REGION");
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            if (input != null) {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 
     private BigInteger getA() {
