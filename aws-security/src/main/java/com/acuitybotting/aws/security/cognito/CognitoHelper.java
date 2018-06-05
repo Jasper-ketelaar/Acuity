@@ -264,34 +264,4 @@ class CognitoHelper {
         }
         return confirmPasswordResult.toString();
     }
-
-
-    /**
-     * This method returns the details of the user and bucket lists.
-     *
-     * @param credentials Credentials to be used for displaying buckets
-     * @return
-     */
-    String ListBucketsForUser(Credentials credentials) {
-        BasicSessionCredentials awsCreds = new BasicSessionCredentials(credentials.getAccessKeyId(), credentials.getSecretKey(), credentials.getSessionToken());
-        AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withRegion(Regions.fromName(region))
-                .build();
-        StringBuilder bucketslist = new StringBuilder();
-
-        bucketslist.append("===========Credentials Details.=========== \n");
-        bucketslist.append("Accesskey = " + credentials.getAccessKeyId() + "\n");
-        bucketslist.append("Secret = " + credentials.getSecretKey() + "\n");
-        bucketslist.append("SessionToken = " + credentials.getSessionToken() + "\n");
-        bucketslist.append("============Bucket Lists===========\n");
-
-        for (Bucket bucket : s3Client.listBuckets()) {
-            bucketslist.append(bucket.getName());
-            bucketslist.append("\n");
-
-            System.out.println(" - " + bucket.getName());
-        }
-        return bucketslist.toString();
-    }
 }

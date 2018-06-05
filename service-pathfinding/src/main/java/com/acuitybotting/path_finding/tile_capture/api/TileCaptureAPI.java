@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api/path-finding/tile-capture/")
 public class TileCaptureAPI {
 
     private final TileCaptureService service;
@@ -19,17 +20,17 @@ public class TileCaptureAPI {
         this.service = service;
     }
 
-    @RequestMapping(value = "/Test", method = RequestMethod.GET)
+    @RequestMapping(value = "/test", method = RequestMethod.GET)
     public String test(){
         return "Running";
     }
 
-    @RequestMapping(value = "/TileCaptureCheck", method = RequestMethod.POST)
+    @RequestMapping(value = "/tile-capture-check", method = RequestMethod.POST)
     public long tileCheck(@RequestBody TileCaptureCheck tileCaptureCheck) {
         return service.getTileDifference(tileCaptureCheck);
     }
 
-    @RequestMapping(value = "/TileCapture", method = RequestMethod.POST)
+    @RequestMapping(value = "/tile-capture", method = RequestMethod.POST)
     public boolean tileUpload(@RequestBody TileCapture tileCapture) {
         return service.save(tileCapture);
     }

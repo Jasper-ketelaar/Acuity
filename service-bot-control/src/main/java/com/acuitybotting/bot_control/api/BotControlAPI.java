@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Created by Zachary Herridge on 6/1/2018.
  */
 @RestController
-@RequestMapping("/api/botcontrol/")
+@RequestMapping("/api/bot-control/")
 public class BotControlAPI {
 
     private final BotControlManagementService managementService;
@@ -22,12 +22,12 @@ public class BotControlAPI {
         this.managementService = managementService;
     }
 
-    @RequestMapping(value = "/RegisterInstance", method = RequestMethod.POST)
+    @RequestMapping(value = "/register-instance", method = RequestMethod.POST)
     public BotInstance registerInstance(){
         return managementService.register();
     }
 
-    @RequestMapping(value = "/Heartbeat", method = RequestMethod.POST)
+    @RequestMapping(value = "/heartbeat", method = RequestMethod.POST)
     private boolean heartbeat(@RequestBody String id){
         return managementService.heartbeat(id);
     }
