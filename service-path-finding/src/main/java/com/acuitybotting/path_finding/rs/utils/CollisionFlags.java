@@ -4,7 +4,6 @@ import java.util.StringJoiner;
 
 public class CollisionFlags {
 
-
     public static final int OPEN = 0;
 
     public static final int BLOCKED_NORTH_WALL  = 1024;
