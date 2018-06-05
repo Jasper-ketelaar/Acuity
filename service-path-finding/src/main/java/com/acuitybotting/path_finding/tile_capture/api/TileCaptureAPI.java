@@ -25,12 +25,12 @@ public class TileCaptureAPI {
         return "Running";
     }
 
-    @RequestMapping(value = "/tile-capture-check", method = RequestMethod.POST)
+    @RequestMapping(value = "/check", method = RequestMethod.POST)
     public long tileCheck(@RequestBody TileCaptureCheck tileCaptureCheck) {
         return service.getTileDifference(tileCaptureCheck);
     }
 
-    @RequestMapping(value = "/upload-capture", method = RequestMethod.POST)
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public boolean tileUpload(@RequestBody TileCapture tileCapture) {
         return service.save(tileCapture);
     }
