@@ -11,5 +11,7 @@ public interface TileFlagRepository extends ArangoRepository<TileFlag> {
 
     Iterable<TileFlag> findByLocationWithinAndPlane(Polygon polygon, int plane);
 
+    Iterable<TileFlag> findAllByPlane(int plane);
+
     long countByLocationWithinAndPlane(Polygon polygon, int plane);
 }
