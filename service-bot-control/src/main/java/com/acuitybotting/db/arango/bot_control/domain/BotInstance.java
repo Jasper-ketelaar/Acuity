@@ -18,6 +18,7 @@ public class BotInstance {
     @Key
     private String key;
 
+    private String auth;
     private long lastHeartbeat;
 
 }

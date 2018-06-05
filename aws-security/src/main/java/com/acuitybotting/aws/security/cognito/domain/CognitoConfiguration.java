@@ -8,10 +8,10 @@ import lombok.Data;
  */
 @Data
 @Builder
-public class CognitoConfig {
+public class CognitoConfiguration {
 
     private String poolId;
-    private String clientappId;
+    private String clientAppId;
     private String fedPoolId;
     private String customDomain;
     private String region;

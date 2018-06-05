@@ -10,9 +10,10 @@ import java.util.Map;
  */
 @Data
 @Builder
-public class CognitoLoginResult {
+public class CognitoTokens {
 
-    private String result;
-    private Map<String, Object> payload;
+    private String idToken;
+    private String accessToken;
+    private String refreshToken;
 
 }

@@ -1,27 +1,17 @@
 package com.acuitybotting.bot_control;
 
+import com.acuitybotting.aws.security.cognito.CognitoJwtService;
 import com.acuitybotting.aws.security.cognito.CognitoService;
-import com.acuitybotting.aws.security.cognito.domain.CognitoConfig;
-import com.acuitybotting.aws.security.cognito.domain.CognitoLoginResult;
+import com.acuitybotting.aws.security.cognito.domain.CognitoConfiguration;
+import com.acuitybotting.aws.security.cognito.domain.CognitoTokens;
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
 import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
-import com.amazonaws.auth.policy.Policy;
-import com.amazonaws.auth.policy.Principal;
-import com.amazonaws.auth.policy.Statement;
-import com.amazonaws.auth.policy.actions.SQSActions;
-import com.amazonaws.auth.policy.conditions.ConditionFactory;
-import com.amazonaws.auth.policy.conditions.StringCondition;
-import com.amazonaws.services.cognitoidentity.model.Credentials;
-import com.amazonaws.services.cognitoidp.model.ListUsersRequest;
-import com.amazonaws.services.sns.model.AddPermissionRequest;
 import com.amazonaws.services.sqs.model.*;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executors;
 
 /**
@@ -32,31 +22,32 @@ public class BotControlRunner implements CommandLineRunner{
 
     private final BotControlMessagingService service;
     private final CognitoService cognitoService;
+    private final CognitoJwtService jwtService;
     private final BotInstanceRepository repository;
 
     @Autowired
-    public BotControlRunner(BotControlMessagingService service, CognitoService cognitoService, BotInstanceRepository repository) {
+    public BotControlRunner(BotControlMessagingService service, CognitoService cognitoService, CognitoJwtService jwtService, BotInstanceRepository repository) {
         this.service = service;
         this.cognitoService = cognitoService;
+        this.jwtService = jwtService;
         this.repository = repository;
     }
 
     @Override
     public void run(String... strings) throws Exception {
-        CognitoConfig acuitybotting = CognitoConfig.builder()
+        CognitoConfiguration acuitybotting = CognitoConfiguration.builder()
                 .poolId("us-east-1_HrbYmVhlY")
-                .clientappId("3pgbd576sg70tsub4nh511k58u")
+                .clientAppId("3pgbd576sg70tsub4nh511k58u")
                 .fedPoolId("us-east-1:ff1b33f4-7f66-47a5-b7ff-9696b0e1fb52")
                 .customDomain("acuitybotting")
                 .region("us-east-1")
                 .redirectUrl("https://rspeer.org/")
                 .build();
 
-        CognitoLoginResult zach = cognitoService.login(acuitybotting, "Zach", System.getenv("CognitoPassword")).orElseThrow(() -> new RuntimeException("Failed to login."));
-        Credentials credentials = cognitoService.getCredentials(acuitybotting, zach).orElseThrow(() -> new RuntimeException("Failed to get creds."));
-        service.connect("us-east-1", credentials);
+        CognitoTokens zach = cognitoService.login(acuitybotting, "Zach", System.getenv("CognitoPassword")).orElseThrow(() -> new RuntimeException("Failed to login."));
 
-        read(service.createQueue("testQueue2.fifo", "139.225.128.101").getQueueUrl());
+        DecodedJWT verify = jwtService.verify(zach.getIdToken());
+        System.out.println();
     }
 
     private void read(String queueUrl){

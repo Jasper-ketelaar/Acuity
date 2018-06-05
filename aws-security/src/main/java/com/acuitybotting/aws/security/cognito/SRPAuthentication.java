@@ -40,7 +40,7 @@ import java.util.*;
 /**
  * Private class for SRP client side math.
  */
-class AuthenticationHelper {
+class SRPAuthentication {
     private static final String HEX_N =
             "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1"
                     + "29024E088A67CC74020BBEA63B139B22514A08798E3404DD"
@@ -99,7 +99,7 @@ class AuthenticationHelper {
     private String secretKey;
     private String region;
 
-    AuthenticationHelper(String userPoolID, String clientid, String secretKey, String region) {
+    SRPAuthentication(String userPoolID, String clientid, String secretKey, String region) {
         do {
             a = new BigInteger(EPHEMERAL_KEY_LENGTH, SECURE_RANDOM).mod(N);
             A = g.modPow(a, N);
@@ -210,7 +210,7 @@ class AuthenticationHelper {
         String usernameInternal = challenge.getChallengeParameters().get("USERNAME");
 
         BigInteger B = new BigInteger(challenge.getChallengeParameters().get("SRP_B"), 16);
-        if (B.mod(AuthenticationHelper.N).equals(BigInteger.ZERO)) {
+        if (B.mod(SRPAuthentication.N).equals(BigInteger.ZERO)) {
             throw new SecurityException("SRP error, B cannot be zero");
         }
 

@@ -37,6 +37,10 @@ import java.util.Map;
 
 final class AuthHttpClient {
 
+    static final String HTTP_HEADER_PROP_CONTENT_TYPE = "Content-Type";
+    static final String HTTP_HEADER_PROP_CONTENT_TYPE_DEFAULT = "application/x-www-form-urlencoded";
+    static final String HTTP_REQUEST_TYPE_POST = "POST";
+
     String httpPost(final URL uri, final Map<String, String> bodyParams) throws Exception {
         if (uri == null || bodyParams == null || bodyParams.size() < 1) {
             throw new Exception("Invalid http request parameters");
@@ -47,7 +51,7 @@ final class AuthHttpClient {
         BufferedReader br = null;
         try {
             // Request header
-            httpsURLConnection.setRequestMethod(CognitoConstants.HTTP_REQUEST_TYPE_POST);
+            httpsURLConnection.setRequestMethod(HTTP_REQUEST_TYPE_POST);
             httpsURLConnection.setDoOutput(true);
             Map<String, String> headerParams = getHttpHeader();
             for (Map.Entry<String, String> param : headerParams.entrySet()) {
@@ -120,8 +124,8 @@ final class AuthHttpClient {
      */
     private Map<String, String> getHttpHeader() {
         Map<String, String> httpHeaderParams = new HashMap<String, String>();
-        httpHeaderParams.put(CognitoConstants.HTTP_HEADER_PROP_CONTENT_TYPE,
-                CognitoConstants.HTTP_HEADER_PROP_CONTENT_TYPE_DEFAULT);
+        httpHeaderParams.put(HTTP_HEADER_PROP_CONTENT_TYPE,
+                HTTP_HEADER_PROP_CONTENT_TYPE_DEFAULT);
         return httpHeaderParams;
     }
 

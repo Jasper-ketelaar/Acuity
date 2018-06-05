@@ -19,11 +19,17 @@ public class BotControlManagementService {
     }
 
     public BotInstance register() {
-        return botInstanceRepository.save(new BotInstance());
+        BotInstance botInstance = new BotInstance();
+        botInstance.setAuth(generateAuth());
+        return botInstanceRepository.save(botInstance);
     }
 
     public boolean heartbeat(String id) {
         botInstanceRepository.updateHeartbeat(id, System.currentTimeMillis());
         return true;
+    }
+
+    private String generateAuth(){
+        return "";
     }
 }
