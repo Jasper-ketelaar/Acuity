@@ -21,9 +21,17 @@ import java.util.Optional;
 @Service
 public class CognitoService {
 
-    public Optional<CognitoTokens> login(CognitoConfiguration cognitoConfiguration, String username, String password){
+    private CognitoConfiguration cognitoConfiguration;
+
+    public Optional<CognitoTokens> login(String username, String password){
         try {
-            SRPAuthentication helper = new SRPAuthentication(cognitoConfiguration.getPoolId(), cognitoConfiguration.getClientAppId(), cognitoConfiguration.getSecretKey(), cognitoConfiguration.getRegion());
+            SRPAuthentication helper = new SRPAuthentication(
+                    cognitoConfiguration.getPoolId(),
+                    cognitoConfiguration.getClientAppId(),
+                    cognitoConfiguration.getSecretKey(),
+                    cognitoConfiguration.getRegion()
+            );
+
             RespondToAuthChallengeResult result = helper.performSRPAuthentication(username, password);
             if (result != null){
                 return Optional.of(CognitoTokens.builder()
@@ -34,47 +42,42 @@ public class CognitoService {
             }
         }
         catch (Exception e){
-            throw new RuntimeException("Exception during login.", e);
+            e.printStackTrace();
         }
 
         return Optional.empty();
     }
 
-    public void getUser(CognitoConfiguration cognitoConfiguration, String accessToken){
-        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
-                .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withRegion(Regions.fromName(cognitoConfiguration.getRegion()))
-                .build();
+    public Optional<CognitoTokens> refresh(CognitoTokens loginResult){
+        try {
+            AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
+            AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
+                    .standard()
+                    .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                    .withRegion(Regions.fromName(cognitoConfiguration.getRegion()))
+                    .build();
 
-        GetUserResult user = cognitoIdentityProvider.getUser(new GetUserRequest().withAccessToken(accessToken));
-        System.out.println();
+            InitiateAuthRequest initiateAuthRequest = new InitiateAuthRequest()
+                    .withAuthFlow(AuthFlowType.REFRESH_TOKEN_AUTH)
+                    .withClientId(cognitoConfiguration.getClientAppId())
+                    .addAuthParametersEntry("REFRESH_TOKEN", loginResult.getRefreshToken());
+
+            InitiateAuthResult initiateAuthResult = cognitoIdentityProvider.initiateAuth(initiateAuthRequest);
+
+            return Optional.ofNullable(CognitoTokens.builder()
+                    .accessToken(initiateAuthResult.getAuthenticationResult().getAccessToken())
+                    .idToken(initiateAuthResult.getAuthenticationResult().getIdToken())
+                    .refreshToken(loginResult.getRefreshToken())
+                    .build());
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
     }
 
-    public CognitoTokens refresh(CognitoConfiguration cognitoConfiguration, CognitoTokens loginResult){
-        AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
-        AWSCognitoIdentityProvider cognitoIdentityProvider = AWSCognitoIdentityProviderClientBuilder
-                .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withRegion(Regions.fromName(cognitoConfiguration.getRegion()))
-                .build();
-
-        InitiateAuthRequest initiateAuthRequest = new InitiateAuthRequest()
-                .withAuthFlow(AuthFlowType.REFRESH_TOKEN_AUTH)
-                .withClientId(cognitoConfiguration.getClientAppId())
-                .addAuthParametersEntry("REFRESH_TOKEN", loginResult.getRefreshToken());
-
-        InitiateAuthResult initiateAuthResult = cognitoIdentityProvider.initiateAuth(initiateAuthRequest);
-
-        return CognitoTokens.builder()
-                .accessToken(initiateAuthResult.getAuthenticationResult().getAccessToken())
-                .idToken(initiateAuthResult.getAuthenticationResult().getIdToken())
-                .refreshToken(loginResult.getRefreshToken())
-                .build();
-    }
-
-    public Optional<Credentials> getCredentials(CognitoConfiguration cognitoConfiguration, CognitoTokens loginResult){
+    public Optional<Credentials> getCredentials(CognitoTokens loginResult){
         try {
             AnonymousAWSCredentials awsCreds = new AnonymousAWSCredentials();
 
@@ -99,7 +102,14 @@ public class CognitoService {
             return Optional.ofNullable(result.getCredentials());
         }
         catch (Exception e){
-            throw new RuntimeException("Exception during credential acquisition.", e);
+            e.printStackTrace();
         }
+
+        return Optional.empty();
+    }
+
+    public CognitoService setCognitoConfiguration(CognitoConfiguration cognitoConfiguration) {
+        this.cognitoConfiguration = cognitoConfiguration;
+        return this;
     }
 }

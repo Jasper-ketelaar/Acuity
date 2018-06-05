@@ -35,19 +35,20 @@ public class BotControlRunner implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
-        CognitoConfiguration acuitybotting = CognitoConfiguration.builder()
-                .poolId("us-east-1_HrbYmVhlY")
-                .clientAppId("3pgbd576sg70tsub4nh511k58u")
-                .fedPoolId("us-east-1:ff1b33f4-7f66-47a5-b7ff-9696b0e1fb52")
-                .customDomain("acuitybotting")
-                .region("us-east-1")
-                .redirectUrl("https://rspeer.org/")
-                .build();
+        cognitoService.setCognitoConfiguration(
+                CognitoConfiguration.builder()
+                    .poolId("us-east-1_HrbYmVhlY")
+                    .clientAppId("3pgbd576sg70tsub4nh511k58u")
+                    .fedPoolId("us-east-1:ff1b33f4-7f66-47a5-b7ff-9696b0e1fb52")
+                    .customDomain("acuitybotting")
+                    .region("us-east-1")
+                    .redirectUrl("https://rspeer.org/")
+                    .build()
+        );
 
-        CognitoTokens zach = cognitoService.login(acuitybotting, "Zach", System.getenv("CognitoPassword")).orElseThrow(() -> new RuntimeException("Failed to login."));
-
-        DecodedJWT verify = jwtService.verify(zach.getIdToken());
-        System.out.println();
+        CognitoTokens zach = cognitoService.login("Zach", System.getenv("CognitoPassword")).orElseThrow(() -> new RuntimeException("Failed to login."));
+        DecodedJWT jwt = jwtService.decodeAndVerify(zach.getIdToken()).orElseThrow(() -> new RuntimeException("Failed to decode JWT."));
+        System.out.println(jwt.getPayload());
     }
 
     private void read(String queueUrl){
