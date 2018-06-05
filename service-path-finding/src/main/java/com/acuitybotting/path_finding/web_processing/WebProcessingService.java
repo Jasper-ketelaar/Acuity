@@ -2,8 +2,6 @@ package com.acuitybotting.path_finding.web_processing;
 
 import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
-import com.acuitybotting.path_finding.rs.utils.CollisionFlags;
-import com.sun.prism.impl.paint.PaintUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +21,7 @@ public class WebProcessingService {
         this.flagRepository = flagRepository;
     }
 
-    public void createImage(int plane, int regionWidth, int regionHeight, int tilePixelSize){
+    public BufferedImage createImage(int plane, int regionWidth, int regionHeight, int tilePixelSize){
         BufferedImage nonDisplayableMapImage = new BufferedImage(regionWidth * tilePixelSize, regionHeight * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
         Graphics2D nonDisplayableMapImageGraphics = nonDisplayableMapImage.createGraphics();
 
@@ -66,5 +64,7 @@ public class WebProcessingService {
         mapGraphicsDisplay.fillRect(0, 0, regionWidth * tilePixelSize, regionHeight * tilePixelSize);
         mapGraphicsDisplay.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
         mapGraphicsDisplay.drawImage(nonDisplayableMapImage, 0, 0, null);
+
+        return mapDisplay;
     }
 }

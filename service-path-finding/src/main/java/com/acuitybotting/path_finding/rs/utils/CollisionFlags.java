@@ -80,15 +80,28 @@ public class CollisionFlags {
     public static boolean blockedEast(int collisionData){
         return CollisionFlags.check(collisionData, CollisionFlags.EAST_WALL) || CollisionFlags.check(collisionData, CollisionFlags.BLOCKED_EAST_WALL);
     }
+
     public static boolean blockedSouth(int collisionData){
         return CollisionFlags.check(collisionData, CollisionFlags.SOUTH_WALL) || CollisionFlags.check(collisionData, CollisionFlags.BLOCKED_SOUTH_WALL);
     }
+
     public static boolean blockedWest(int collisionData){
         return CollisionFlags.check(collisionData, CollisionFlags.WEST_WALL) || CollisionFlags.check(collisionData, CollisionFlags.BLOCKED_WEST_WALL);
     }
 
+    public static boolean isInitialized(int collisionData){
+        return !(blockedNorth(collisionData) && blockedEast(collisionData) && blockedSouth(collisionData) && blockedWest(collisionData) && !isWalkable(collisionData)) || CollisionFlags.check(collisionData, CollisionFlags.INITIALIZED);
+    }
+
     public static boolean blocked(int flag, int checkFlag) {
         return (flag & checkFlag) != 0;
+    }
+
+    public static boolean isWalkable(int collisionData){
+        return !(CollisionFlags.check(collisionData, CollisionFlags.OCCUPIED)
+                || CollisionFlags.check(collisionData, CollisionFlags.SOLID)
+                || CollisionFlags.check(collisionData, CollisionFlags.BLOCKED)
+                || CollisionFlags.check(collisionData, CollisionFlags.CLOSED));
     }
 
     public static int remove(int flag, int change) {
