@@ -19,7 +19,7 @@ import java.util.Optional;
  * Created by Zachary Herridge on 6/4/2018.
  */
 @Service
-public class CognitoService {
+public class CognitoAuthenticationService {
 
     private CognitoConfiguration cognitoConfiguration;
 
@@ -108,7 +108,7 @@ public class CognitoService {
         return Optional.empty();
     }
 
-    public CognitoService setCognitoConfiguration(CognitoConfiguration cognitoConfiguration) {
+    public CognitoAuthenticationService setCognitoConfiguration(CognitoConfiguration cognitoConfiguration) {
         this.cognitoConfiguration = cognitoConfiguration;
         return this;
     }

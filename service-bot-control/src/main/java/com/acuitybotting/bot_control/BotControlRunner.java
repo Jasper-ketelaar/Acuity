@@ -1,7 +1,7 @@
 package com.acuitybotting.bot_control;
 
 import com.acuitybotting.aws.security.cognito.CognitoJwtService;
-import com.acuitybotting.aws.security.cognito.CognitoService;
+import com.acuitybotting.aws.security.cognito.CognitoAuthenticationService;
 import com.acuitybotting.aws.security.cognito.domain.CognitoConfiguration;
 import com.acuitybotting.aws.security.cognito.domain.CognitoTokens;
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
@@ -21,21 +21,21 @@ import java.util.concurrent.Executors;
 public class BotControlRunner implements CommandLineRunner{
 
     private final BotControlMessagingService service;
-    private final CognitoService cognitoService;
+    private final CognitoAuthenticationService cognitoAuthenticationService;
     private final CognitoJwtService jwtService;
     private final BotInstanceRepository repository;
 
     @Autowired
-    public BotControlRunner(BotControlMessagingService service, CognitoService cognitoService, CognitoJwtService jwtService, BotInstanceRepository repository) {
+    public BotControlRunner(BotControlMessagingService service, CognitoAuthenticationService cognitoAuthenticationService, CognitoJwtService jwtService, BotInstanceRepository repository) {
         this.service = service;
-        this.cognitoService = cognitoService;
+        this.cognitoAuthenticationService = cognitoAuthenticationService;
         this.jwtService = jwtService;
         this.repository = repository;
     }
 
     @Override
     public void run(String... strings) throws Exception {
-        cognitoService.setCognitoConfiguration(
+        cognitoAuthenticationService.setCognitoConfiguration(
                 CognitoConfiguration.builder()
                     .poolId("us-east-1_HrbYmVhlY")
                     .clientAppId("3pgbd576sg70tsub4nh511k58u")
@@ -46,7 +46,11 @@ public class BotControlRunner implements CommandLineRunner{
                     .build()
         );
 
-        CognitoTokens zach = cognitoService.login("Zach", System.getenv("CognitoPassword")).orElseThrow(() -> new RuntimeException("Failed to login."));
+        CognitoTokens zach = cognitoAuthenticationService.login(
+                "Zach",
+                System.getenv("CognitoPassword")
+        ).orElseThrow(() -> new RuntimeException("Failed to login."));
+
         DecodedJWT jwt = jwtService.decodeAndVerify(zach.getIdToken()).orElseThrow(() -> new RuntimeException("Failed to decode JWT."));
         System.out.println(jwt.getPayload());
     }

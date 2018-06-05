@@ -1,6 +1,6 @@
 package com.acuitybotting.bot_control.api;
 
-import com.acuitybotting.aws.security.cognito.CognitoService;
+import com.acuitybotting.aws.security.cognito.CognitoAuthenticationService;
 import com.acuitybotting.bot_control.services.managment.BotControlManagementService;
 import com.acuitybotting.db.arango.bot_control.domain.BotInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class BotControlAPI {
 
     private final BotControlManagementService managementService;
-    private final CognitoService cognitoService;
+    private final CognitoAuthenticationService cognitoAuthenticationService;
 
     @Autowired
-    public BotControlAPI(BotControlManagementService managementService, CognitoService cognitoService) {
+    public BotControlAPI(BotControlManagementService managementService, CognitoAuthenticationService cognitoAuthenticationService) {
         this.managementService = managementService;
-        this.cognitoService = cognitoService;
+        this.cognitoAuthenticationService = cognitoAuthenticationService;
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
