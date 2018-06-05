@@ -47,7 +47,6 @@ public class BotControlMessagingService {
         queueAttributes.put(QueueAttributeName.FifoQueue.toString(), "true");
         queueAttributes.put(QueueAttributeName.ContentBasedDeduplication.toString(), "true");
 
-
         return queueAttributes;
     }
 

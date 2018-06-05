@@ -30,7 +30,7 @@ public class TileCaptureAPI {
         return service.getTileDifference(tileCaptureCheck);
     }
 
-    @RequestMapping(value = "/tile-capture", method = RequestMethod.POST)
+    @RequestMapping(value = "/upload-capture", method = RequestMethod.POST)
     public boolean tileUpload(@RequestBody TileCapture tileCapture) {
         return service.save(tileCapture);
     }
