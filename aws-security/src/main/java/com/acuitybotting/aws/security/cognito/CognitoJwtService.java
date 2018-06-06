@@ -27,6 +27,7 @@ import java.util.Optional;
 public class CognitoJwtService {
 
     public Optional<DecodedJWT> decodeAndVerify(String token){
+        if (token == null) return Optional.empty();
         try {
             JWTVerifier verifier = JWT.require(getRSA256()).build();
             return Optional.ofNullable(verifier.verify(token));

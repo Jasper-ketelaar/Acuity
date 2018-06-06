@@ -1,13 +1,12 @@
 package com.acuitybotting.bot_control.api;
 
-import com.acuitybotting.aws.security.cognito.CognitoAuthenticationService;
+import com.acuitybotting.aws.security.cognito.CognitoJwtService;
 import com.acuitybotting.bot_control.services.managment.BotControlManagementService;
 import com.acuitybotting.db.arango.bot_control.domain.BotInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by Zachary Herridge on 6/1/2018.
@@ -17,17 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class BotControlAPI {
 
     private final BotControlManagementService managementService;
-    private final CognitoAuthenticationService cognitoAuthenticationService;
+    private final CognitoJwtService jwtService;
 
     @Autowired
-    public BotControlAPI(BotControlManagementService managementService, CognitoAuthenticationService cognitoAuthenticationService) {
+    public BotControlAPI(BotControlManagementService managementService, CognitoJwtService jwtService) {
         this.managementService = managementService;
-        this.cognitoAuthenticationService = cognitoAuthenticationService;
+        this.jwtService = jwtService;
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public BotInstance registerInstance(){
+    public BotInstance registerInstance(@RequestHeader String authToken){
         return managementService.register();
+    }
+
+    @RequestMapping(value = "/request-queue", method = RequestMethod.POST)
+    public String registerQueue(HttpServletRequest request){
+        return managementService.requestMessagingQueue(request.getRemoteAddr()).getQueueUrl();
     }
 
     @RequestMapping(value = "/heartbeat", method = RequestMethod.POST)

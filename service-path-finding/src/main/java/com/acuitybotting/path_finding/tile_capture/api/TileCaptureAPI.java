@@ -4,6 +4,7 @@ import com.acuitybotting.path_finding.tile_capture.domain.TileCapture;
 import com.acuitybotting.path_finding.tile_capture.domain.TileCaptureCheck;
 import com.acuitybotting.path_finding.tile_capture.service.TileCaptureService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,7 +23,7 @@ public class TileCaptureAPI {
 
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public String test(){
-        return "Running";
+        return "Running: " + SecurityContextHolder.getContext().getAuthentication();
     }
 
     @RequestMapping(value = "/check", method = RequestMethod.POST)

@@ -29,9 +29,6 @@ public class PathFindingRunner implements CommandLineRunner{
 
     @Override
     public void run(String... args) throws Exception {
-        TileFlag firstOrderByX = tileFlagRepository.findFirstOrderByX();
-        System.out.println();
-
    /*     BufferedImage image = webProcessingService.createImage(0, 4000, 5000, 4);
         ImageIO.write(image, "png", new File("saved2.png"));
         image = null;

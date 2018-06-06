@@ -35,11 +35,7 @@ public class BotControlRunner implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
-
-
-
-
-    /*    cognitoAuthenticationService.setCognitoConfiguration(
+        cognitoAuthenticationService.setCognitoConfiguration(
                 CognitoConfiguration.builder()
                     .poolId("us-east-1_HrbYmVhlY")
                     .clientAppId("3pgbd576sg70tsub4nh511k58u")
@@ -56,7 +52,7 @@ public class BotControlRunner implements CommandLineRunner{
         ).orElseThrow(() -> new RuntimeException("Failed to login."));
 
         DecodedJWT jwt = jwtService.decodeAndVerify(zach.getIdToken()).orElseThrow(() -> new RuntimeException("Failed to decode JWT."));
-        System.out.println(jwt.getPayload());*/
+        System.out.println(jwt.getPayload());
     }
 
     private void read(String queueUrl){
