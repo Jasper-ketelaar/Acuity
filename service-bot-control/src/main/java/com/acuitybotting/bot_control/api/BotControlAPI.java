@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Created by Zachary Herridge on 6/1/2018.
  */
 @RestController
-@RequestMapping("/api/bot-control/")
+@RequestMapping("/api/bot/control")
 public class BotControlAPI {
 
     private final BotControlManagementService managementService;
