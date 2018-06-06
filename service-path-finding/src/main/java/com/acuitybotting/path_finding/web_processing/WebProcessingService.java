@@ -35,15 +35,16 @@ public class WebProcessingService {
             int localX = realTimeCollisionTile.getX()* tilePixelSize;
             int localY = realTimeCollisionTile.getY() * tilePixelSize;
 
-            nonDisplayableMapImageGraphics.setColor(new Color(255, 255, 255, 47));
+            nonDisplayableMapImageGraphics.setColor(new Color(3, 1, 3, 47));
             nonDisplayableMapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize);
 
             if (!realTimeCollisionTile.isWalkable()) {
-                nonDisplayableMapImageGraphics.setColor(new Color(255, 170, 4, 161));
+                //nonDisplayableMapImageGraphics.setColor(new Color(255, 170, 4, 161));
+                nonDisplayableMapImageGraphics.setColor(new Color(50, 109, 255, 223));
                 nonDisplayableMapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize);
             }
 
-            nonDisplayableMapImageGraphics.setColor(new Color(255, 254, 253, 223));
+            nonDisplayableMapImageGraphics.setColor(new Color(249, 122, 39, 223));
             if (realTimeCollisionTile.blockedNorth()) {
                 nonDisplayableMapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize / 4);
             }
@@ -57,14 +58,6 @@ public class WebProcessingService {
                 nonDisplayableMapImageGraphics.fillRect(localX, localY, tilePixelSize / 4, tilePixelSize);
             }
         }
-
-        BufferedImage mapDisplay = new BufferedImage(regionWidth * tilePixelSize, regionHeight * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D mapGraphicsDisplay = mapDisplay.createGraphics();
-        mapGraphicsDisplay.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-        mapGraphicsDisplay.fillRect(0, 0, regionWidth * tilePixelSize, regionHeight * tilePixelSize);
-        mapGraphicsDisplay.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
-        mapGraphicsDisplay.drawImage(nonDisplayableMapImage, 0, 0, null);
-
-        return mapDisplay;
+        return nonDisplayableMapImage;
     }
 }

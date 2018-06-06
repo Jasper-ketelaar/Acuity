@@ -26,7 +26,9 @@ public class PathFindingRunner implements CommandLineRunner{
 
     @Override
     public void run(String... args) throws Exception {
-/*        BufferedImage image = webProcessingService.createImage(0, 4000, 5000, 4);
-        ImageIO.write(image, "png", new File("saved2.png"));*/
+        BufferedImage image = webProcessingService.createImage(0, 4000, 5000, 4);
+        ImageIO.write(image, "png", new File("saved2.png"));
+        image = null;
+        System.out.println("Image dump complete.");
     }
 }
