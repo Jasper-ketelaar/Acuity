@@ -6,6 +6,7 @@ import com.acuitybotting.security.acuity.aws.cognito.domain.CognitoConfiguration
 import com.acuitybotting.security.acuity.aws.cognito.domain.CognitoTokens;
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
 import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
+import com.amazonaws.handlers.HandlerContextKey;
 import com.amazonaws.services.sqs.model.*;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,8 @@ public class BotControlRunner implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
+        System.out.println(HandlerContextKey.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        System.out.println("1");
         cognitoAuthenticationService.setCognitoConfiguration(
                 CognitoConfiguration.builder()
                     .poolId("us-east-1_HrbYmVhlY")
@@ -46,13 +49,10 @@ public class BotControlRunner implements CommandLineRunner{
                     .build()
         );
 
-        CognitoTokens zach = cognitoAuthenticationService.login(
-                "Zach",
-                System.getenv("CognitoPassword")
-        ).orElseThrow(() -> new RuntimeException("Failed to login."));
+        System.out.println("2");
+        CognitoTokens zach = cognitoAuthenticationService.login("Zach", System.getenv("CognitoPassword")).orElse(null);
 
-        DecodedJWT jwt = jwtService.decodeAndVerify(zach.getIdToken()).orElseThrow(() -> new RuntimeException("Failed to decode JWT."));
-        System.out.println(jwt.getPayload());
+        System.out.println("3");
     }
 
     private void read(String queueUrl){
