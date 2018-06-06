@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Zachary Herridge on 6/6/2018.
@@ -30,9 +31,10 @@ public class ProductivityAPI {
     public void expGained(@RequestBody ExpGained[] gains) {
         List<Point> points = new ArrayList<>();
         for (ExpGained expGained : gains) {
-            Point build = Point.measurement("expGained")
+            Point build = Point.measurement("productivity-xp-gained")
                     .addField("skill", expGained.getSkill())
                     .addField("change", expGained.getXpAmount())
+                    .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                     .build();
             points.add(build);
         }
