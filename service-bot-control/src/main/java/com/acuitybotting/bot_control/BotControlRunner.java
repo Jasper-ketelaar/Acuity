@@ -1,9 +1,9 @@
 package com.acuitybotting.bot_control;
 
-import com.acuitybotting.aws.security.jwt.AcuityJwtService;
-import com.acuitybotting.aws.security.cognito.CognitoAuthenticationService;
-import com.acuitybotting.aws.security.cognito.domain.CognitoConfiguration;
-import com.acuitybotting.aws.security.cognito.domain.CognitoTokens;
+import com.acuitybotting.security.acuity.jwt.AcuityJwtService;
+import com.acuitybotting.security.acuity.aws.cognito.CognitoAuthenticationService;
+import com.acuitybotting.security.acuity.aws.cognito.domain.CognitoConfiguration;
+import com.acuitybotting.security.acuity.aws.cognito.domain.CognitoTokens;
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
 import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
 import com.amazonaws.services.sqs.model.*;

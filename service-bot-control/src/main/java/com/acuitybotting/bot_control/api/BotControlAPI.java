@@ -1,6 +1,6 @@
 package com.acuitybotting.bot_control.api;
 
-import com.acuitybotting.aws.security.jwt.AcuityJwtService;
+import com.acuitybotting.security.acuity.jwt.AcuityJwtService;
 import com.acuitybotting.bot_control.services.managment.BotControlManagementService;
 import com.acuitybotting.db.arango.bot_control.domain.BotInstance;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
-package com.acuitybotting.aws.security.jwt;
+package com.acuitybotting.security.acuity.jwt;
 
-import com.acuitybotting.aws.security.jwt.domain.JwtKey;
+import com.acuitybotting.security.acuity.jwt.domain.JwtKey;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;

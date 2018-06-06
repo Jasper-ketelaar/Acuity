@@ -1,9 +1,7 @@
-package com.acuitybotting.aws.security.cognito.domain;
+package com.acuitybotting.security.acuity.aws.cognito.domain;
 
 import lombok.Builder;
 import lombok.Data;
-
-import java.util.Map;
 
 /**
  * Created by Zachary Herridge on 6/4/2018.

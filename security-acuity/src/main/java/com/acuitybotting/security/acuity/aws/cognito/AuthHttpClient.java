@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.acuitybotting.aws.security.cognito;
+package com.acuitybotting.security.acuity.aws.cognito;
 
 import com.google.gson.Gson;
 

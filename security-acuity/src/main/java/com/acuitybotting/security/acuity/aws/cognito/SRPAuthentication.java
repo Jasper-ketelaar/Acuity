@@ -1,4 +1,4 @@
-package com.acuitybotting.aws.security.cognito;
+package com.acuitybotting.security.acuity.aws.cognito;
 
 /*
  *  Copyright 2013-2016 Amazon.com,

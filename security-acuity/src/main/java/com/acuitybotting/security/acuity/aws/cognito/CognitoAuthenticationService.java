@@ -1,7 +1,7 @@
-package com.acuitybotting.aws.security.cognito;
+package com.acuitybotting.security.acuity.aws.cognito;
 
-import com.acuitybotting.aws.security.cognito.domain.CognitoConfiguration;
-import com.acuitybotting.aws.security.cognito.domain.CognitoTokens;
+import com.acuitybotting.security.acuity.aws.cognito.domain.CognitoConfiguration;
+import com.acuitybotting.security.acuity.aws.cognito.domain.CognitoTokens;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.regions.Regions;

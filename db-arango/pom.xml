@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>com.acuitybotting</groupId>
-            <artifactId>aws-security</artifactId>
+            <artifactId>security-acuity</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

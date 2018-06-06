@@ -1,4 +1,4 @@
-package com.acuitybotting.aws.security.secrets;
+package com.acuitybotting.security.acuity.aws.secrets;
 
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
