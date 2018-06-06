@@ -5,21 +5,25 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.acuitybotting</groupId>
-    <artifactId>Acuity</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>db-influx</artifactId>
     <version>1.0-SNAPSHOT</version>
-
-    <modules>
-        <module>db-arango</module>
-        <module>service-path-finding</module>
-        <module>aws-security</module>
-        <module>service-bot-control</module>
-        <module>service-bot-statistics</module>
-        <module>db-influx</module>
-    </modules>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.miwurster</groupId>
+            <artifactId>spring-data-influxdb</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>
