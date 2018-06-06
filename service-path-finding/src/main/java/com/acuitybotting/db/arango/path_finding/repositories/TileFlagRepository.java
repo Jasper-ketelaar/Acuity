@@ -9,9 +9,7 @@ import org.springframework.data.geo.Polygon;
  */
 public interface TileFlagRepository extends ArangoRepository<TileFlag> {
 
-    Iterable<TileFlag> findByLocationWithinAndPlane(Polygon polygon, int plane);
-
     Iterable<TileFlag> findAllByPlane(int plane);
 
-    long countByLocationWithinAndPlane(Polygon polygon, int plane);
+    long countAllByXBetweenAndYBetweenAndPlane(int xLower, int xUpper, int yLower, int yUpper, int plane);
 }

@@ -10,7 +10,6 @@ import java.util.List;
  * Created by Zachary Herridge on 5/29/2018.
  */
 @Data
-@Builder
 public class TileCapture {
 
     private int x, y, plane;

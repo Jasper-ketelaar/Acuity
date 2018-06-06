@@ -31,12 +31,11 @@ public class TileCaptureService {
     }
 
     public long getTileDifference(TileCaptureCheck tileCaptureCheck) {
-        long tilesFound = repository.countByLocationWithinAndPlane(new Polygon(Arrays.asList(
-                new Point(tileCaptureCheck.getX(), tileCaptureCheck.getY()),
-                new Point(tileCaptureCheck.getX() + tileCaptureCheck.getWidth(), tileCaptureCheck.getY()),
-                new Point(tileCaptureCheck.getX() + tileCaptureCheck.getWidth(), tileCaptureCheck.getY() + tileCaptureCheck.getHeight()),
-                new Point(tileCaptureCheck.getX(), tileCaptureCheck.getY() + tileCaptureCheck.getHeight())
-                )),
+        long tilesFound = repository.countAllByXBetweenAndYBetweenAndPlane(
+                tileCaptureCheck.getX(),
+                tileCaptureCheck.getX() + tileCaptureCheck.getWidth(),
+                tileCaptureCheck.getY(),
+                tileCaptureCheck.getY() + tileCaptureCheck.getWidth(),
                 tileCaptureCheck.getPlane()
         );
 
@@ -45,21 +44,20 @@ public class TileCaptureService {
     }
 
     public boolean save(TileCapture tileCapture) {
-        int[][] map = tileCapture.getFlags();
-        if (map != null){
+        int[][] collisionData = tileCapture.getFlags();
+        if (collisionData != null){
             Collection<TileFlag> data = new HashSet<>();
-            for (int y = 0; y < map.length; y++) {
-                int[] flags = map[y];
-                for (int x = 0; x < flags.length; x++) {
-                    int flag = flags[x];
 
-                    int worldY = tileCapture.getY() + y;
-                    int worldX = tileCapture.getX() + x;
+            for (int i = 1; i < collisionData.length - 5; i++) {
+                for (int j = 1; j < collisionData[i].length - 5; j++) {
+                    int worldX = tileCapture.getX() + i;
+                    int worldY = tileCapture.getY() + j;
                     int plane = tileCapture.getPlane();
-
+                    int flag = collisionData[i][j];
                     TileFlag build = TileFlag.builder()
                             .plane(plane)
-                            .location(new int[]{worldX, worldY})
+                            .x(worldX)
+                            .y(worldY)
                             .key(worldX + "_" + worldY + "_" + plane)
                             .flag(flag)
                             .build();
@@ -70,7 +68,7 @@ public class TileCaptureService {
         }
 
         if (tileCapture.getEntities() != null){
-            tileCapture.getEntities().forEach(sceneEntity -> sceneEntity.setKey(sceneEntity.getLocation()[0] + "_" + sceneEntity.getLocation()[1] + "_" + sceneEntity.getPlane() + "_" + sceneEntity.getEntityID()));
+            tileCapture.getEntities().forEach(sceneEntity -> sceneEntity.setKey(sceneEntity.getX() + "_" + sceneEntity.getY() + "_" + sceneEntity.getPlane() + "_" + sceneEntity.getEntityID()));
             arangoOperations.upsert(tileCapture.getEntities(), ArangoOperations.UpsertStrategy.REPLACE);
         }
 

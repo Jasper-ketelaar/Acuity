@@ -115,10 +115,7 @@ class SRPAuthentication {
         return A;
     }
 
-    private byte[] getPasswordAuthenticationKey(String userId,
-                                                String userPassword,
-                                                BigInteger B,
-                                                BigInteger salt) {
+    private byte[] getPasswordAuthenticationKey(String userId, String userPassword, BigInteger B, BigInteger salt) {
         // Authenticate the password
         // u = H(A, B)
         MessageDigest messageDigest = THREAD_MESSAGE_DIGEST.get();
@@ -184,7 +181,6 @@ class SRPAuthentication {
      * @return the Authentication request.
      */
     private InitiateAuthRequest initiateUserSrpAuthRequest(String username) {
-
         InitiateAuthRequest initiateAuthRequest = new InitiateAuthRequest();
         initiateAuthRequest.setAuthFlow(AuthFlowType.USER_SRP_AUTH);
         initiateAuthRequest.setClientId(this.clientId);
@@ -203,9 +199,7 @@ class SRPAuthentication {
      * @param password  The password to be used to respond to the authentication challenge.
      * @return the Request created for the previous authentication challenge.
      */
-    private RespondToAuthChallengeRequest userSrpAuthRequest(InitiateAuthResult challenge,
-                                                             String password
-    ) {
+    private RespondToAuthChallengeRequest userSrpAuthRequest(InitiateAuthResult challenge, String password) {
         String userIdForSRP = challenge.getChallengeParameters().get("USER_ID_FOR_SRP");
         String usernameInternal = challenge.getChallengeParameters().get("USERNAME");
 

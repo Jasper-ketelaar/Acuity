@@ -32,8 +32,8 @@ public class WebProcessingService {
         nonDisplayableMapImageGraphics.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
 
         for (TileFlag realTimeCollisionTile : flagRepository.findAllByPlane(plane)) {
-            int localX = realTimeCollisionTile.getLocation()[0] * tilePixelSize;
-            int localY = realTimeCollisionTile.getLocation()[1] * tilePixelSize;
+            int localX = realTimeCollisionTile.getX()* tilePixelSize;
+            int localY = realTimeCollisionTile.getY() * tilePixelSize;
 
             nonDisplayableMapImageGraphics.setColor(new Color(255, 255, 255, 47));
             nonDisplayableMapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize);

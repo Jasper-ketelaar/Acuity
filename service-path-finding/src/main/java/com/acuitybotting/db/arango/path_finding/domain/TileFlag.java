@@ -4,9 +4,11 @@ import com.acuitybotting.path_finding.rs.utils.CollisionFlags;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.GeoIndexed;
 import com.arangodb.springframework.annotation.Key;
+import com.arangodb.springframework.annotation.SkiplistIndexed;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.stereotype.Indexed;
 
 /**
  * Created by Zachary Herridge on 5/30/2018.
@@ -21,8 +23,8 @@ public class TileFlag {
     @Key
     private String key;
 
-    @GeoIndexed
-    private int[] location;
+    private int x;
+    private int y;
     private int plane;
 
     private int flag;

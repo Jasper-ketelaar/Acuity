@@ -11,7 +11,6 @@ import org.springframework.data.annotation.Id;
  * Created by Zachary Herridge on 5/30/2018.
  */
 @Document("SceneEntity")
-@Builder
 @Data
 public class SceneEntity {
 
@@ -24,8 +23,8 @@ public class SceneEntity {
     private String entityID;
 
     private int plane;
-    @GeoIndexed
-    private int[] location;
+    private int x;
+    private int y;
 
     private String[] actions;
 }
