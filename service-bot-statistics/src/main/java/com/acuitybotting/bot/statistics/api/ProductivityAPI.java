@@ -32,7 +32,7 @@ public class ProductivityAPI {
         List<Point> points = new ArrayList<>();
         for (ExpGained expGained : gains) {
             Point build = Point.measurement("productivity-xp-gained")
-                    .addField("skill", expGained.getSkill())
+                    .tag("skill", expGained.getSkill())
                     .addField("change", expGained.getXpAmount())
                     .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                     .build();

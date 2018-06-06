@@ -25,14 +25,14 @@ public class ScriptAPI {
         this.influxDBTemplate = influxDBTemplate;
     }
 
-
     @RequestMapping(value = "/log-runtime", method = RequestMethod.POST)
     public void runtime(@RequestBody LogScriptRuntime scriptRuntime){
         Point build = Point.measurement("script-runtime")
-                .addField("name", scriptRuntime.getScriptName())
-                .addField("author", scriptRuntime.getScriptAuthor())
+                .tag("name", scriptRuntime.getScriptName())
+                .tag("author", scriptRuntime.getScriptAuthor())
                 .addField("runtime", scriptRuntime.getTime())
                 .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
+        influxDBTemplate.write(build);
     }
 }
