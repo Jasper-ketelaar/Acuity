@@ -38,10 +38,22 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-cognitoidentity</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>aws-java-sdk-core</artifactId>
+                    <groupId>com.amazonaws</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-secretsmanager</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>aws-java-sdk-core</artifactId>
+                    <groupId>com.amazonaws</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
