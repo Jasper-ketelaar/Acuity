@@ -1,6 +1,6 @@
 package com.acuitybotting.bot_control;
 
-import com.acuitybotting.aws.security.cognito.CognitoJwtService;
+import com.acuitybotting.aws.security.jwt.AcuityJwtService;
 import com.acuitybotting.aws.security.cognito.CognitoAuthenticationService;
 import com.acuitybotting.aws.security.cognito.domain.CognitoConfiguration;
 import com.acuitybotting.aws.security.cognito.domain.CognitoTokens;
@@ -22,11 +22,11 @@ public class BotControlRunner implements CommandLineRunner{
 
     private final BotControlMessagingService service;
     private final CognitoAuthenticationService cognitoAuthenticationService;
-    private final CognitoJwtService jwtService;
+    private final AcuityJwtService jwtService;
     private final BotInstanceRepository repository;
 
     @Autowired
-    public BotControlRunner(BotControlMessagingService service, CognitoAuthenticationService cognitoAuthenticationService, CognitoJwtService jwtService, BotInstanceRepository repository) {
+    public BotControlRunner(BotControlMessagingService service, CognitoAuthenticationService cognitoAuthenticationService, AcuityJwtService jwtService, BotInstanceRepository repository) {
         this.service = service;
         this.cognitoAuthenticationService = cognitoAuthenticationService;
         this.jwtService = jwtService;

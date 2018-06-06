@@ -1,6 +1,6 @@
-package com.acuitybotting.aws.security.cognito;
+package com.acuitybotting.aws.security.jwt;
 
-import com.acuitybotting.aws.security.cognito.domain.JwtKey;
+import com.acuitybotting.aws.security.jwt.domain.JwtKey;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -24,7 +24,7 @@ import java.util.Optional;
  * Created by Zachary Herridge on 6/5/2018.
  */
 @Service
-public class CognitoJwtService {
+public class AcuityJwtService {
 
     public Optional<DecodedJWT> decodeAndVerify(String token){
         if (token == null) return Optional.empty();

@@ -1,4 +1,4 @@
-package com.acuitybotting.aws.security.cognito.domain;
+package com.acuitybotting.aws.security.jwt.domain;
 
 import lombok.Data;
 

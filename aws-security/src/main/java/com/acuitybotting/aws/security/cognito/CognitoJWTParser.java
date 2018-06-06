@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Utility class for all operations on JWT.
  */
-public class CognitoJWTParser {
+class CognitoJWTParser {
 
     private static final int HEADER = 0;
     private static final int PAYLOAD = 1;
