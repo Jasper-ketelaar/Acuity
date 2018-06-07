@@ -29,7 +29,6 @@ public class JwtTokenFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain) throws IOException, ServletException {
         SecurityContextHolder.getContext().setAuthentication(getAuthentication((HttpServletRequest) req));
-        System.out.println("JWT FILTER: " + SecurityContextHolder.getContext());
         filterChain.doFilter(req, res);
     }
 

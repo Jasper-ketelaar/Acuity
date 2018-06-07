@@ -25,12 +25,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        System.out.println("STATELESS");
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        http.authorizeRequests().anyRequest().permitAll();
-
         http.apply(new JwtTokenFilterConfigurer(acuityJwtService));
     }
 }
