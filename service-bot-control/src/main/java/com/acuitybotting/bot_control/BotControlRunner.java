@@ -57,13 +57,17 @@ public class BotControlRunner implements CommandLineRunner{
         String q1Url = service.getQueueService().createQueue("q1.fifo").getQueueUrl();
         service.getClientService().consumeQueue(q1Url, message -> {
             System.out.println("q1: " + message.getBody());
-            service.getClientService().respondToMessage(message, "echo");
+            service.getClientService().respondToMessage(message, "echo: " + message.getBody());
         });
 
         String q2Url = service.getQueueService().createQueue("q2.fifo").getQueueUrl();
         service.getClientService().consumeQueue(q2Url);
-        service.getClientService().sendMessage(q1Url, q2Url, "Hello server.").whenComplete((message, throwable) -> {
+        service.getClientService().sendMessage(q1Url, q2Url, "Hello server 1.").whenComplete((message, throwable) -> {
             System.out.println("q2: " + message.getBody());
         });
+        service.getClientService().sendMessage(q1Url, q2Url, "Hello server 2.").whenComplete((message, throwable) -> {
+            System.out.println("q2: " + message.getBody());
+        });
+
     }
 }
