@@ -53,6 +53,17 @@ public class BotControlRunner implements CommandLineRunner{
         Credentials credentials = cognitoAuthenticationService.getCredentials(cognitoTokens).orElse(null);
 
         service.connect("us-east-1", credentials);
-        service.getClientService().consumeQueue("https://sqs.us-east-1.amazonaws.com/604080725100/test.fifo", message -> System.out.println("Message: " + message));
+
+        String q1Url = service.getQueueService().createQueue("q1.fifo").getQueueUrl();
+        service.getClientService().consumeQueue(q1Url, message -> {
+            System.out.println("q1: " + message.getBody());
+            service.getClientService().respondToMessage(message, "echo");
+        });
+
+        String q2Url = service.getQueueService().createQueue("q2.fifo").getQueueUrl();
+        service.getClientService().consumeQueue(q2Url);
+        service.getClientService().sendMessage(q1Url, q2Url, "Hello server.").whenComplete((message, throwable) -> {
+            System.out.println("q2: " + message.getBody());
+        });
     }
 }

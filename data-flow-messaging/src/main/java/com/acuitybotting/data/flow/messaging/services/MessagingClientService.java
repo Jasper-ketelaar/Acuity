@@ -16,6 +16,8 @@ import java.util.function.Consumer;
 public class MessagingClientService {
 
     private static final String FUTURE_ID = "futureId";
+    private static final String RESPONSE_ID = "responseId";
+    private static final String RESPONSE_URL = "responseUrl";
 
     private AmazonSQS amazonSQS;
 
@@ -33,20 +35,51 @@ public class MessagingClientService {
         return this;
     }
 
-    public CompletableFuture<Message> sendCompleteableMessage(String queueUrl, String body){
-        String id = UUID.randomUUID().toString().replaceAll("\\.", "-");
-        CompletableFuture<Message> completableFuture = new CompletableFuture<>();
-        messageCallbacks.put(id, completableFuture);
-        getSQS().sendMessage(new SendMessageRequest()
-                .withQueueUrl(queueUrl)
-                .withMessageBody(body)
-                .withMessageAttributes(Collections.singletonMap(FUTURE_ID, new MessageAttributeValue().withStringValue(id)))
-        );
-        return completableFuture;
+    public CompletableFuture<Message> sendMessage(String queueUrl, String localUrl, String body){
+        return sendMessage(queueUrl, localUrl, null, body);
     }
 
     public void sendMessage(String queueUrl, String body){
-        getSQS().sendMessage(new SendMessageRequest().withQueueUrl(queueUrl).withMessageBody(body));
+        sendMessage(queueUrl, null, null, body);
+    }
+
+    public void respondToMessage(Message message, String body) {
+        respondToMessage(message, null, body);
+    }
+
+    public CompletableFuture<Message> respondToMessage(Message message, String localUrl, String body) {
+        String responseId = message.getMessageAttributes().get(RESPONSE_ID).getStringValue();
+        String responseUrl = message.getMessageAttributes().get(RESPONSE_URL).getStringValue();
+        return sendMessage(responseUrl, localUrl, responseId, body);
+    }
+
+    private CompletableFuture<Message> sendMessage(String queueUrl, String localUrl, String futureId, String body){
+        Map<String, MessageAttributeValue> attributeValueMap = new HashMap<>();
+
+        if (futureId != null){
+            attributeValueMap.put(FUTURE_ID, new MessageAttributeValue().withDataType("String").withStringValue(futureId));
+        }
+
+        CompletableFuture<Message> future = null;
+        if (localUrl != null){
+            String id = UUID.randomUUID().toString().replaceAll("\\.", "-");
+            future = new CompletableFuture<>();
+            messageCallbacks.put(id, future);
+            attributeValueMap.put(RESPONSE_ID, new MessageAttributeValue().withDataType("String").withStringValue(id));
+            attributeValueMap.put(RESPONSE_URL, new MessageAttributeValue().withDataType("String").withStringValue(localUrl));
+        }
+
+        attributeValueMap.put("Meme", new MessageAttributeValue().withDataType("String").withStringValue("Heyfam"));
+
+        SendMessageRequest sendMessageRequest = new SendMessageRequest()
+                .withMessageGroupId("channel-1")
+                .withMessageDeduplicationId(UUID.randomUUID().toString())
+                .withQueueUrl(queueUrl)
+                .withMessageBody(body)
+                .withMessageAttributes(attributeValueMap);
+
+        getSQS().sendMessage(sendMessageRequest);
+        return future;
     }
 
     public void deleteMessage(String queueUrl, Message message){
@@ -94,6 +127,7 @@ public class MessagingClientService {
         receiveMessageRequest.withQueueUrl(queueUrl);
         receiveMessageRequest.withMaxNumberOfMessages(maxMessages);
         receiveMessageRequest.withWaitTimeSeconds(timeout);
+        receiveMessageRequest.withMessageAttributeNames("All");
         return Optional.ofNullable(getSQS().receiveMessage(receiveMessageRequest));
     }
 }
