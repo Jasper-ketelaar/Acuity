@@ -36,8 +36,6 @@ public class BotControlRunner implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
-        System.out.println(HandlerContextKey.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-        System.out.println("1");
         cognitoAuthenticationService.setCognitoConfiguration(
                 CognitoConfiguration.builder()
                     .poolId("us-east-1_HrbYmVhlY")
@@ -48,11 +46,8 @@ public class BotControlRunner implements CommandLineRunner{
                     .redirectUrl("https://rspeer.org/")
                     .build()
         );
-
-        System.out.println("2");
         CognitoTokens zach = cognitoAuthenticationService.login("Zach", System.getenv("CognitoPassword")).orElse(null);
-
-        System.out.println("3");
+        System.out.println(zach.getIdToken());
     }
 
     private void read(String queueUrl){

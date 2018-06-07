@@ -1,4 +1,4 @@
-package com.acuitybotting.security.acuity.web;
+package com.acuitybotting.security.acuity.jwt.domain;
 
 
 import lombok.Data;
@@ -9,5 +9,5 @@ import lombok.Data;
 @Data
 public class AcuityPrincipal  {
 
-    private String username = "Zach";
+    private String username;
 }

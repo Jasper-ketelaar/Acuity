@@ -3,7 +3,10 @@ package com.acuitybotting.bot_control.api;
 import com.acuitybotting.security.acuity.jwt.AcuityJwtService;
 import com.acuitybotting.bot_control.services.managment.BotControlManagementService;
 import com.acuitybotting.db.arango.bot_control.domain.BotInstance;
+import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
+import com.acuitybotting.security.acuity.web.AcuityWebSecurity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,21 +19,21 @@ import javax.servlet.http.HttpServletRequest;
 public class BotControlAPI {
 
     private final BotControlManagementService managementService;
-    private final AcuityJwtService jwtService;
 
     @Autowired
-    public BotControlAPI(BotControlManagementService managementService, AcuityJwtService jwtService) {
+    public BotControlAPI(BotControlManagementService managementService) {
         this.managementService = managementService;
-        this.jwtService = jwtService;
     }
 
+    @PreAuthorize("authentication.principal.username == 'Zach'")
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public BotInstance registerInstance(@RequestHeader String authToken){
-        return managementService.register();
+    public BotInstance registerInstance(){
+        AcuityPrincipal principal = AcuityWebSecurity.getPrincipal();
+        return managementService.register(principal);
     }
 
     @RequestMapping(value = "/request-queue", method = RequestMethod.POST)
-    public String registerQueue(HttpServletRequest request){
+    public String registerQueue(@RequestBody String botAuthKey, HttpServletRequest request){
         return managementService.requestMessagingQueue(request.getRemoteAddr()).getQueueUrl();
     }
 

@@ -3,6 +3,7 @@ package com.acuitybotting.bot_control.services.managment;
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
 import com.acuitybotting.db.arango.bot_control.domain.BotInstance;
 import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
+import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,11 @@ public class BotControlManagementService {
         this.messagingService = messagingService;
     }
 
-    public BotInstance register() {
+    public BotInstance register(AcuityPrincipal principal) {
         BotInstance botInstance = new BotInstance();
         String authKey = generateAuthKey();
-        botInstance.setAuth(authKey);
-        botInstance.setKey(authKey);
+        botInstance.setAuthKey(authKey);
+        botInstance.setPrincipal(principal.getUsername());
         return botInstanceRepository.save(botInstance);
     }
 
