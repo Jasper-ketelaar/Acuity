@@ -1,5 +1,6 @@
 package com.acuitybotting.security.acuity.jwt;
 
+import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
 import com.acuitybotting.security.acuity.jwt.domain.JwtKey;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -25,6 +26,18 @@ import java.util.Optional;
  */
 @Service
 public class AcuityJwtService {
+
+    public Optional<AcuityPrincipal> getPrincipal(String token){
+        return decodeAndVerify(token).map(decodedJWT -> {
+           AcuityPrincipal acuityPrincipal = new AcuityPrincipal();
+            acuityPrincipal.setUsername(decodedJWT.getClaim("cognito:username").asString());
+            acuityPrincipal.setSub(decodedJWT.getClaim("sub").asString());
+            acuityPrincipal.setRealm(decodedJWT.getClaim("iss").asString());
+            acuityPrincipal.setEmail(decodedJWT.getClaim("email").asString());
+            acuityPrincipal.setRoles(decodedJWT.getClaim("cognito:roles").asArray(String.class));
+           return acuityPrincipal;
+        });
+    }
 
     public Optional<DecodedJWT> decodeAndVerify(String token){
         if (token == null) return Optional.empty();

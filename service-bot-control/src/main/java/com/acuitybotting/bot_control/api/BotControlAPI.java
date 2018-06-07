@@ -25,7 +25,7 @@ public class BotControlAPI {
         this.managementService = managementService;
     }
 
-    @PreAuthorize("authentication.principal.username == 'Zach'")
+    @PreAuthorize("hasAuthority('BASIC_USER')")
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public BotInstance registerInstance(){
         AcuityPrincipal principal = AcuityWebSecurity.getPrincipal();

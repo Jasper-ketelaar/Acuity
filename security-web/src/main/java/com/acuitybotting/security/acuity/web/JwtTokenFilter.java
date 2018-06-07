@@ -34,12 +34,11 @@ public class JwtTokenFilter extends GenericFilterBean {
 
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
         String authorization = request.getHeader("Authorization");
-        DecodedJWT jwt = acuityJwtService.decodeAndVerify(authorization).orElse(null);
-        if (jwt != null) {
+        AcuityPrincipal acuityPrincipal = acuityJwtService.getPrincipal(authorization).orElse(null);
+        if (acuityPrincipal != null) {
             List<GrantedAuthority> authorities = new ArrayList<>();
-            authorities.add(new SimpleGrantedAuthority("USER"));
-            AcuityPrincipal acuityPrincipal = new AcuityPrincipal();
-            acuityPrincipal.setUsername(jwt.getClaim("cognito:username").asString());
+            for (String role : acuityPrincipal.getRoles()) authorities.add(new SimpleGrantedAuthority(role));
+            authorities.add(new SimpleGrantedAuthority("BASIC_USER"));
             return new UsernamePasswordAuthenticationToken(acuityPrincipal, null, authorities);
         }
         return null;

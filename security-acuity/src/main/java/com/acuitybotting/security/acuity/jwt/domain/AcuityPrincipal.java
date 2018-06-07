@@ -10,4 +10,9 @@ import lombok.Data;
 public class AcuityPrincipal  {
 
     private String username;
+    private String email;
+    private String sub;
+    private String realm;
+    private String[] roles;
+
 }
