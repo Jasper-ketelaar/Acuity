@@ -21,7 +21,7 @@ public class WebProcessingService {
         this.flagRepository = flagRepository;
     }
 
-    public BufferedImage createImage(int plane, int regionWidth, int regionHeight, int tilePixelSize){
+    public BufferedImage createImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize){
         BufferedImage nonDisplayableMapImage = new BufferedImage(regionWidth * tilePixelSize, regionHeight * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
         Graphics2D nonDisplayableMapImageGraphics = nonDisplayableMapImage.createGraphics();
 
@@ -31,9 +31,9 @@ public class WebProcessingService {
 
         nonDisplayableMapImageGraphics.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
 
-        for (TileFlag realTimeCollisionTile : flagRepository.findAllByPlane(plane)) {
-            int localX = realTimeCollisionTile.getX()* tilePixelSize;
-            int localY = realTimeCollisionTile.getY() * tilePixelSize;
+        for (TileFlag realTimeCollisionTile : flagRepository.findAllByXBetweenAndYBetweenAndPlane(baseX, baseX + regionWidth, baseY, baseY + regionHeight, plane)) {
+            int localX = (realTimeCollisionTile.getX() - baseX)* tilePixelSize;
+            int localY = (realTimeCollisionTile.getY() - baseY) * tilePixelSize;
 
             nonDisplayableMapImageGraphics.setColor(new Color(3, 1, 3, 47));
             nonDisplayableMapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize);

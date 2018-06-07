@@ -27,7 +27,6 @@ public class TileCaptureAPI {
     @PreAuthorize("authentication.principal.username == 'Zach'")
     @RequestMapping(value = "/test", method = RequestMethod.GET)
     public String test(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return "Running: ";
     }
 
