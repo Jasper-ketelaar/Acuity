@@ -2,7 +2,6 @@ package com.acuitybotting.security.acuity.web;
 
 import com.acuitybotting.security.acuity.jwt.AcuityJwtService;
 import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -37,7 +36,7 @@ public class JwtTokenFilter extends GenericFilterBean {
         AcuityPrincipal acuityPrincipal = acuityJwtService.getPrincipal(authorization).orElse(null);
         if (acuityPrincipal != null) {
             List<GrantedAuthority> authorities = new ArrayList<>();
-            for (String role : acuityPrincipal.getRoles()) authorities.add(new SimpleGrantedAuthority(role));
+            if (acuityPrincipal.getRoles() != null) for (String role : acuityPrincipal.getRoles()) authorities.add(new SimpleGrantedAuthority(role));
             authorities.add(new SimpleGrantedAuthority("BASIC_USER"));
             return new UsernamePasswordAuthenticationToken(acuityPrincipal, null, authorities);
         }

@@ -1,8 +1,6 @@
 package com.acuitybotting.path_finding;
 
-import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
-import com.acuitybotting.path_finding.tile_capture.domain.TileCaptureCheck;
 import com.acuitybotting.path_finding.tile_capture.service.TileCaptureService;
 import com.acuitybotting.path_finding.web_processing.WebProcessingService;
 import org.springframework.beans.factory.annotation.Autowired;

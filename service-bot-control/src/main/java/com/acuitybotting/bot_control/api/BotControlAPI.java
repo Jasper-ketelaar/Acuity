@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Created by Zachary Herridge on 6/1/2018.
  */
+@PreAuthorize("hasAuthority('BASIC_USER')")
 @RestController
 @RequestMapping("/api/bot/control")
 public class BotControlAPI {
@@ -25,7 +26,6 @@ public class BotControlAPI {
         this.managementService = managementService;
     }
 
-    @PreAuthorize("hasAuthority('BASIC_USER')")
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public BotInstance registerInstance(){
         AcuityPrincipal principal = AcuityWebSecurity.getPrincipal();

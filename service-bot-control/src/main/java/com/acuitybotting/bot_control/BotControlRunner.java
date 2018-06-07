@@ -7,12 +7,14 @@ import com.acuitybotting.security.acuity.aws.cognito.domain.CognitoTokens;
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
 import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
 import com.amazonaws.handlers.HandlerContextKey;
+import com.amazonaws.services.cognitoidentity.model.Credentials;
 import com.amazonaws.services.sqs.model.*;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
 /**
@@ -38,32 +40,21 @@ public class BotControlRunner implements CommandLineRunner{
     public void run(String... strings) throws Exception {
         cognitoAuthenticationService.setCognitoConfiguration(
                 CognitoConfiguration.builder()
-                    .poolId("us-east-1_HrbYmVhlY")
-                    .clientAppId("3pgbd576sg70tsub4nh511k58u")
-                    .fedPoolId("us-east-1:ff1b33f4-7f66-47a5-b7ff-9696b0e1fb52")
-                    .customDomain("acuitybotting")
-                    .region("us-east-1")
-                    .redirectUrl("https://rspeer.org/")
-                    .build()
+                        .poolId("us-east-1_HrbYmVhlY")
+                        .clientAppId("3pgbd576sg70tsub4nh511k58u")
+                        .fedPoolId("us-east-1:ff1b33f4-7f66-47a5-b7ff-9696b0e1fb52")
+                        .customDomain("acuitybotting")
+                        .region("us-east-1")
+                        .redirectUrl("https://rspeer.org/")
+                        .build()
         );
-        CognitoTokens zach = cognitoAuthenticationService.login("Zach", System.getenv("CognitoPassword")).orElse(null);
-        System.out.println(zach.getIdToken());
-    }
 
-    private void read(String queueUrl){
-        Executors.newSingleThreadExecutor().submit(() -> {
-            while (true){
-                ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest();
-                receiveMessageRequest.withQueueUrl(queueUrl);
-                receiveMessageRequest.withMaxNumberOfMessages(10);
-                receiveMessageRequest.withWaitTimeSeconds(60);
-                ReceiveMessageResult receiveMessageResult = service.getSQS().receiveMessage(receiveMessageRequest);
+        CognitoTokens cognitoTokens = cognitoAuthenticationService.login("Zach", System.getenv("CognitoPassword")).orElse(null);
+        Credentials credentials = cognitoAuthenticationService.getCredentials(cognitoTokens).orElse(null);
 
-                for (Message message : receiveMessageResult.getMessages()) {
-                    System.out.println("Got message: " + message.getBody());
-                    service.getSQS().deleteMessage(new DeleteMessageRequest().withQueueUrl(queueUrl).withReceiptHandle(message.getReceiptHandle()));
-                }
-            }
+        service.connect("us-east-1", credentials);
+        service.read("https://sqs.us-east-1.amazonaws.com/604080725100/test.fifo", message -> {
+            System.out.println("Message: " + message);
         });
     }
 }

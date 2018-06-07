@@ -10,13 +10,17 @@ import com.amazonaws.auth.policy.conditions.StringCondition;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.*;
-import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import com.amazonaws.services.cognitoidentity.model.Credentials;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created by Zachary Herridge on 6/1/2018.
@@ -27,7 +31,7 @@ public class BotControlMessagingService {
     private AmazonSQS amazonSQS;
 
     public AmazonSQS getSQS() {
-        return amazonSQS;
+        return Optional.ofNullable(amazonSQS).orElseThrow(() -> new RuntimeException("Connect to SQS before referencing the SQS object. Call botControlMessagingService.connect()."));
     }
 
     private Map<String, String> getQueuePolicies(@Nullable String ip){
@@ -49,6 +53,30 @@ public class BotControlMessagingService {
         queueAttributes.put(QueueAttributeName.ContentBasedDeduplication.toString(), "true");
 
         return queueAttributes;
+    }
+
+    public CompletableFuture<Void> read(String queueUrl, Consumer<Message> callback){
+        CompletableFuture<Void> running = new CompletableFuture<>();
+        Executors.newSingleThreadExecutor().submit(() -> {
+            while (!running.isDone()){
+                ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest();
+                receiveMessageRequest.withQueueUrl(queueUrl);
+                receiveMessageRequest.withMaxNumberOfMessages(10);
+                receiveMessageRequest.withWaitTimeSeconds(20);
+                ReceiveMessageResult receiveMessageResult = getSQS().receiveMessage(receiveMessageRequest);
+                for (Message message : receiveMessageResult.getMessages()) {
+                    try {
+                        callback.accept(message);
+                        getSQS().deleteMessage(new DeleteMessageRequest().withQueueUrl(queueUrl).withReceiptHandle(message.getReceiptHandle()));
+                    }
+                    catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        });
+        return running;
     }
 
     public CreateQueueResult createQueue(String name){
