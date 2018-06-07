@@ -41,6 +41,6 @@ public class BotControlManagementService {
     }
 
     public CreateQueueResult requestMessagingQueue(String ip) {
-        return messagingService.createQueue("", ip);
+        return messagingService.getQueueService().createQueue("", ip);
     }
 }

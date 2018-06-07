@@ -17,6 +17,7 @@
         <module>db-influx</module>
         <module>security-web</module>
         <module>security-acuity</module>
+        <module>data-flow-messaging</module>
     </modules>
 
     <properties>
