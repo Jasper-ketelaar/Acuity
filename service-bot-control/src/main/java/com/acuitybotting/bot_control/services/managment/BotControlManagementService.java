@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zachary Herridge on 6/1/2018.
@@ -59,6 +62,6 @@ public class BotControlManagementService {
     }
 
     private String generateAuthKey(){
-        return "";
+        return UUID.randomUUID().toString().replaceAll("\\.", "-");
     }
 }

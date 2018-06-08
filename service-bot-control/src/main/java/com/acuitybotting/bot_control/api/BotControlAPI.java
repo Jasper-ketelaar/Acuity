@@ -35,7 +35,7 @@ public class BotControlAPI {
     }
 
     @RequestMapping(value = "/update-queue-policy", method = RequestMethod.POST)
-    public boolean requestQueuePolicyUpdate(String authKey, HttpServletRequest request){
+    public boolean requestQueuePolicyUpdate(@RequestBody String authKey, HttpServletRequest request){
         return managementService.updateQueuePolicy(authKey, request.getRemoteAddr());
     }
 
