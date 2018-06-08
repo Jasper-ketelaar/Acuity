@@ -11,7 +11,7 @@ public interface TileFlagRepository extends ArangoRepository<TileFlag> {
 
     Iterable<TileFlag> findAllByPlane(int plane);
 
-    long countAllByXBetweenAndYBetweenAndPlane(int xLower, int xUpper, int yLower, int yUpper, int plane);
+    long countAllByXBetweenAndYBetweenAndPlaneAndDeprecatedNot(int xLower, int xUpper, int yLower, int yUpper, int plane);
 
     Iterable<TileFlag> findAllByXBetweenAndYBetweenAndPlane(int xLower, int xUpper, int yLower, int yUpper, int plane);
 }

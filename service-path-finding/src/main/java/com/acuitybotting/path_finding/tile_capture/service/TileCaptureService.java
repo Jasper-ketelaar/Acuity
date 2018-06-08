@@ -31,7 +31,7 @@ public class TileCaptureService {
     }
 
     public long getTileDifference(TileCaptureCheck tileCaptureCheck) {
-        long tilesFound = repository.countAllByXBetweenAndYBetweenAndPlane(
+        long tilesFound = repository.countAllByXBetweenAndYBetweenAndPlaneAndDeprecatedNot(
                 tileCaptureCheck.getX(),
                 tileCaptureCheck.getX() + tileCaptureCheck.getWidth(),
                 tileCaptureCheck.getY(),

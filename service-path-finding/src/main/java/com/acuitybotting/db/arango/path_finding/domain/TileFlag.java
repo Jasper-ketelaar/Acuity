@@ -23,6 +23,8 @@ public class TileFlag {
     @Key
     private String key;
 
+    private boolean deprecated;
+
     private int x;
     private int y;
     private int plane;

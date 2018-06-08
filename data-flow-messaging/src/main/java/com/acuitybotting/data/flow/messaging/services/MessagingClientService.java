@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -91,28 +92,38 @@ public class MessagingClientService {
     }
 
     public CompletableFuture<Void> consumeQueue(String queueUrl, Consumer<Message> callback){
-        CompletableFuture<Void> running = new CompletableFuture<>();
-        Executors.newSingleThreadExecutor().submit(() -> {
-            while (!running.isDone()){
-                read(queueUrl).ifPresent(receiveMessageResult -> {
-                    for (Message message : receiveMessageResult.getMessages()) {
-                        try {
-                            MessageAttributeValue messageAttributeValue = message.getMessageAttributes().get(FUTURE_ID);
-                            if (messageAttributeValue != null){
-                                CompletableFuture<Message> completableFuture = messageCallbacks.get(messageAttributeValue.getStringValue());
-                                if (completableFuture != null){
-                                    completableFuture.complete(message);
-                                }
-                            }
-                            callback.accept(message);
-                            deleteMessage(queueUrl, message);
-                        }
-                        catch (Exception e){
-                            e.printStackTrace();
-                        }
+        return consumeQueue(queueUrl, callback, null);
+    }
 
-                    }
-                });
+    public CompletableFuture<Void> consumeQueue(String queueUrl, Consumer<Message> callback, BiConsumer<Void, ? super Throwable> shutdownCallback){
+        CompletableFuture<Void> running = new CompletableFuture<>();
+        if (shutdownCallback != null) running.whenCompleteAsync(shutdownCallback);
+        Executors.newSingleThreadExecutor().submit(() -> {
+            try {
+                while (!running.isDone()){
+                    read(queueUrl).ifPresent(receiveMessageResult -> {
+                        for (Message message : receiveMessageResult.getMessages()) {
+                            try {
+                                MessageAttributeValue messageAttributeValue = message.getMessageAttributes().get(FUTURE_ID);
+                                if (messageAttributeValue != null){
+                                    CompletableFuture<Message> completableFuture = messageCallbacks.get(messageAttributeValue.getStringValue());
+                                    if (completableFuture != null){
+                                        completableFuture.complete(message);
+                                    }
+                                }
+                                callback.accept(message);
+                                deleteMessage(queueUrl, message);
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
+                            }
+
+                        }
+                    });
+                }
+            }
+            finally {
+                if (!running.isDone()) running.complete(null);
             }
         });
         return running;

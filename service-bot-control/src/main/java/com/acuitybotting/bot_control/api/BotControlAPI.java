@@ -27,14 +27,11 @@ public class BotControlAPI {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public BotInstance registerInstance(){
+    public BotInstance registerInstance(HttpServletRequest request){
         AcuityPrincipal principal = AcuityWebSecurity.getPrincipal();
-        return managementService.register(principal);
-    }
-
-    @RequestMapping(value = "/request-queue", method = RequestMethod.POST)
-    public String registerQueue(@RequestBody String botAuthKey, HttpServletRequest request){
-        return managementService.requestMessagingQueue(request.getRemoteAddr()).getQueueUrl();
+        BotInstance register = managementService.register(principal, request.getRemoteAddr());
+        if (register == null) throw new RuntimeException("Failed to register bot instance. " + principal + ", " + request.getRemoteAddr());
+        return register;
     }
 
     @RequestMapping(value = "/heartbeat", method = RequestMethod.POST)

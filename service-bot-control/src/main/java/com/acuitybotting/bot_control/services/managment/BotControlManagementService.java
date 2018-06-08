@@ -23,12 +23,25 @@ public class BotControlManagementService {
         this.messagingService = messagingService;
     }
 
-    public BotInstance register(AcuityPrincipal principal) {
+    public BotInstance register(AcuityPrincipal principal, String remoteIp) {
+        if (principal == null || principal.getUsername() == null || principal.getRealm() == null) return null;
         BotInstance botInstance = new BotInstance();
         String authKey = generateAuthKey();
         botInstance.setAuthKey(authKey);
+
+        botInstance.setRealm(principal.getRealm());
         botInstance.setPrincipal(principal.getUsername());
-        return botInstanceRepository.save(botInstance);
+
+        BotInstance save = botInstanceRepository.save(botInstance);
+        if (save != null){
+            CreateQueueResult queue = messagingService.getQueueService().createQueue("bot-" + save.getKey(), remoteIp);
+            if (queue != null){
+                save.setQueueUrl(queue.getQueueUrl());
+            }
+            return botInstanceRepository.save(save);
+        }
+
+        return null;
     }
 
     public boolean heartbeat(String id) {
@@ -38,9 +51,5 @@ public class BotControlManagementService {
 
     private String generateAuthKey(){
         return "";
-    }
-
-    public CreateQueueResult requestMessagingQueue(String ip) {
-        return messagingService.getQueueService().createQueue("", ip);
     }
 }

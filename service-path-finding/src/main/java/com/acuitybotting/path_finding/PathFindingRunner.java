@@ -3,6 +3,7 @@ package com.acuitybotting.path_finding;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
 import com.acuitybotting.path_finding.tile_capture.service.TileCaptureService;
 import com.acuitybotting.path_finding.web_processing.WebProcessingService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -27,9 +28,14 @@ public class PathFindingRunner implements CommandLineRunner{
 
     @Override
     public void run(String... args) throws Exception {
-        BufferedImage image = webProcessingService.createImage(0, 2000, 2000, 4000, 5000, 4);
-        ImageIO.write(image, "png", new File("saved2.png"));
+/*        long start = System.currentTimeMillis();
+        long l = tileFlagRepository.countAllByXBetweenAndYBetweenAndPlane(3200, 3300, 3300, 3400, 0);
+        long finish = System.currentTimeMillis();
+        System.out.println("Count: " + l + " in " + (finish - start) + " ms.");*/
+
+/*        BufferedImage image = webProcessingService.createImage(0, 2000, 2000, 4000, 5000, 4);
+        ImageIO.write(image, "png", new File("saved3.png"));
         image = null;
-        System.out.println("Image dump complete.");
+        System.out.println("Image dump complete.");*/
     }
 }
