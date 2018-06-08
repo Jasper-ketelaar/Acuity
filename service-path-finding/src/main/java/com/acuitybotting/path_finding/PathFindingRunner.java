@@ -33,9 +33,9 @@ public class PathFindingRunner implements CommandLineRunner{
         long finish = System.currentTimeMillis();
         System.out.println("Count: " + l + " in " + (finish - start) + " ms.");*/
 
-/*        BufferedImage image = webProcessingService.createImage(0, 2000, 2000, 4000, 5000, 4);
+        BufferedImage image = webProcessingService.createImage(0, 2000, 2000, 4000, 5000, 4);
         ImageIO.write(image, "png", new File("saved3.png"));
         image = null;
-        System.out.println("Image dump complete.");*/
+        System.out.println("Image dump complete.");
     }
 }

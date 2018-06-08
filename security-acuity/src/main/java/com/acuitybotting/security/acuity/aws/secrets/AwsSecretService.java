@@ -19,11 +19,11 @@ import java.util.Optional;
 @Service
 public class AwsSecretService {
 
-    public <T> Optional<T> getSecret(String endpoint, String region, String secretName, Class<T> tClass){
+    public <T> Optional<T> getSecret(String endpoint, String region, String secretName, Class<T> tClass) {
         return getSecret(endpoint, region, secretName).map(s -> new Gson().fromJson(s, tClass));
     }
 
-    public Optional<String> getSecret(String endpoint, String region, String secretName){
+    public Optional<String> getSecret(String endpoint, String region, String secretName) {
         if (System.getenv(secretName) != null) return Optional.ofNullable(System.getenv(secretName));
 
         AwsClientBuilder.EndpointConfiguration config = new AwsClientBuilder.EndpointConfiguration(endpoint, region);
@@ -35,17 +35,18 @@ public class AwsSecretService {
         GetSecretValueResult getSecretValueResponse = null;
         try {
             getSecretValueResponse = client.getSecretValue(getSecretValueRequest);
-
-        } catch(ResourceNotFoundException e) {
+        }
+        catch (ResourceNotFoundException e) {
             System.out.println("The requested secret " + secretName + " was not found");
-        } catch (InvalidRequestException e) {
+        }
+        catch (InvalidRequestException e) {
             System.out.println("The request was invalid due to: " + e.getMessage());
-        } catch (InvalidParameterException e) {
+        }
+        catch (InvalidParameterException e) {
             System.out.println("The request had invalid params: " + e.getMessage());
         }
 
-        if(getSecretValueResponse == null || getSecretValueResponse.getSecretString() == null) return Optional.empty();
-
+        if (getSecretValueResponse == null) return Optional.empty();
         return Optional.ofNullable(getSecretValueResponse.getSecretString());
     }
 

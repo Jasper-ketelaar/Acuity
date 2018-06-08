@@ -17,7 +17,7 @@ public class AcuityPrincipal  {
 
     public String getKey(){
         if (username == null || realm == null) return null;
-        return realm + "-" + username;
+        return username + "_" + sub + "_" + realm;
     }
 
 }

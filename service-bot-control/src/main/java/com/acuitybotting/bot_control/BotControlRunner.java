@@ -36,6 +36,20 @@ public class BotControlRunner implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
+        cognitoAuthenticationService.setCognitoConfiguration(
+                CognitoConfiguration.builder()
+                        .poolId("us-east-1_HrbYmVhlY")
+                        .clientAppId("3pgbd576sg70tsub4nh511k58u")
+                        .fedPoolId("us-east-1:ff1b33f4-7f66-47a5-b7ff-9696b0e1fb52")
+                        .customDomain("acuitybotting")
+                        .region("us-east-1")
+                        .redirectUrl("https://rspeer.org/")
+                        .build()
+        );
+
+        CognitoTokens cognitoTokens = cognitoAuthenticationService.login("Zach", System.getenv("CognitoPassword")).orElse(null);
+        System.out.println();
+
  /*       cognitoAuthenticationService.setCognitoConfiguration(
                 CognitoConfiguration.builder()
                         .poolId("us-east-1_HrbYmVhlY")
