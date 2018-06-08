@@ -5,6 +5,8 @@ import com.arangodb.springframework.annotation.Query;
 import com.arangodb.springframework.repository.ArangoRepository;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 /**
  * Created by Zachary Herridge on 6/1/2018.
  */
@@ -13,4 +15,5 @@ public interface BotInstanceRepository extends ArangoRepository<BotInstance> {
     @Query("UPDATE DOCUMENT(@0) WITH {lastHeartbeat : @1} in BotInstance")
     void updateHeartbeat(String botID, long heartbeat);
 
+    Optional<BotInstance> findByAuthKey(String authKey);
 }

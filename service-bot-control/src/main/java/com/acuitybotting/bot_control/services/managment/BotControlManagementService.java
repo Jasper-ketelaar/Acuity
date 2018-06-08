@@ -8,6 +8,8 @@ import com.amazonaws.services.sqs.model.CreateQueueResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Created by Zachary Herridge on 6/1/2018.
  */
@@ -35,10 +37,10 @@ public class BotControlManagementService {
         BotInstance save = botInstanceRepository.save(botInstance);
         if (save != null){
             CreateQueueResult queue = messagingService.getQueueService().createQueue("bot-" + save.getKey(), remoteIp);
-            if (queue != null){
+            if (queue != null && queue.getQueueUrl() != null){
                 save.setQueueUrl(queue.getQueueUrl());
+                return botInstanceRepository.save(save);
             }
-            return botInstanceRepository.save(save);
         }
 
         return null;
@@ -46,6 +48,13 @@ public class BotControlManagementService {
 
     public boolean heartbeat(String id) {
         botInstanceRepository.updateHeartbeat(id, System.currentTimeMillis());
+        return true;
+    }
+
+    public boolean updateQueuePolicy(String authKey, String ip) {
+        BotInstance botInstance = botInstanceRepository.findByAuthKey(authKey).orElseThrow(() -> new RuntimeException("Bot instance not found."));
+        String queueUrl = botInstance.getQueueUrl();
+        messagingService.getQueueService().updateQueuePolicy(queueUrl, ip);
         return true;
     }
 

@@ -6,9 +6,7 @@ import com.amazonaws.auth.policy.Statement;
 import com.amazonaws.auth.policy.actions.SQSActions;
 import com.amazonaws.auth.policy.conditions.StringCondition;
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.CreateQueueRequest;
-import com.amazonaws.services.sqs.model.CreateQueueResult;
-import com.amazonaws.services.sqs.model.QueueAttributeName;
+import com.amazonaws.services.sqs.model.*;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -59,5 +57,9 @@ public class MessagingQueueService {
 
     public CreateQueueResult createQueue(String name, String ip){
         return getSQS().createQueue(new CreateQueueRequest().withQueueName(name).withAttributes(getQueuePolicies(ip)));
+    }
+
+    public SetQueueAttributesResult updateQueuePolicy(String queueUrl, String ip) {
+        return getSQS().setQueueAttributes(new SetQueueAttributesRequest().withQueueUrl(queueUrl).withAttributes(getQueuePolicies(ip)));
     }
 }
