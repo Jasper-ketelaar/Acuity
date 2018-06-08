@@ -2,7 +2,9 @@ package com.acuitybotting.bot_control.services.messaging;
 
 import com.acuitybotting.data.flow.messaging.services.MessagingClientService;
 import com.acuitybotting.data.flow.messaging.services.MessagingQueueService;
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amazonaws.services.cognitoidentity.model.Credentials;
 import com.amazonaws.services.sqs.AmazonSQS;
@@ -34,9 +36,15 @@ public class BotControlMessagingService {
     }
 
     public void connect(String region, Credentials credentials) {
-        BasicSessionCredentials awsCreds = new BasicSessionCredentials(credentials.getAccessKeyId(), credentials.getSecretKey(), credentials.getSessionToken());
+        AWSCredentials awsCredentials;
+        if (credentials.getSessionToken() == null){
+            awsCredentials = new BasicSessionCredentials(credentials.getAccessKeyId(), credentials.getSecretKey(), credentials.getSessionToken());
+        }
+        else {
+            awsCredentials = new BasicAWSCredentials(credentials.getAccessKeyId(), credentials.getSecretKey());
+        }
         AmazonSQS build = AmazonSQSClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
                 .withRegion(region)
                 .build();
         queueService.setAmazonSQS(build);

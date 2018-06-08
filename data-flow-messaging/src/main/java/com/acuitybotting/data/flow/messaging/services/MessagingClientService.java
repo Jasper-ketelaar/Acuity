@@ -70,8 +70,6 @@ public class MessagingClientService {
             attributeValueMap.put(RESPONSE_URL, new MessageAttributeValue().withDataType("String").withStringValue(localUrl));
         }
 
-        attributeValueMap.put("Meme", new MessageAttributeValue().withDataType("String").withStringValue("Heyfam"));
-
         SendMessageRequest sendMessageRequest = new SendMessageRequest()
                 .withMessageGroupId("channel-1")
                 .withMessageDeduplicationId(UUID.randomUUID().toString())
@@ -87,16 +85,16 @@ public class MessagingClientService {
         getSQS().deleteMessage(new DeleteMessageRequest().withQueueUrl(queueUrl).withReceiptHandle(message.getReceiptHandle()));
     }
 
-    public CompletableFuture<Void> consumeQueue(String queueUrl){
-        return consumeQueue(queueUrl, message -> {});
+    public CompletableFuture<Boolean> consumeQueue(String queueUrl){
+        return consumeQueue(queueUrl, null);
     }
 
-    public CompletableFuture<Void> consumeQueue(String queueUrl, Consumer<Message> callback){
+    public CompletableFuture<Boolean> consumeQueue(String queueUrl, Consumer<Message> callback){
         return consumeQueue(queueUrl, callback, null);
     }
 
-    public CompletableFuture<Void> consumeQueue(String queueUrl, Consumer<Message> callback, BiConsumer<Void, ? super Throwable> shutdownCallback){
-        CompletableFuture<Void> running = new CompletableFuture<>();
+    public CompletableFuture<Boolean> consumeQueue(String queueUrl, Consumer<Message> callback, BiConsumer<Boolean, ? super Throwable> shutdownCallback){
+        CompletableFuture<Boolean> running = new CompletableFuture<>();
         if (shutdownCallback != null) running.whenCompleteAsync(shutdownCallback);
         Executors.newSingleThreadExecutor().submit(() -> {
             try {
@@ -111,13 +109,12 @@ public class MessagingClientService {
                                         completableFuture.complete(message);
                                     }
                                 }
-                                callback.accept(message);
+                                if (callback != null) callback.accept(message);
                                 deleteMessage(queueUrl, message);
                             }
                             catch (Exception e){
                                 e.printStackTrace();
                             }
-
                         }
                     });
                 }

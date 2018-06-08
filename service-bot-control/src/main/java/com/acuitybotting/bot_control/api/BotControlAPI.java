@@ -28,9 +28,9 @@ public class BotControlAPI {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public BotInstance registerInstance(HttpServletRequest request){
-        AcuityPrincipal principal = AcuityWebSecurity.getPrincipal();
-        BotInstance register = managementService.register(principal, request.getRemoteAddr());
-        if (register == null) throw new RuntimeException("Failed to register bot instance. " + principal + ", " + request.getRemoteAddr());
+        String principalKey = AcuityWebSecurity.getPrincipalKey();
+        BotInstance register = managementService.register(principalKey, request.getRemoteAddr());
+        if (register == null) throw new RuntimeException("Failed to register bot instance. " + principalKey + ", " + request.getRemoteAddr());
         return register;
     }
 

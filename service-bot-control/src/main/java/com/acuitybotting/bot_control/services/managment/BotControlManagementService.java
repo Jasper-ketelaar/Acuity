@@ -3,16 +3,14 @@ package com.acuitybotting.bot_control.services.managment;
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
 import com.acuitybotting.db.arango.bot_control.domain.BotInstance;
 import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
-import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
+import com.acuitybotting.security.acuity.aws.secrets.AwsSecretService;
+import com.acuitybotting.security.acuity.aws.secrets.domain.AccessKeyCredentials;
 import com.acuitybotting.security.acuity.web.AcuityWebSecurity;
+import com.amazonaws.services.cognitoidentity.model.Credentials;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 /**
  * Created by Zachary Herridge on 6/1/2018.
@@ -22,18 +20,23 @@ public class BotControlManagementService {
 
     private final BotInstanceRepository botInstanceRepository;
     private final BotControlMessagingService messagingService;
+    private final AwsSecretService secretService;
 
     @Autowired
-    public BotControlManagementService(BotInstanceRepository botInstanceRepository, BotControlMessagingService messagingService) {
+    public BotControlManagementService(BotInstanceRepository botInstanceRepository, BotControlMessagingService messagingService, AwsSecretService secretService) {
         this.botInstanceRepository = botInstanceRepository;
         this.messagingService = messagingService;
+        this.secretService = secretService;
+
+        AccessKeyCredentials sqsAccess = secretService.getSecret("secretsmanager.us-east-1.amazonaws.com", "us-east-1", "SqsAccess", AccessKeyCredentials.class).orElseThrow(() -> new RuntimeException("Failed to acquire AccessKeyCredentials."));
+        messagingService.connect(sqsAccess.getRegion(), new Credentials().withAccessKeyId(sqsAccess.getAccessKey()).withSecretKey(sqsAccess.getSecretKey()));
     }
 
-    public BotInstance register(AcuityPrincipal principal, String remoteIp) {
-        BotInstance botInstance = new BotInstance();
+    public BotInstance register(String principalKey, String remoteIp) {
+        if (principalKey == null) return null;
 
-        if (principal.getKey() == null) return null;
-        botInstance.setPrincipalKey(principal.getKey());
+        BotInstance botInstance = new BotInstance();
+        botInstance.setPrincipalKey(principalKey);
         botInstance.setConnectionTime(System.currentTimeMillis());
 
         BotInstance save = botInstanceRepository.save(botInstance);

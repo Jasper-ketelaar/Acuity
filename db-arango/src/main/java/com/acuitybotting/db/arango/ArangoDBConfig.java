@@ -23,7 +23,7 @@ public class ArangoDBConfig extends AbstractArangoConfiguration{
 
     @Override
     public Builder arango() {
-        Credentials credentials = new Gson().fromJson(secretService.getSecret("secretsmanager.us-east-1.amazonaws.com", "us-east-1", "DbCredentials").orElseThrow(() -> new RuntimeException("Failed to access Arango secret.")), Credentials.class);
+        Credentials credentials = secretService.getSecret("secretsmanager.us-east-1.amazonaws.com", "us-east-1", "DbCredentials", Credentials.class).orElseThrow(() -> new RuntimeException("Failed to access Arango secret."));
         return new ArangoDB.Builder().host(credentials.getArangoHost(), Integer.parseInt(credentials.getArangoPort())).user(credentials.getArangoUsername()).password(credentials.getArangoPassword());
     }
 

@@ -7,6 +7,7 @@ import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
 import com.amazonaws.services.secretsmanager.model.InvalidRequestException;
 import com.amazonaws.services.secretsmanager.model.ResourceNotFoundException;
+import com.google.gson.Gson;
 import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
@@ -17,6 +18,10 @@ import java.util.Optional;
  */
 @Service
 public class AwsSecretService {
+
+    public <T> Optional<T> getSecret(String endpoint, String region, String secretName, Class<T> tClass){
+        return getSecret(endpoint, region, secretName).map(s -> new Gson().fromJson(s, tClass));
+    }
 
     public Optional<String> getSecret(String endpoint, String region, String secretName){
         if (System.getenv(secretName) != null) return Optional.ofNullable(System.getenv(secretName));
