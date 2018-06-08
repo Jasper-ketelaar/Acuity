@@ -1,21 +1,17 @@
 package com.acuitybotting.bot_control;
 
+import com.acuitybotting.bot_control.services.managment.BotControlManagementService;
+import com.acuitybotting.db.arango.bot_control.domain.BotInstance;
 import com.acuitybotting.security.acuity.jwt.AcuityJwtService;
 import com.acuitybotting.security.acuity.aws.cognito.CognitoAuthenticationService;
 import com.acuitybotting.security.acuity.aws.cognito.domain.CognitoConfiguration;
 import com.acuitybotting.security.acuity.aws.cognito.domain.CognitoTokens;
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
 import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
-import com.amazonaws.handlers.HandlerContextKey;
 import com.amazonaws.services.cognitoidentity.model.Credentials;
-import com.amazonaws.services.sqs.model.*;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 
 /**
  * Created by Zachary Herridge on 6/1/2018.
@@ -24,13 +20,15 @@ import java.util.concurrent.Executors;
 public class BotControlRunner implements CommandLineRunner{
 
     private final BotControlMessagingService service;
+    private final BotControlManagementService managementService;
     private final CognitoAuthenticationService cognitoAuthenticationService;
     private final AcuityJwtService jwtService;
     private final BotInstanceRepository repository;
 
     @Autowired
-    public BotControlRunner(BotControlMessagingService service, CognitoAuthenticationService cognitoAuthenticationService, AcuityJwtService jwtService, BotInstanceRepository repository) {
+    public BotControlRunner(BotControlMessagingService service, BotControlManagementService managementService, CognitoAuthenticationService cognitoAuthenticationService, AcuityJwtService jwtService, BotInstanceRepository repository) {
         this.service = service;
+        this.managementService = managementService;
         this.cognitoAuthenticationService = cognitoAuthenticationService;
         this.jwtService = jwtService;
         this.repository = repository;
@@ -38,7 +36,7 @@ public class BotControlRunner implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
-        cognitoAuthenticationService.setCognitoConfiguration(
+ /*       cognitoAuthenticationService.setCognitoConfiguration(
                 CognitoConfiguration.builder()
                         .poolId("us-east-1_HrbYmVhlY")
                         .clientAppId("3pgbd576sg70tsub4nh511k58u")
@@ -68,6 +66,6 @@ public class BotControlRunner implements CommandLineRunner{
         service.getClientService().sendMessage(q1Url, q2Url, "Hello server 2.").whenComplete((message, throwable) -> {
             System.out.println("q2: " + message.getBody());
         });
-
+*/
     }
 }

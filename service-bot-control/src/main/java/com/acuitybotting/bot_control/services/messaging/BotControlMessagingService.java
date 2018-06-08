@@ -37,7 +37,7 @@ public class BotControlMessagingService {
 
     public void connect(String region, Credentials credentials) {
         AWSCredentials awsCredentials;
-        if (credentials.getSessionToken() == null){
+        if (credentials.getSessionToken() != null){
             awsCredentials = new BasicSessionCredentials(credentials.getAccessKeyId(), credentials.getSecretKey(), credentials.getSessionToken());
         }
         else {

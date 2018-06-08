@@ -41,7 +41,7 @@ public class BotControlManagementService {
 
         BotInstance save = botInstanceRepository.save(botInstance);
         if (save.getKey() != null){
-            CreateQueueResult queue = messagingService.getQueueService().createQueue("bot-" + save.getKey(), remoteIp);
+            CreateQueueResult queue = messagingService.getQueueService().createQueue("bot-" + save.getKey() + ".fifo", remoteIp);
             if (queue != null && queue.getQueueUrl() != null){
                 save.setQueueUrl(queue.getQueueUrl());
                 return botInstanceRepository.save(save);
@@ -56,8 +56,8 @@ public class BotControlManagementService {
         return true;
     }
 
-    public boolean updateQueuePolicy(String instanceKey, String ip) {
-        BotInstance botInstance = botInstanceRepository.findByPrincipalKeyAndKey(AcuityWebSecurity.getPrincipalKey(), instanceKey).orElseThrow(() -> new RuntimeException("Bot instance not found."));
+    public boolean updateQueuePolicy(String princiapKey, String instanceKey, String ip) {
+        BotInstance botInstance = botInstanceRepository.findByPrincipalKeyAndKey(princiapKey, instanceKey).orElseThrow(() -> new RuntimeException("Bot instance not found."));
         String queueUrl = botInstance.getQueueUrl();
         messagingService.getQueueService().updateQueuePolicy(queueUrl, ip);
         return true;

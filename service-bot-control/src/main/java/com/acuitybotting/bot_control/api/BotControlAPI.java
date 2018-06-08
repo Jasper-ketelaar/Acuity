@@ -36,7 +36,7 @@ public class BotControlAPI {
 
     @RequestMapping(value = "/update-queue-policy", method = RequestMethod.POST)
     public boolean requestQueuePolicyUpdate(@RequestBody String instanceKey, HttpServletRequest request){
-        return managementService.updateQueuePolicy(instanceKey, request.getRemoteAddr());
+        return managementService.updateQueuePolicy(AcuityWebSecurity.getPrincipalKey(), instanceKey, request.getRemoteAddr());
     }
 
     @RequestMapping(value = "/heartbeat", method = RequestMethod.POST)

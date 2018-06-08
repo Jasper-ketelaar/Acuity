@@ -30,7 +30,7 @@ public class MessagingQueueService {
         return this;
     }
 
-    private Map<String, String> getQueuePolicies(String ip){
+    private Map<String, String> getQueuePolicies(boolean fifo, String ip){
         Statement statement = new Statement(Statement.Effect.Allow)
                 .withPrincipals(Principal.AllUsers)
                 .withActions(
@@ -44,7 +44,7 @@ public class MessagingQueueService {
 
         Map<String, String> queueAttributes = new HashMap<>();
         queueAttributes.put(QueueAttributeName.Policy.toString(), new Policy().withStatements(statement).toJson());
-        queueAttributes.put(QueueAttributeName.FifoQueue.toString(), "true");
+        queueAttributes.put(QueueAttributeName.FifoQueue.toString(), String.valueOf(fifo));
         queueAttributes.getOrDefault(QueueAttributeName.ReceiveMessageWaitTimeSeconds, "20");
         queueAttributes.put(QueueAttributeName.ContentBasedDeduplication.toString(), "true");
 
@@ -56,10 +56,10 @@ public class MessagingQueueService {
     }
 
     public CreateQueueResult createQueue(String name, String ip){
-        return getSQS().createQueue(new CreateQueueRequest().withQueueName(name).withAttributes(getQueuePolicies(ip)));
+        return getSQS().createQueue(new CreateQueueRequest().withQueueName(name).withAttributes(getQueuePolicies(name.endsWith(".fifo"), ip)));
     }
 
     public SetQueueAttributesResult updateQueuePolicy(String queueUrl, String ip) {
-        return getSQS().setQueueAttributes(new SetQueueAttributesRequest().withQueueUrl(queueUrl).withAttributes(getQueuePolicies(ip)));
+        return getSQS().setQueueAttributes(new SetQueueAttributesRequest().withQueueUrl(queueUrl).withAttributes(getQueuePolicies(queueUrl.contains(".fifo"), ip)));
     }
 }
