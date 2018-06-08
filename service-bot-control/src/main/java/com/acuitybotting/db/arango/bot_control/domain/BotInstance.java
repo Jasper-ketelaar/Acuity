@@ -18,10 +18,7 @@ public class BotInstance {
     @Key
     private String key;
 
-    private String realm;
-    private String principal;
-
-    private String authKey;
+    private String principalKey;
 
     private String queueUrl;
     private long lastHeartbeat;

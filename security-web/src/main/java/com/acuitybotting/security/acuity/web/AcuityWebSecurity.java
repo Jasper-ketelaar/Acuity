@@ -12,4 +12,10 @@ public class AcuityWebSecurity {
         return (AcuityPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
+    public static String getPrincipalKey(){
+        AcuityPrincipal principal = getPrincipal();
+        if (principal != null) return principal.getKey();
+        return null;
+    }
+
 }

@@ -4,6 +4,7 @@ import com.acuitybotting.bot_control.services.messaging.BotControlMessagingServi
 import com.acuitybotting.db.arango.bot_control.domain.BotInstance;
 import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
 import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
+import com.acuitybotting.security.acuity.web.AcuityWebSecurity;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,13 +30,10 @@ public class BotControlManagementService {
     }
 
     public BotInstance register(AcuityPrincipal principal, String remoteIp) {
-        if (principal == null || principal.getUsername() == null || principal.getRealm() == null) return null;
         BotInstance botInstance = new BotInstance();
-        String authKey = generateAuthKey();
-        botInstance.setAuthKey(authKey);
 
-        botInstance.setRealm(principal.getRealm());
-        botInstance.setPrincipal(principal.getUsername());
+        if (principal.getKey() == null) return null;
+        botInstance.setPrincipalKey(principal.getKey());
 
         BotInstance save = botInstanceRepository.save(botInstance);
         if (save != null){
@@ -54,14 +52,10 @@ public class BotControlManagementService {
         return true;
     }
 
-    public boolean updateQueuePolicy(String authKey, String ip) {
-        BotInstance botInstance = botInstanceRepository.findByAuthKey(authKey).orElseThrow(() -> new RuntimeException("Bot instance not found."));
+    public boolean updateQueuePolicy(String instanceKey, String ip) {
+        BotInstance botInstance = botInstanceRepository.findByPrincipalKeyAndKey(AcuityWebSecurity.getPrincipalKey(), instanceKey).orElseThrow(() -> new RuntimeException("Bot instance not found."));
         String queueUrl = botInstance.getQueueUrl();
         messagingService.getQueueService().updateQueuePolicy(queueUrl, ip);
         return true;
-    }
-
-    private String generateAuthKey(){
-        return UUID.randomUUID().toString().replaceAll("\\.", "-");
     }
 }

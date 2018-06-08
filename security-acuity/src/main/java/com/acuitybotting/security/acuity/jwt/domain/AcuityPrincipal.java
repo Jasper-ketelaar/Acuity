@@ -15,4 +15,9 @@ public class AcuityPrincipal  {
     private String realm;
     private String[] roles;
 
+    public String getKey(){
+        if (username == null || realm == null) return null;
+        return realm + "-" + username;
+    }
+
 }
