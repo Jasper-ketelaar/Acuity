@@ -54,14 +54,15 @@ public class TileCaptureService {
                     int worldY = tileCapture.getY() + j;
                     int plane = tileCapture.getPlane();
                     int flag = collisionData[i][j];
-                    TileFlag build = TileFlag.builder()
-                            .plane(plane)
-                            .x(worldX)
-                            .y(worldY)
-                            .key(worldX + "_" + worldY + "_" + plane)
-                            .flag(flag)
-                            .build();
-                    data.add(build);
+
+                    TileFlag tileFlag = new TileFlag();
+                    tileFlag.setX(worldX);
+                    tileFlag.setY(worldY);
+                    tileFlag.setPlane(plane);
+                    tileFlag.setFlag(flag);
+                    tileFlag.setKey(worldX + "_" + worldY + "_" + plane);
+
+                    data.add(tileFlag);
                 }
             }
             arangoOperations.upsert(data, ArangoOperations.UpsertStrategy.REPLACE);

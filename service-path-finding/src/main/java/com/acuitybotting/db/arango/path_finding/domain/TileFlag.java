@@ -5,8 +5,10 @@ import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.GeoIndexed;
 import com.arangodb.springframework.annotation.Key;
 import com.arangodb.springframework.annotation.SkiplistIndexed;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.stereotype.Indexed;
 
@@ -14,7 +16,6 @@ import org.springframework.stereotype.Indexed;
  * Created by Zachary Herridge on 5/30/2018.
  */
 @Document("TileFlag")
-@Builder
 @Data
 public class TileFlag {
 
@@ -23,7 +24,7 @@ public class TileFlag {
     @Key
     private String key;
 
-    private boolean deprecated;
+    private Boolean deprecated;
 
     private int x;
     private int y;

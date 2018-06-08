@@ -122,6 +122,9 @@ public class MessagingClientService {
                     });
                 }
             }
+            catch (Exception e){
+                running.completeExceptionally(e);
+            }
             finally {
                 if (!running.isDone()) running.complete(null);
             }

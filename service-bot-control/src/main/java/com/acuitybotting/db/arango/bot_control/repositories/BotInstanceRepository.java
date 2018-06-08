@@ -11,7 +11,7 @@ import java.util.Optional;
  */
 public interface BotInstanceRepository extends ArangoRepository<BotInstance> {
 
-    @Query("UPDATE DOCUMENT(@0) WITH {lastHeartbeat : @1} in BotInstance")
+    @Query("UPDATE DOCUMENT(@0) WITH {lastHeartbeatTime : @1} in BotInstance")
     void updateHeartbeat(String botID, long heartbeat);
 
     Optional<BotInstance> findByPrincipalKeyAndKey(String principalKey, String key);

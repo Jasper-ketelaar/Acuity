@@ -34,9 +34,10 @@ public class BotControlManagementService {
 
         if (principal.getKey() == null) return null;
         botInstance.setPrincipalKey(principal.getKey());
+        botInstance.setConnectionTime(System.currentTimeMillis());
 
         BotInstance save = botInstanceRepository.save(botInstance);
-        if (save != null){
+        if (save.getKey() != null){
             CreateQueueResult queue = messagingService.getQueueService().createQueue("bot-" + save.getKey(), remoteIp);
             if (queue != null && queue.getQueueUrl() != null){
                 save.setQueueUrl(queue.getQueueUrl());

@@ -21,7 +21,7 @@ public class BotInstance {
     private String principalKey;
 
     private String queueUrl;
-    private long lastHeartbeat;
 
-
+    private long connectionTime;
+    private long lastHeartbeatTime;
 }
