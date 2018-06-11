@@ -2,6 +2,7 @@ package com.acuitybotting.path_finding.rs.utils;
 
 import com.acuitybotting.db.arango.path_finding.domain.SceneEntity;
 import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
+import com.acuitybotting.db.arango.path_finding.repositories.SceneEntityRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -19,10 +20,12 @@ import java.util.List;
 public class RsMapService {
 
     private final TileFlagRepository tileFlagRepository;
+    private final SceneEntityRepository sceneEntityRepository;
 
     @Autowired
-    public RsMapService(TileFlagRepository tileFlagRepository) {
+    public RsMapService(TileFlagRepository tileFlagRepository, SceneEntityRepository sceneEntityRepository) {
         this.tileFlagRepository = tileFlagRepository;
+        this.sceneEntityRepository = sceneEntityRepository;
     }
 
     public TileNode getNode(Location location) {
