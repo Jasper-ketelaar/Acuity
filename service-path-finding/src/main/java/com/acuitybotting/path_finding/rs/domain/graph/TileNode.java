@@ -7,7 +7,7 @@ import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.CollisionFlags;
 import com.acuitybotting.path_finding.rs.utils.Direction;
-import com.acuitybotting.path_finding.rs.utils.RsEnvironmentService;
+import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +25,7 @@ public class TileNode implements Node, Locateable {
 
     public static final int WALK = 1;
     public static final int DOOR = 2;
-    
+
     private Location location;
     private int type;
 
@@ -90,18 +90,18 @@ public class TileNode implements Node, Locateable {
 
     private Optional<TileNode> getDoor(int x, int y, int z, Direction dir) {
         if (getDoor(new Location(getX(), getY(), getPlane())).orElse(null) != null) {
-            return Optional.of(RsEnvironmentService.getRsEnvironment().getNode(new Location(x, y, z), DOOR));
+            return Optional.of(RsEnvironment.getNode(new Location(x, y, z), DOOR));
         }
 
         if (getDoor(new Location(x, y, z)).orElse(null) != null) {
-            return Optional.of(RsEnvironmentService.getRsEnvironment().getNode(new Location(x, y, z), DOOR));
+            return Optional.of(RsEnvironment.getNode(new Location(x, y, z), DOOR));
         }
 
         return Optional.empty();
     }
 
     private Optional<SceneEntity> getDoor(Location location) {
-        List<SceneEntity> doors = RsEnvironmentService.getRsEnvironment().getDoorsAt(location);
+        List<SceneEntity> doors = RsEnvironment.getDoorsAt(location);
         if (doors.size() > 0) {
             return Optional.of(doors.get(0));
         }
@@ -109,11 +109,11 @@ public class TileNode implements Node, Locateable {
     }
 
     private Optional<TileNode> getEdge(int x, int y, int z, Direction dir) {
-        Integer localFlag = RsEnvironmentService.getRsEnvironment().getFlagAt(new Location(getX(), getY(), getPlane()));
-        Integer flag = RsEnvironmentService.getRsEnvironment().getFlagAt(new Location(x, y, z));
+        Integer localFlag = RsEnvironment.getFlagAt(new Location(getX(), getY(), getPlane()));
+        Integer flag = RsEnvironment.getFlagAt(new Location(x, y, z));
 
         if (CollisionFlags.checkWalkable(dir, localFlag, flag)) {
-            return Optional.of(RsEnvironmentService.getRsEnvironment().getNode(new Location(x, y, z)));
+            return Optional.of(RsEnvironment.getNode(new Location(x, y, z)));
         }
 
         return Optional.empty();

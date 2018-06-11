@@ -5,7 +5,8 @@ import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
-import com.acuitybotting.path_finding.rs.utils.RsEnvironmentService;
+import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
+import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import com.acuitybotting.path_finding.web_processing.WebImageProcessingService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +24,13 @@ import java.util.Optional;
 public class PathFindingRunner implements CommandLineRunner{
 
     private final WebImageProcessingService webImageProcessingService;
-    private RsEnvironmentService rsEnvironmentService;
+    private RsMapService rsMapService;
     private AStarService aStarService;
 
     @Autowired
-    public PathFindingRunner(WebImageProcessingService webImageProcessingService, RsEnvironmentService rsEnvironmentService, AStarService aStarService) {
+    public PathFindingRunner(WebImageProcessingService webImageProcessingService, RsMapService rsMapService, AStarService aStarService) {
         this.webImageProcessingService = webImageProcessingService;
-        this.rsEnvironmentService = rsEnvironmentService;
+        this.rsMapService = rsMapService;
         this.aStarService = aStarService;
     }
 
@@ -43,14 +44,14 @@ public class PathFindingRunner implements CommandLineRunner{
     private Optional<List<Edge>> findPath(Locateable start, Locateable end){
         return aStarService.findPath(
                 new LocateableHeuristic(),
-                RsEnvironmentService.getRsEnvironment().getNode(start.getLocation()),
-                RsEnvironmentService.getRsEnvironment().getNode(end.getLocation())
+                RsEnvironment.getNode(start.getLocation()),
+                RsEnvironment.getNode(end.getLocation())
         );
     }
 
     @Override
     public void run(String... args) {
-        RsEnvironmentService.setRsEnvironment(rsEnvironmentService);
+        RsEnvironment.setRsMapService(rsMapService);
         List<Edge> edges = findPath(new Location(3207, 3502, 0), new Location(3207, 3504, 0)).orElse(null);
         System.out.println(edges);
     }

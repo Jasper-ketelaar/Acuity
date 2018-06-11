@@ -1,6 +1,6 @@
 package com.acuitybotting.path_finding.rs.domain.location;
 
-import com.acuitybotting.path_finding.rs.utils.RsEnvironmentService;
+import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +13,7 @@ public class Location implements Locateable{
     private int x, y, plane;
 
     public double getTraversalCost(Location other) {
-        return  Math.abs(getX() - other.getX()) + Math.abs(getY() - other.getY()) + (getPlane() != (other).getPlane() ? RsEnvironmentService.PLANE_PENALTY : 0);
+        return  Math.abs(getX() - other.getX()) + Math.abs(getY() - other.getY()) + (getPlane() != (other).getPlane() ? RsEnvironment.PLANE_PENALTY : 0);
     }
 
     @Override
