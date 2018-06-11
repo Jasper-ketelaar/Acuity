@@ -1,12 +1,13 @@
-package com.acuitybotting.path_finding.rs.domain;
+package com.acuitybotting.path_finding.rs.domain.graph;
 
 import com.acuitybotting.db.arango.path_finding.domain.SceneEntity;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
+import com.acuitybotting.path_finding.rs.domain.location.Locateable;
+import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.CollisionFlags;
 import com.acuitybotting.path_finding.rs.utils.Direction;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironmentService;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -130,5 +131,14 @@ public class TileNode implements Node, Locateable {
     @Override
     public int hashCode() {
         return getLocation() != null ? getLocation().hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("TileNode{");
+        sb.append("location=").append(location);
+        sb.append(", type=").append(type);
+        sb.append('}');
+        return sb.toString();
     }
 }

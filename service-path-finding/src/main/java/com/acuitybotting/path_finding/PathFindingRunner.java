@@ -2,9 +2,9 @@ package com.acuitybotting.path_finding;
 
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
-import com.acuitybotting.path_finding.rs.domain.Locateable;
-import com.acuitybotting.path_finding.rs.domain.LocateableHeuristic;
-import com.acuitybotting.path_finding.rs.domain.Location;
+import com.acuitybotting.path_finding.rs.domain.location.Locateable;
+import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
+import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironmentService;
 import com.acuitybotting.path_finding.web_processing.WebImageProcessingService;
 

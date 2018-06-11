@@ -3,16 +3,13 @@ package com.acuitybotting.path_finding.rs.utils;
 import com.acuitybotting.db.arango.path_finding.domain.SceneEntity;
 import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
-import com.acuitybotting.path_finding.rs.domain.Locateable;
-import com.acuitybotting.path_finding.rs.domain.Location;
-import com.acuitybotting.path_finding.rs.domain.TileEdge;
-import com.acuitybotting.path_finding.rs.domain.TileNode;
+import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by Zachary Herridge on 6/11/2018.

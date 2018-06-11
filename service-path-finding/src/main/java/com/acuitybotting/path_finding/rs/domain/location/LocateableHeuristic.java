@@ -1,4 +1,4 @@
-package com.acuitybotting.path_finding.rs.domain;
+package com.acuitybotting.path_finding.rs.domain.location;
 
 import com.acuitybotting.path_finding.algorithms.astar.implmentation.AStarHeuristicSupplier;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;

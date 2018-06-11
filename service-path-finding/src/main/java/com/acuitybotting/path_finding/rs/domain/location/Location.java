@@ -1,8 +1,7 @@
-package com.acuitybotting.path_finding.rs.domain;
+package com.acuitybotting.path_finding.rs.domain.location;
 
 import com.acuitybotting.path_finding.rs.utils.RsEnvironmentService;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +21,15 @@ public class Location implements Locateable{
         return this;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Location{");
+        sb.append("x=").append(x);
+        sb.append(", y=").append(y);
+        sb.append(", plane=").append(plane);
+        sb.append('}');
+        return sb.toString();
+    }
 
     @Override
     public boolean equals(Object object) {

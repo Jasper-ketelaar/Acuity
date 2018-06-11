@@ -1,7 +1,7 @@
 package com.acuitybotting.db.arango.path_finding.domain;
 
 import com.acuitybotting.path_finding.rs.utils.CollisionFlags;
-import com.acuitybotting.path_finding.rs.domain.Location;
+import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.Key;
 import lombok.Data;

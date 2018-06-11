@@ -1,7 +1,7 @@
 package com.acuitybotting.db.arango.path_finding.repositories;
 
 import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
-import com.acuitybotting.path_finding.rs.domain.Location;
+import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.arangodb.springframework.repository.ArangoRepository;
 
 import java.util.Optional;

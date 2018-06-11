@@ -1,9 +1,7 @@
-package com.acuitybotting.path_finding.rs.domain;
+package com.acuitybotting.path_finding.rs.domain.graph;
 
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
-import com.acuitybotting.path_finding.rs.utils.RsEnvironmentService;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -44,9 +42,17 @@ public class TileEdge implements Edge{
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (getStart() != null ? getStart().hashCode() : 0);
+        int result = getStart() != null ? getStart().hashCode() : 0;
         result = 31 * result + (getEnd() != null ? getEnd().hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("TileEdge{");
+        sb.append("start=").append(start);
+        sb.append(", end=").append(end);
+        sb.append('}');
+        return sb.toString();
     }
 }
