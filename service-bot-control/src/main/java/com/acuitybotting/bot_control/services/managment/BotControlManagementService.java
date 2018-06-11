@@ -41,7 +41,7 @@ public class BotControlManagementService {
 
         BotInstance save = botInstanceRepository.save(botInstance);
         if (save.getKey() != null){
-            CreateQueueResult queue = messagingService.getQueueService().createQueue("bot-" + save.getKey() + ".fifo", remoteIp);
+            CreateQueueResult queue = messagingService.getQueueService().createQueue("acuity-bot-client-" + save.getKey() + ".fifo", remoteIp);
             if (queue != null && queue.getQueueUrl() != null){
                 save.setQueueUrl(queue.getQueueUrl());
                 return botInstanceRepository.save(save);
