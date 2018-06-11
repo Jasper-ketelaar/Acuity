@@ -1,17 +1,11 @@
 package com.acuitybotting.db.arango.path_finding.domain;
 
 import com.acuitybotting.path_finding.rs.utils.CollisionFlags;
-import com.acuitybotting.path_finding.rs.utils.Location;
+import com.acuitybotting.path_finding.rs.domain.Location;
 import com.arangodb.springframework.annotation.Document;
-import com.arangodb.springframework.annotation.GeoIndexed;
 import com.arangodb.springframework.annotation.Key;
-import com.arangodb.springframework.annotation.SkiplistIndexed;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.stereotype.Indexed;
 
 /**
  * Created by Zachary Herridge on 5/30/2018.

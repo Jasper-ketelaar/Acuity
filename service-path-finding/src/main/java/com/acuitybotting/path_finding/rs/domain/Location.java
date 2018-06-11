@@ -1,4 +1,4 @@
-package com.acuitybotting.path_finding.rs.utils;
+package com.acuitybotting.path_finding.rs.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
