@@ -1,4 +1,4 @@
-package com.acuitybotting.path_finding.algorithms.astar;
+package com.acuitybotting.path_finding.algorithms.astar.implmentation;
 
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
@@ -6,7 +6,7 @@ import com.acuitybotting.path_finding.algorithms.graph.Node;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class AStar {
+public class AStarImplementation {
 
     private int maxAttempts = 1000000;
 
@@ -78,7 +78,7 @@ public class AStar {
         pathCache.clear();
     }
 
-    public AStar setMaxAttempts(int maxAttempts) {
+    public AStarImplementation setMaxAttempts(int maxAttempts) {
         this.maxAttempts = maxAttempts;
         return this;
     }

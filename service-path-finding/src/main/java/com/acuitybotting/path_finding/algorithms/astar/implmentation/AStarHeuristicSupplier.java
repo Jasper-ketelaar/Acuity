@@ -1,4 +1,4 @@
-package com.acuitybotting.path_finding.algorithms.astar;
+package com.acuitybotting.path_finding.algorithms.astar.implmentation;
 
 
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
