@@ -12,16 +12,16 @@ import java.awt.image.BufferedImage;
  * Created by Zachary Herridge on 6/5/2018.
  */
 @Service
-public class WebProcessingService {
+public class WebImageProcessingService {
 
     private TileFlagRepository flagRepository;
 
     @Autowired
-    public WebProcessingService(TileFlagRepository flagRepository) {
+    public WebImageProcessingService(TileFlagRepository flagRepository) {
         this.flagRepository = flagRepository;
     }
 
-    public BufferedImage createImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize){
+    public BufferedImage createTileFlagImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize){
         BufferedImage nonDisplayableMapImage = new BufferedImage(regionWidth * tilePixelSize, regionHeight * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
         Graphics2D nonDisplayableMapImageGraphics = nonDisplayableMapImage.createGraphics();
 

@@ -2,7 +2,7 @@ package com.acuitybotting.path_finding;
 
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
 import com.acuitybotting.path_finding.tile_capture.service.TileCaptureService;
-import com.acuitybotting.path_finding.web_processing.WebProcessingService;
+import com.acuitybotting.path_finding.web_processing.WebImageProcessingService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -17,13 +17,13 @@ public class PathFindingRunner implements CommandLineRunner{
 
     private final TileFlagRepository tileFlagRepository;
     private final TileCaptureService tileCaptureService;
-    private final WebProcessingService webProcessingService;
+    private final WebImageProcessingService webImageProcessingService;
 
     @Autowired
-    public PathFindingRunner(TileFlagRepository tileFlagRepository, TileCaptureService tileCaptureService, WebProcessingService webProcessingService) {
+    public PathFindingRunner(TileFlagRepository tileFlagRepository, TileCaptureService tileCaptureService, WebImageProcessingService webImageProcessingService) {
         this.tileFlagRepository = tileFlagRepository;
         this.tileCaptureService = tileCaptureService;
-        this.webProcessingService = webProcessingService;
+        this.webImageProcessingService = webImageProcessingService;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class PathFindingRunner implements CommandLineRunner{
         long finish = System.currentTimeMillis();
         System.out.println("Count: " + l + " in " + (finish - start) + " ms.");*/
 
-        BufferedImage image = webProcessingService.createImage(0, 2000, 2000, 4000, 5000, 4);
+        BufferedImage image = webImageProcessingService.createTileFlagImage(0, 2000, 2000, 4000, 5000, 4);
         ImageIO.write(image, "png", new File("saved3.png"));
         image = null;
         System.out.println("Image dump complete.");
