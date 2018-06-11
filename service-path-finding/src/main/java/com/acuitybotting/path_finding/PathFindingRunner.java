@@ -34,11 +34,15 @@ public class PathFindingRunner implements CommandLineRunner{
         this.aStarService = aStarService;
     }
 
-    private void dumpImage() throws IOException {
-        BufferedImage image = webImageProcessingService.createTileFlagImage(0, 2000, 2000, 4000, 5000, 4);
-        ImageIO.write(image, "png", new File("saved3.png"));
-        image = null;
-        System.out.println("Image dump complete.");
+    private void dumpImage()  {
+        try {
+            BufferedImage image = webImageProcessingService.createDoorImage(0, 2000, 2000, 4000, 5000, 4);
+            ImageIO.write(image, "png", new File("saved3.png"));
+            image = null;
+            System.out.println("Image dump complete.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private Optional<List<Edge>> findPath(Locateable start, Locateable end){
@@ -49,10 +53,14 @@ public class PathFindingRunner implements CommandLineRunner{
         );
     }
 
-    @Override
-    public void run(String... args) {
+    private void findPath(){
         RsEnvironment.setRsMapService(rsMapService);
         List<Edge> edges = findPath(new Location(3207, 3502, 0), new Location(3207, 3504, 0)).orElse(null);
         System.out.println(edges);
+    }
+
+    @Override
+    public void run(String... args) {
+        dumpImage();
     }
 }

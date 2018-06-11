@@ -19,16 +19,16 @@ public class SceneEntity {
     @Key
     private String key;
 
-    private boolean deprecated;
+    private Boolean deprecated;
 
     private String name;
     private String entityID;
 
-    private int plane;
-    private int x;
-    private int y;
+    private Integer plane;
+    private Integer x;
+    private Integer y;
 
-    private int rotation;
+    private Integer rotation;
 
     private String[] actions;
 }
