@@ -19,6 +19,8 @@ public class AStarImplementation {
     }
 
     public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Predicate<Edge> edgePredicate) {
+        clear();
+
         open.add(new AStarStore(start, 0));
         costCache.put(start, 0d);
 
