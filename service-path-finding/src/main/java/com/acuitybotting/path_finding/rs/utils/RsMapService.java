@@ -34,9 +34,12 @@ public class RsMapService {
     }
 
     public Integer getFlagAt(Location location) {
-        Integer integer = tileFlagRepository.findByLocation(location).map(TileFlag::getFlag).orElse(null);
-        System.out.println("Found flag at: " + location + "=" + integer);
-        return integer == null ? CollisionFlags.BLOCKED : integer;
+        Integer flag = tileFlagRepository.findByLocation(location).map(TileFlag::getFlag).orElse(null);
+        return flag == null ? CollisionFlags.BLOCKED : flag;
+    }
+
+    public TileFlagRepository getTileFlagRepository() {
+        return tileFlagRepository;
     }
 
     public List<SceneEntity> getDoorsAt(Location location) {

@@ -45,13 +45,6 @@ public class WebImageProcessingService {
         return mapImage;
     }
 
-    private AffineTransform transform(Graphics2D graphics2D, int height){
-        AffineTransform old = graphics2D.getTransform();
-        graphics2D.translate(0, height - 1);
-        graphics2D.scale(1, -1);
-        return old;
-    }
-
     public BufferedImage createTileFlagImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize){
         BufferedImage mapImage = new BufferedImage(regionWidth * tilePixelSize, regionHeight * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
         Graphics2D mapImageGraphics = mapImage.createGraphics();
@@ -61,8 +54,6 @@ public class WebImageProcessingService {
         mapImageGraphics.fillRect(0, 0, regionWidth * tilePixelSize, regionHeight * tilePixelSize);
         mapImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
         mapImageGraphics.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
-
-
 
         for (TileFlag tileFlag : flagRepository.findAllByXBetweenAndYBetweenAndPlane(baseX, baseX + regionWidth, baseY, baseY + regionHeight, plane)) {
             int localX = (tileFlag.getX() - baseX)* tilePixelSize;
@@ -93,5 +84,12 @@ public class WebImageProcessingService {
 
         mapImageGraphics.setTransform(original);
         return mapImage;
+    }
+
+    private AffineTransform transform(Graphics2D graphics2D, int height){
+        AffineTransform old = graphics2D.getTransform();
+        graphics2D.translate(0, height - 1);
+        graphics2D.scale(1, -1);
+        return old;
     }
 }
