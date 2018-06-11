@@ -13,6 +13,8 @@ public class RsEnvironment {
 
     public static final int PLANE_PENALTY = 25;
 
+    public static final String[] DOOR_NAMES = new String[]{"Door", "Gate", "Large door", "Castle door", "Gate of War", "Rickety door", "Oozing barrier", "Portal of Death", "Magic guild door", "Prison door", "Barbarian door"};
+
     private static RsMapService rsMapService;
 
     public static TileNode getNode(Location location) {

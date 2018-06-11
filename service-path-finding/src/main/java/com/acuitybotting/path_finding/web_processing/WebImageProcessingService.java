@@ -4,10 +4,12 @@ import com.acuitybotting.db.arango.path_finding.domain.SceneEntity;
 import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
 import com.acuitybotting.db.arango.path_finding.repositories.SceneEntityRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
+import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
@@ -29,28 +31,38 @@ public class WebImageProcessingService {
     public BufferedImage createDoorImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize){
         BufferedImage mapImage = createTileFlagImage(plane, baseX, baseY, regionWidth, regionHeight, tilePixelSize);
         Graphics2D mapImageGraphics = mapImage.createGraphics();
+        AffineTransform original = transform(mapImageGraphics, mapImage.getHeight());
 
-        String[] doorNames = new String[]{"Door"};
         mapImageGraphics.setColor(new Color(255, 145, 232, 223));
-        Iterable<SceneEntity> doors = sceneEntityRepository.findAllByXBetweenAndYBetweenAndPlaneAndNameIn(baseX, baseX + regionWidth, baseY, baseY + regionHeight, plane, doorNames);
+        Iterable<SceneEntity> doors = sceneEntityRepository.findAllByXBetweenAndYBetweenAndPlaneAndNameIn(baseX, baseX + regionWidth, baseY, baseY + regionHeight, plane, RsEnvironment.DOOR_NAMES);
         for (SceneEntity sceneEntity : doors) {
             int localX = (sceneEntity.getX() - baseX) * tilePixelSize;
             int localY = (sceneEntity.getY() - baseY) * tilePixelSize;
             mapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize);
         }
 
+        mapImageGraphics.setTransform(original);
         return mapImage;
+    }
+
+    private AffineTransform transform(Graphics2D graphics2D, int height){
+        AffineTransform old = graphics2D.getTransform();
+        graphics2D.translate(0, height - 1);
+        graphics2D.scale(1, -1);
+        return old;
     }
 
     public BufferedImage createTileFlagImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize){
         BufferedImage mapImage = new BufferedImage(regionWidth * tilePixelSize, regionHeight * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
         Graphics2D mapImageGraphics = mapImage.createGraphics();
+        AffineTransform original = transform(mapImageGraphics, mapImage.getHeight());
 
         mapImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
         mapImageGraphics.fillRect(0, 0, regionWidth * tilePixelSize, regionHeight * tilePixelSize);
         mapImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
-
         mapImageGraphics.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
+
+
 
         for (TileFlag tileFlag : flagRepository.findAllByXBetweenAndYBetweenAndPlane(baseX, baseX + regionWidth, baseY, baseY + regionHeight, plane)) {
             int localX = (tileFlag.getX() - baseX)* tilePixelSize;
@@ -79,6 +91,7 @@ public class WebImageProcessingService {
             }
         }
 
+        mapImageGraphics.setTransform(original);
         return mapImage;
     }
 }
