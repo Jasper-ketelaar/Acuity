@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<config>
+    <jars>
+        <jar placeholder="placeholder"/>
+    </jars>
+    <keep-names>
+        <class template="class org.rspeer.runetek.*">
+            <method access="private+" parameters="keep"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.Application">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.ui.component.BotTitlePane">
+            <method access="private+" parameters="keep"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.ui.Log">
+            <method access="private+" parameters="keep"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.script.ScriptMeta">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.script.ScriptCategory">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.script.ScriptBlockingEvent">
+            <method access="private+" parameters="keep"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.script.events.*">
+            <method access="private+" parameters="keep"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.api.UserLoginResult">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.api.ModScriptResult">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.networking.api.ModScriptResult">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.networking.api.UserLoginResult">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.script.GameAccount">
+            <method access="private+" parameters="keep"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.script.LoopTask">
+            <method access="private+" parameters="keep"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.script.Script">
+            <method access="private+" parameters="keep"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.rspeer.Bootstrap">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.json*">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.apache*">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.pushingpixels*">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.slf4j*">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+        <class template="class org.reactivestreams*">
+            <method access="private+"/>
+            <field access="private+"/>
+        </class>
+
+    </keep-names>
+    <ignore-classes>
+        <class template="class net.*"/>
+        <class template="class mozilla.*"/>
+        <class template="class com.*"/>
+        <class template="class io.*"/>
+        <class template="class org.pushingpixels.*"/>
+        <class template="class org.json*"/>
+        <class template="class org.apache*"/>
+        <class template="class org.reactivestreams*"/>
+        <class template="class org.slf4j*"/>
+    </ignore-classes>
+    <property name="packages-naming" value="123"/>
+    <property name="classes-naming" value="123"/>
+    <property name="methods-naming" value="iii"/>
+    <property name="fields-naming" value="iii"/>
+    <property name="local-variables-naming" value="optimize"/>
+    <property name="control-flow-obfuscation" value="enable"/>
+    <property name="extensive-flow-obfuscation" value="maximum"/>
+    <property name="string-encryption" value="enable"/>
+    <property name="string-encryption-type" value="strong"/>
+    <property name="string-encryption-version" value="v4"/>
+    <property value="log.xml" name="log-file"/>
+</config>

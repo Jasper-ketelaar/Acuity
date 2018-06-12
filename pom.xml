@@ -18,6 +18,7 @@
         <module>security-web</module>
         <module>security-acuity</module>
         <module>data-flow-messaging</module>
+        <module>service-script-repository</module>
     </modules>
 
     <properties>

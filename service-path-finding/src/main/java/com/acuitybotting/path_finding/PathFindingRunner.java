@@ -61,6 +61,6 @@ public class PathFindingRunner implements CommandLineRunner{
 
     @Override
     public void run(String... args) {
-        findPath();
+        dumpImage();
     }
 }
