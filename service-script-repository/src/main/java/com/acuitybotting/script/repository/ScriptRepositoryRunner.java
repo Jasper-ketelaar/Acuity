@@ -28,8 +28,6 @@ public class ScriptRepositoryRunner implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
-        File file = new File("Acuity.zip");
-        gitHubService.downloadRepoAsZip("Acuity", file);
-        compileService.unzip(file, new File("Acuity"));
+
     }
 }
