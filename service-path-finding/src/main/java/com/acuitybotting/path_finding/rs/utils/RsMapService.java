@@ -45,6 +45,10 @@ public class RsMapService {
         return tileFlagRepository;
     }
 
+    public SceneEntityRepository getSceneEntityRepository() {
+        return sceneEntityRepository;
+    }
+
     public List<SceneEntity> getDoorsAt(Location location) {
         return Collections.emptyList();
     }
