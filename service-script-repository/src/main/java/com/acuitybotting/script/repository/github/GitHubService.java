@@ -40,6 +40,14 @@ public class GitHubService {
         service.editRepository(repository.setPrivate(privateRepository));
     }
 
+    public void addCollaborator(String repositoryName, String... collaboratorGitHubUsernames) throws IOException {
+        Repository repository = getRepository(repositoryName).orElseThrow(() -> new RuntimeException("Failed to get repository."));
+        CollaboratorService collaboratorService = new CollaboratorService(getClient());
+        for (String collaboratorGitHubUsername : collaboratorGitHubUsernames) {
+            collaboratorService.addCollaborator(repository, collaboratorGitHubUsername);
+        }
+    }
+
     public Optional<Repository> getRepository(String repositoryName) throws IOException {
         RepositoryService service = new RepositoryService(getClient());
         return Optional.ofNullable(service.getRepository(getUsername(), repositoryName));
