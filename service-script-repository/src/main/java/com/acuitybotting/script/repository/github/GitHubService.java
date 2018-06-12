@@ -34,23 +34,31 @@ public class GitHubService {
         return System.getenv("github.username");
     }
 
-    public Optional<Repository> getRepository(String repositoryName) throws IOException {
+    public void changeRepositoryAccess(String repositoryName, boolean privateRepository) throws IOException {
+        Repository repository = getRepository(repositoryName).orElseThrow(() -> new RuntimeException("Failed to get repository."));
         RepositoryService service = new RepositoryService(getClient());
-        return Optional.ofNullable(service.getRepository("ZachHerridge", repositoryName));
+        service.editRepository(repository.setPrivate(privateRepository));
     }
 
-    public String createRepo(String repositoryName, String user) throws IOException {
+    public Optional<Repository> getRepository(String repositoryName) throws IOException {
+        RepositoryService service = new RepositoryService(getClient());
+        return Optional.ofNullable(service.getRepository(getUsername(), repositoryName));
+    }
+
+    public String createRepo(String repositoryName, String... collaboratorGitHubUsernames) throws IOException {
         RepositoryService service = new RepositoryService(getClient());
         CollaboratorService collaboratorService = new CollaboratorService(getClient());
         Repository repository = service.createRepository(new Repository().setName(repositoryName).setPrivate(true));
-        collaboratorService.addCollaborator(repository, user);
+        for (String collaboratorGitHubUsername : collaboratorGitHubUsernames) {
+            collaboratorService.addCollaborator(repository, collaboratorGitHubUsername);
+        }
         return repository.getHtmlUrl();
     }
 
-    public void downloadRepoAsZip(String repositoryName, File location) throws IOException {
+    public void downloadRepoAsZip(String repositoryName, File fileZip) throws IOException {
         String url = "/repos/" + getUsername() + "/" + repositoryName + "/zipball/master";
         try (InputStream stream = getClient().getStream(new GitHubRequest().setUri(url))){
-           Files.copy(stream, location.toPath(), StandardCopyOption.REPLACE_EXISTING);
+           Files.copy(stream, fileZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
