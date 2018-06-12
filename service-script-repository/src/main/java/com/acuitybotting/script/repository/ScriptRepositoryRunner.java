@@ -1,5 +1,6 @@
 package com.acuitybotting.script.repository;
 
+import com.acuitybotting.script.repository.compile.CompileService;
 import com.acuitybotting.script.repository.github.GitHubService;
 import com.acuitybotting.script.repository.obfuscator.ObfuscatorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,17 +15,21 @@ import java.io.File;
 @Component
 public class ScriptRepositoryRunner implements CommandLineRunner{
 
+    private final CompileService compileService;
     private final GitHubService gitHubService;
     private final ObfuscatorService obfuscatorService;
 
     @Autowired
-    public ScriptRepositoryRunner(GitHubService gitHubService, ObfuscatorService obfuscatorService) {
+    public ScriptRepositoryRunner(CompileService compileService, GitHubService gitHubService, ObfuscatorService obfuscatorService) {
+        this.compileService = compileService;
         this.gitHubService = gitHubService;
         this.obfuscatorService = obfuscatorService;
     }
 
     @Override
     public void run(String... strings) throws Exception {
-        gitHubService.download("Acuity", new File("Acuity.zip"));
+        File file = new File("Acuity.zip");
+        gitHubService.downloadRepoAsZip("Acuity", file);
+        compileService.unzip(file, new File("Acuity"));
     }
 }

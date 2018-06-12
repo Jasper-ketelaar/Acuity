@@ -47,7 +47,7 @@ public class GitHubService {
         return repository.getHtmlUrl();
     }
 
-    public void download(String name, File location) throws IOException {
+    public void downloadRepoAsZip(String name, File location) throws IOException {
         String url = "/repos/" + getUsername() + "/" + name + "/zipball/master";
         try (InputStream stream = getClient().getStream(new GitHubRequest().setUri(url))){
            Files.copy(stream, location.toPath(), StandardCopyOption.REPLACE_EXISTING);
