@@ -34,21 +34,21 @@ public class GitHubService {
         return System.getenv("github.username");
     }
 
-    public Optional<Repository> getRepository(String name) throws IOException {
+    public Optional<Repository> getRepository(String repositoryName) throws IOException {
         RepositoryService service = new RepositoryService(getClient());
-        return Optional.ofNullable(service.getRepository("ZachHerridge", name));
+        return Optional.ofNullable(service.getRepository("ZachHerridge", repositoryName));
     }
 
-    public String createRepo(String name, String user) throws IOException {
+    public String createRepo(String repositoryName, String user) throws IOException {
         RepositoryService service = new RepositoryService(getClient());
         CollaboratorService collaboratorService = new CollaboratorService(getClient());
-        Repository repository = service.createRepository(new Repository().setName(name).setPrivate(true));
+        Repository repository = service.createRepository(new Repository().setName(repositoryName).setPrivate(true));
         collaboratorService.addCollaborator(repository, user);
         return repository.getHtmlUrl();
     }
 
-    public void downloadRepoAsZip(String name, File location) throws IOException {
-        String url = "/repos/" + getUsername() + "/" + name + "/zipball/master";
+    public void downloadRepoAsZip(String repositoryName, File location) throws IOException {
+        String url = "/repos/" + getUsername() + "/" + repositoryName + "/zipball/master";
         try (InputStream stream = getClient().getStream(new GitHubRequest().setUri(url))){
            Files.copy(stream, location.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }

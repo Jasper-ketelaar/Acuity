@@ -19,25 +19,25 @@ import java.util.stream.Collectors;
 public class CompileService {
 
     public void compile(File botLib, File input, File output){
-        if (!output.exists()) output.mkdir();
         Set<String> javaFiles = new HashSet<>();
         findFilesToCompile(input, javaFiles);
-        for (String javaFile : javaFiles) {
-            JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-            compiler.run(null, null, null, "-d", output.getAbsolutePath(), "-cp", botLib.getAbsolutePath(), javaFile);
+
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        String classesString = javaFiles.stream().collect(Collectors.joining(" "));
+        if (!output.exists()) output.mkdir();
+        compiler.run(null, null, null, "-d", output.getAbsolutePath(), "-cp", botLib.getAbsolutePath(), classesString);
+    }
+
+    private void findFilesToCompile(File parent,  Set<String> result ){
+        File[] children = parent.listFiles();
+        if (children == null) return;
+        for (File child : children) {
+            if (child.getName().endsWith(".java")) result.add(child.getAbsolutePath());
+            if (child.isDirectory()) findFilesToCompile(child, result);
         }
     }
 
-    private void findFilesToCompile(File file,  Set<String> javaFiles ){
-        File[] files = file.listFiles();
-        if (files == null) return;
-        for (File child : files) {
-            if (child.getName().endsWith(".java")) javaFiles.add(child.getAbsolutePath());
-            if (child.isDirectory()) findFilesToCompile(child, javaFiles);
-        }
-    }
-
-    public void unzip(File input, File output) throws IOException {
-        new UnzipUtility().unzip(input.getPath(), output.getPath());
+    public void unzip(File inputZip, File outputDir) throws IOException {
+        new UnzipUtility().unzip(inputZip.getPath(), outputDir.getPath());
     }
 }

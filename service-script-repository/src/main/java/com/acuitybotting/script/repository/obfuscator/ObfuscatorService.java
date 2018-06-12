@@ -15,17 +15,17 @@ import java.util.stream.Collectors;
 @Service
 public class ObfuscatorService {
 
-    public void obfuscate(File allatori, File configPlaceHolder, File config, File input, File output) throws Exception {
-        String allatoriConfig = Files.readAllLines(configPlaceHolder.toPath()).stream().collect(Collectors.joining("\n"));
-        allatoriConfig = allatoriConfig.replaceFirst("<jar placeholder=\"placeholder\"/>", "<jar out=\"" + output.getPath() + "\" in=\"" + input.getPath() + "\"/>");
-        Files.write(config.toPath(), allatoriConfig.getBytes());
-        obfuscate(allatori, config);
+    public void obfuscate(File allatoriJar, File baseConfig, File activeConfig, File inputJar, File outputJar) throws Exception {
+        String baseConfigString = Files.readAllLines(baseConfig.toPath()).stream().collect(Collectors.joining("\n"));
+        baseConfigString = baseConfigString.replaceFirst("<jar placeholder=\"placeholder\"/>", "<jar out=\"" + outputJar.getPath() + "\" in=\"" + inputJar.getPath() + "\"/>");
+        Files.write(activeConfig.toPath(), baseConfigString.getBytes());
+        obfuscate(allatoriJar, activeConfig);
     }
 
-    public void obfuscate(File allatori, File config) throws Exception {
-        final ClassLoader loader = URLClassLoader.newInstance(new URL[]{allatori.toPath().toUri().toURL()}, ObfuscatorService.class.getClassLoader());
-        Class<?> clazz = Class.forName("com.allatori.Obfuscate", true, loader);
-        Method method = clazz.getMethod("main", String[].class);
-        method.invoke(null, (Object) new String[]{config.getPath()});
+    public void obfuscate(File allatoriJar, File activeConfig) throws Exception {
+        final ClassLoader classLoader = URLClassLoader.newInstance(new URL[]{allatoriJar.toPath().toUri().toURL()}, ObfuscatorService.class.getClassLoader());
+        Class<?> obfuscateClass = Class.forName("com.allatori.Obfuscate", true, classLoader);
+        Method mainMethod = obfuscateClass.getMethod("main", String[].class);
+        mainMethod.invoke(null, (Object) new String[]{activeConfig.getPath()});
     }
 }
