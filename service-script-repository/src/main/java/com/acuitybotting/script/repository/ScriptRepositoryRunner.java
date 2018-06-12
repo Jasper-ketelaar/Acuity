@@ -24,11 +24,19 @@ public class ScriptRepositoryRunner implements CommandLineRunner{
     public void run(String... strings) throws Exception {
 
         obfuscatorService.obfuscate(
-                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity Project\\service-script-repository\\src\\main\\resources\\allatori.jar"),
-                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity Project\\service-script-repository\\src\\main\\resources\\config-placeholder.xml"),
-                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity Project\\service-script-repository\\src\\main\\resources\\config.xml"),
+                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity\\service-script-repository\\src\\main\\resources\\allatori.jar"),
+                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity\\service-script-repository\\src\\main\\resources\\config-placeholder.xml"),
+                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity\\service-script-repository\\src\\main\\resources\\config.xml"),
                 new File("test.jar"),
                 new File("test-obbed.jar")
+        );
+
+        obfuscatorService.obfuscate(
+                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity\\service-script-repository\\src\\main\\resources\\allatori.jar"),
+                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity\\service-script-repository\\src\\main\\resources\\config-placeholder.xml"),
+                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity\\service-script-repository\\src\\main\\resources\\config.xml"),
+                new File("test.jar"),
+                new File("test-obbed-2.jar")
         );
     }
 }
