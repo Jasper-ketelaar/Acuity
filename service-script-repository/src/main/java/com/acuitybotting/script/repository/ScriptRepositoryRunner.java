@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+
 /**
  * Created by Zachary Herridge on 6/12/2018.
  */
@@ -23,6 +25,6 @@ public class ScriptRepositoryRunner implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
-        gitHubService.createRepo("TestRepo2", "evpmqr");
+        gitHubService.download("Acuity", new File("Acuity.zip"));
     }
 }
