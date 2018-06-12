@@ -1,6 +1,6 @@
-package com.acuitybotting.db.arango.bot_control.repositories;
+package com.acuitybotting.db.arango.acuity.bot_control.repositories;
 
-import com.acuitybotting.db.arango.bot_control.domain.BotInstance;
+import com.acuitybotting.db.arango.acuity.bot_control.domain.BotInstance;
 import com.arangodb.springframework.annotation.Query;
 import com.arangodb.springframework.repository.ArangoRepository;
 

@@ -1,14 +1,12 @@
 package com.acuitybotting.bot_control.services.managment;
 
 import com.acuitybotting.bot_control.services.messaging.BotControlMessagingService;
-import com.acuitybotting.db.arango.bot_control.domain.BotInstance;
-import com.acuitybotting.db.arango.bot_control.repositories.BotInstanceRepository;
+import com.acuitybotting.db.arango.acuity.bot_control.domain.BotInstance;
+import com.acuitybotting.db.arango.acuity.bot_control.repositories.BotInstanceRepository;
 import com.acuitybotting.security.acuity.aws.secrets.AwsSecretService;
 import com.acuitybotting.security.acuity.aws.secrets.domain.AccessKeyCredentials;
-import com.acuitybotting.security.acuity.web.AcuityWebSecurity;
 import com.amazonaws.services.cognitoidentity.model.Credentials;
 import com.amazonaws.services.sqs.model.CreateQueueResult;
-import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

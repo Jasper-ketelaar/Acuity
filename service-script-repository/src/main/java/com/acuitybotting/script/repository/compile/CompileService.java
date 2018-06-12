@@ -28,7 +28,7 @@ public class CompileService {
         compiler.run(null, null, null, "-d", output.getAbsolutePath(), "-cp", botLib.getAbsolutePath(), classesString);
     }
 
-    private void findFilesToCompile(File parent,  Set<String> result ){
+    private void findFilesToCompile(File parent, Set<String> result ){
         File[] children = parent.listFiles();
         if (children == null) return;
         for (File child : children) {
