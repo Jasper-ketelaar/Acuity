@@ -3,21 +3,16 @@ package com.acuitybotting.script.repository.compile;
 import com.acuitybotting.script.repository.compile.util.UnzipUtility;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Jar;
-import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.taskdefs.Manifest;
 import org.apache.tools.ant.taskdefs.ManifestException;
-import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.types.Path;
-import org.apache.tools.ant.types.Reference;
 import org.springframework.stereotype.Service;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarOutputStream;
 import java.util.stream.Collectors;
 
 /**
