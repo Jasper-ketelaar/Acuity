@@ -22,10 +22,11 @@ public class ScriptRepositoryRunner implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
+
         obfuscatorService.obfuscate(
-                new File("C:\\Users\\S3108772\\IdeaProjects\\Acuity Project\\service-script-repository\\src\\main\\resources\\allatori.jar"),
-                new File("C:\\Users\\S3108772\\IdeaProjects\\Acuity Project\\service-script-repository\\src\\main\\resources\\config-placeholder.xml"),
-                new File("C:\\Users\\S3108772\\IdeaProjects\\Acuity Project\\service-script-repository\\src\\main\\resources\\config.xml"),
+                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity Project\\service-script-repository\\src\\main\\resources\\allatori.jar"),
+                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity Project\\service-script-repository\\src\\main\\resources\\config-placeholder.xml"),
+                new File("C:\\Users\\" + System.getProperty("user.name") + "\\IdeaProjects\\Acuity Project\\service-script-repository\\src\\main\\resources\\config.xml"),
                 new File("test.jar"),
                 new File("test-obbed.jar")
         );
