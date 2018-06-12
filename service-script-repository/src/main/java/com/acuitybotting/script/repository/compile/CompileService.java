@@ -1,14 +1,23 @@
 package com.acuitybotting.script.repository.compile;
 
 import com.acuitybotting.script.repository.compile.util.UnzipUtility;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.Jar;
+import org.apache.tools.ant.taskdefs.Javac;
+import org.apache.tools.ant.taskdefs.Manifest;
+import org.apache.tools.ant.taskdefs.ManifestException;
+import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.Reference;
 import org.springframework.stereotype.Service;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 import java.util.stream.Collectors;
 
 /**
@@ -18,10 +27,22 @@ import java.util.stream.Collectors;
 @Service
 public class CompileService {
 
+    public void jar(File classDirectory, File outputJar) throws IOException, ManifestException {
+        Manifest manifest1 = new Manifest();
+        manifest1.addConfiguredAttribute(new Manifest.Attribute("Manifest-Version", "1.0"));
+
+        Jar jar = new Jar();
+        jar.setProject(new Project());
+        jar.addConfiguredManifest(manifest1);
+        jar.setBasedir(classDirectory);
+        jar.setDestFile(outputJar);
+        jar.setIncludes("com/**");
+        jar.execute();
+    }
+
     public void compile(File botLib, File input, File output){
         Set<String> javaFiles = new HashSet<>();
         findFilesToCompile(input, javaFiles);
-
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         String classesString = javaFiles.stream().collect(Collectors.joining(" "));
         if (!output.exists()) output.mkdir();
