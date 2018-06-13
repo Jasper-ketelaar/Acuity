@@ -17,13 +17,11 @@ public class TestView extends MVerticalLayout implements View{
 
     @PostConstruct
     void init(){
-        System.out.println("asdasd");
         addComponent(new Label("This is the default view"));
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         init();
-        System.out.println("ASDASD");
     }
 }

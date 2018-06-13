@@ -2,24 +2,19 @@ package com.acuitybotting.website.acuity;
 
 import com.acuitybotting.website.acuity.navigation.DashboardNavigation;
 import com.acuitybotting.website.acuity.navigation.NavigationManager;
-import com.acuitybotting.website.acuity.views.TestView;
 import com.vaadin.annotations.Theme;
-import com.vaadin.icons.VaadinIcons;
+import com.vaadin.annotations.Viewport;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
 import kaesdingeling.hybridmenu.HybridMenu;
-import kaesdingeling.hybridmenu.components.HMButton;
-import kaesdingeling.hybridmenu.data.MenuConfig;
-import kaesdingeling.hybridmenu.design.DesignItem;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by Zachary Herridge on 6/13/2018.
  */
 @Theme("mytheme")
+@Viewport("width=device-width,initial-scale=1.0,user-scalable=no")
 @SpringUI
 public class DashboardUi extends UI {
 
@@ -34,17 +29,7 @@ public class DashboardUi extends UI {
     }
 
     protected void init(VaadinRequest vaadinRequest) {
-        HybridMenu hybridMenu = HybridMenu.get()
-                .withInitNavigator(false)
-                .withNaviContent(new VerticalLayout())
-                .withConfig(MenuConfig.get().withDesignItem(DesignItem.getDarkDesign()))
-                .build();
-
-        hybridMenu.getLeftMenu().add(HMButton.get()
-                .withCaption("Notification Builder")
-                .withIcon(VaadinIcons.BELL)
-                .withNavigateTo(TestView.class));
-
+        HybridMenu hybridMenu = dashboardNavigation.build();
         setContent(hybridMenu);
         navigationManager.init(this, hybridMenu.getNaviContent());
     }
