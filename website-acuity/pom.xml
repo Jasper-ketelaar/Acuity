@@ -21,10 +21,19 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-push</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.vaadin</groupId>
             <artifactId>viritin</artifactId>
             <version>RELEASE</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.vaadin.addons</groupId>
+            <artifactId>hybridmenu</artifactId>
+            <version>3.0.8</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
