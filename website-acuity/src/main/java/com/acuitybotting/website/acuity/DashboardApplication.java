@@ -8,9 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 
 @SpringBootApplication
-public class AcuityWebsiteApplication {
+public class DashboardApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(AcuityWebsiteApplication.class);
+        SpringApplication.run(DashboardApplication.class);
     }
 }

@@ -1,4 +1,4 @@
-package com.acuitybotting.website.acuity;
+package com.acuitybotting.website.acuity.views;
 
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
