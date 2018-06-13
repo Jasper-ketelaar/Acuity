@@ -1,6 +1,7 @@
 package com.acuitybotting.website.acuity.navigation;
 
 import com.acuitybotting.website.acuity.views.TestView;
+import com.acuitybotting.website.acuity.views.login.LoginView;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.spring.annotation.UIScope;
@@ -53,10 +54,6 @@ public class DashboardNavigationMenuService {
         toggleButton.setIcon(toggleMode.equals(ToggleMode.MINIMAL) ? VaadinIcons.PLUS_CIRCLE : VaadinIcons.MINUS_CIRCLE);
     }
 
-    public void toggleLeftMenu(boolean large){
-
-    }
-
     private void buildLeft(HybridMenu hybridMenu){
         LeftMenu leftMenu = hybridMenu.getLeftMenu();
 
@@ -67,6 +64,6 @@ public class DashboardNavigationMenuService {
         leftMenu.add(HMButton.get()
                 .withCaption("Notification Builder")
                 .withIcon(VaadinIcons.BELL)
-                .withNavigateTo(TestView.class));
+                .withNavigateTo(LoginView.class));
     }
 }
