@@ -1,6 +1,6 @@
 package com.acuitybotting.website.acuity.navigation;
 
-import com.acuitybotting.website.acuity.views.TestView;
+import com.acuitybotting.website.acuity.views.login.LoginView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
@@ -38,7 +38,7 @@ public class SpringNavigationManager extends SpringNavigator {
 		if (!getState().isEmpty()) {
 			return;
 		}
-		navigateTo(TestView.class);
+		navigateTo(LoginView.class);
 	}
 
 	public void updateViewParameter(String parameter) {

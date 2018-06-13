@@ -1,13 +1,14 @@
 package com.acuitybotting.website.acuity.navigation;
 
-import com.acuitybotting.website.acuity.views.TestView;
-import com.acuitybotting.website.acuity.views.login.LoginView;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.VerticalLayout;
 import kaesdingeling.hybridmenu.HybridMenu;
-import kaesdingeling.hybridmenu.components.*;
+import kaesdingeling.hybridmenu.components.HMButton;
+import kaesdingeling.hybridmenu.components.HMLabel;
+import kaesdingeling.hybridmenu.components.LeftMenu;
+import kaesdingeling.hybridmenu.components.TopMenu;
 import kaesdingeling.hybridmenu.data.MenuConfig;
 import kaesdingeling.hybridmenu.data.enums.ToggleMode;
 import kaesdingeling.hybridmenu.design.DesignItem;
@@ -27,34 +28,27 @@ public class DashboardNavigationMenuService {
                 .withConfig(MenuConfig.get().withDesignItem(DesignItem.getDarkDesign()))
                 .build();
 
-        buildTop(hybridMenu);
-        buildLeft(hybridMenu);
+        buildTopMenu(hybridMenu);
+        buildLeftMenu(hybridMenu);
 
         return hybridMenu;
     }
 
-    private void buildTop(HybridMenu hybridMenu){
+    private void buildTopMenu(HybridMenu hybridMenu){
         TopMenu topMenu = hybridMenu.getTopMenu();
 
         HMButton toggleButton = HMButton.get();
         topMenu.add(toggleButton
                 .withIcon(VaadinIcons.MINUS_CIRCLE)
                 .withClickListener(clickEvent -> toggleLeftMenu(toggleButton, hybridMenu))
-                .withDescription("Toggle Menu")
-                .withNavigateTo(TestView.class));
+                .withDescription("Toggle Menu"));
 
         hybridMenu.getNotificationCenter()
                 .setNotiButton(topMenu.add(HMButton.get()
                         .withDescription("Notifications")));
     }
 
-    private void toggleLeftMenu(HMButton toggleButton, HybridMenu hybridMenu) {
-        hybridMenu.getLeftMenu().toggleSize();
-        ToggleMode toggleMode = hybridMenu.getLeftMenu().getToggleMode();
-        toggleButton.setIcon(toggleMode.equals(ToggleMode.MINIMAL) ? VaadinIcons.PLUS_CIRCLE : VaadinIcons.MINUS_CIRCLE);
-    }
-
-    private void buildLeft(HybridMenu hybridMenu){
+    private void buildLeftMenu(HybridMenu hybridMenu){
         LeftMenu leftMenu = hybridMenu.getLeftMenu();
 
         leftMenu.add(HMLabel.get()
@@ -64,6 +58,12 @@ public class DashboardNavigationMenuService {
         leftMenu.add(HMButton.get()
                 .withCaption("Notification Builder")
                 .withIcon(VaadinIcons.BELL)
-                .withNavigateTo(LoginView.class));
+                .withNavigateTo("Login"));
+    }
+
+    private void toggleLeftMenu(HMButton toggleButton, HybridMenu hybridMenu) {
+        hybridMenu.getLeftMenu().toggleSize();
+        ToggleMode toggleMode = hybridMenu.getLeftMenu().getToggleMode();
+        toggleButton.setIcon(toggleMode.equals(ToggleMode.MINIMAL) ? VaadinIcons.PLUS_CIRCLE : VaadinIcons.MINUS_CIRCLE);
     }
 }
