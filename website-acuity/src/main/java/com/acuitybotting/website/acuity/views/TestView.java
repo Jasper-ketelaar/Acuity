@@ -4,7 +4,7 @@ import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
+import org.vaadin.viritin.layouts.MVerticalLayout;
 
 import javax.annotation.PostConstruct;
 
@@ -14,7 +14,7 @@ import javax.annotation.PostConstruct;
  */
 @UIScope
 @SpringView(name = "TestView")
-public class TestView extends VerticalLayout implements View{
+public class TestView extends MVerticalLayout implements View{
 
     @PostConstruct
     void init(){
