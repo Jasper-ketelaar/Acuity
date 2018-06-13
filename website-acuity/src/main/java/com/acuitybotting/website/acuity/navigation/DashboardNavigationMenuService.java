@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @UIScope
-public class DashboardNavigation {
+public class DashboardNavigationMenuService {
 
     public HybridMenu build(){
         HybridMenu hybridMenu = HybridMenu.get()

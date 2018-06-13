@@ -1,7 +1,7 @@
 package com.acuitybotting.website.acuity;
 
-import com.acuitybotting.website.acuity.navigation.DashboardNavigation;
-import com.acuitybotting.website.acuity.navigation.NavigationManager;
+import com.acuitybotting.website.acuity.navigation.DashboardNavigationMenuService;
+import com.acuitybotting.website.acuity.navigation.SpringNavigationManager;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Viewport;
 import com.vaadin.server.VaadinRequest;
@@ -18,19 +18,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 @SpringUI
 public class DashboardUi extends UI {
 
-    private final NavigationManager navigationManager;
-    private final DashboardNavigation dashboardNavigation;
+    private final SpringNavigationManager springNavigationManager;
+    private final DashboardNavigationMenuService dashboardNavigationMenuService;
 
     @Autowired
-    public DashboardUi(NavigationManager navigationManager, DashboardNavigation dashboardNavigation) {
-        this.navigationManager = navigationManager;
-        this.dashboardNavigation = dashboardNavigation;
-        setNavigator(this.navigationManager);
+    public DashboardUi(SpringNavigationManager springNavigationManager, DashboardNavigationMenuService dashboardNavigationMenuService) {
+        this.springNavigationManager = springNavigationManager;
+        this.dashboardNavigationMenuService = dashboardNavigationMenuService;
+        setNavigator(this.springNavigationManager);
     }
 
     protected void init(VaadinRequest vaadinRequest) {
-        HybridMenu hybridMenu = dashboardNavigation.build();
+        HybridMenu hybridMenu = dashboardNavigationMenuService.build();
         setContent(hybridMenu);
-        navigationManager.init(this, hybridMenu.getNaviContent());
+        springNavigationManager.init(this, hybridMenu.getNaviContent());
+        springNavigationManager.navigateToDefaultView();
     }
 }
