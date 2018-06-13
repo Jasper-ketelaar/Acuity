@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @UIScope
-public class SpringNavigationManager extends SpringNavigator {
+public class SpringNavigationService extends SpringNavigator {
 
 	public void navigateTo(Class<? extends View> targetView) {
 		String viewId = getViewId(targetView);
@@ -53,12 +53,14 @@ public class SpringNavigationManager extends SpringNavigator {
 		updateNavigationState(new ViewChangeEvent(this, getCurrentView(), getCurrentView(), viewName, parameters));
 	}
 
-	private static String getViewId(Class<? extends View> viewClass) {
+	public static String getViewId(Class<? extends View> viewClass){
 		SpringView springView = viewClass.getAnnotation(SpringView.class);
 		if (springView == null) {
 			throw new IllegalArgumentException("The target class must be a @SpringView");
 		}
 
+		String name = springView.name();
+		if (!"USE CONVENTIONS".equals(name)) return name;
 		return Conventions.deriveMappingForView(viewClass, springView);
 	}
 }

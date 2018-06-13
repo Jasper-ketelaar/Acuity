@@ -1,5 +1,7 @@
 package com.acuitybotting.website.acuity.navigation;
 
+import com.acuitybotting.website.acuity.views.login.LoginView;
+import com.acuitybotting.website.acuity.views.script_repository.ScriptListView;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.spring.annotation.UIScope;
@@ -43,6 +45,12 @@ public class DashboardNavigationMenuService {
                 .withClickListener(clickEvent -> toggleLeftMenu(toggleButton, hybridMenu))
                 .withDescription("Toggle Menu"));
 
+        HMButton login = HMButton.get()
+                .withIcon(VaadinIcons.USER)
+                .withCaption("Login")
+                .withNavigateTo(SpringNavigationService.getViewId(LoginView.class));
+        topMenu.add(login);
+
         hybridMenu.getNotificationCenter()
                 .setNotiButton(topMenu.add(HMButton.get()
                         .withDescription("Notifications")));
@@ -56,9 +64,9 @@ public class DashboardNavigationMenuService {
                 .withIcon(new ThemeResource("images/logos/acuity_white.png")));
 
         leftMenu.add(HMButton.get()
-                .withCaption("Notification Builder")
-                .withIcon(VaadinIcons.BELL)
-                .withNavigateTo("Login"));
+                .withCaption("Script Repository")
+                .withIcon(VaadinIcons.COG)
+                .withNavigateTo(SpringNavigationService.getViewId(ScriptListView.class)));
     }
 
     private void toggleLeftMenu(HMButton toggleButton, HybridMenu hybridMenu) {

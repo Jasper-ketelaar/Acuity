@@ -32,7 +32,6 @@ import java.util.List;
 public class LoginView extends MVerticalLayout implements View {
 
     private final CognitoAuthenticationService authService;
-
     private final AcuityJwtService acuityJwtService;
 
     @Autowired

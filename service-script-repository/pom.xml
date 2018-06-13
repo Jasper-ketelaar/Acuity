@@ -40,7 +40,11 @@
             <artifactId>org.eclipse.egit.github.core</artifactId>
             <version>2.1.5</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.acuitybotting</groupId>
+            <artifactId>db-arango</artifactId>
+            <version>1.0.0.BUILD-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>com.acuitybotting</groupId>
             <artifactId>security-web</artifactId>
