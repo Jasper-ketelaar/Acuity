@@ -19,6 +19,7 @@
         <module>security-acuity</module>
         <module>data-flow-messaging</module>
         <module>service-script-repository</module>
+        <module>website-acuity</module>
     </modules>
 
     <properties>

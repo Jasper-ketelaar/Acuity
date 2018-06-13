@@ -21,7 +21,6 @@ import java.util.HashSet;
 public class TileCaptureService {
 
     private final TileFlagRepository repository;
-
     private final ArangoOperations arangoOperations;
 
     @Autowired
