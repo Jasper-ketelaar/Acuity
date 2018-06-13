@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Created by Zachary Herridge on 6/13/2018.
  */
-@Theme("valo")
+@Theme("mytheme")
 @SpringUI
 public class DashboardUi extends UI {
 
