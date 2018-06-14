@@ -1,5 +1,6 @@
 package com.acuitybotting.website.acuity.views.script_repository;
 
+import com.acuitybotting.website.acuity.security.ViewAccess;
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.ViewScope;
@@ -14,6 +15,7 @@ import javax.annotation.PostConstruct;
  * Created by Zachary Herridge on 6/13/2018.
  */
 @ViewScope
+@ViewAccess("hasAuthority('BASIC_USER')")
 @SpringView(name = "ScripRepository")
 public class ScriptListView extends MVerticalLayout implements View{
 

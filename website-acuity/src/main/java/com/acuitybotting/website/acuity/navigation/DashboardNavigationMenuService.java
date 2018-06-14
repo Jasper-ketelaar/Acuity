@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 @UIScope
 public class DashboardNavigationMenuService {
 
-    public HybridMenu build(){
+    public HybridMenu build() {
         HybridMenu hybridMenu = HybridMenu.get()
                 .withInitNavigator(false)
                 .withNaviContent(new VerticalLayout())
@@ -36,7 +36,7 @@ public class DashboardNavigationMenuService {
         return hybridMenu;
     }
 
-    private void buildTopMenu(HybridMenu hybridMenu){
+    private void buildTopMenu(HybridMenu hybridMenu) {
         TopMenu topMenu = hybridMenu.getTopMenu();
 
         HMButton toggleButton = HMButton.get();
@@ -56,7 +56,7 @@ public class DashboardNavigationMenuService {
                         .withDescription("Notifications")));
     }
 
-    private void buildLeftMenu(HybridMenu hybridMenu){
+    private void buildLeftMenu(HybridMenu hybridMenu) {
         LeftMenu leftMenu = hybridMenu.getLeftMenu();
 
         leftMenu.add(HMLabel.get()

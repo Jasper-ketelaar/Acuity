@@ -28,7 +28,11 @@ import java.util.List;
  * Created by Zachary Herridge on 6/14/2018.
  */
 @Configuration
-@EnableGlobalMethodSecurity(securedEnabled = true)
+@EnableGlobalMethodSecurity(
+        securedEnabled = true,
+        prePostEnabled = true,
+        jsr250Enabled = true
+)
 public class SecurityConfiguration extends GlobalMethodSecurityConfiguration {
 
     private final CognitoAuthenticationService authService;
