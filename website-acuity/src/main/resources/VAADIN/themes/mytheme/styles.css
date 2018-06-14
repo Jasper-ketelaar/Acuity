@@ -993,10 +993,6 @@
  */
 
 /**
- *
- */
-
-/**
  * @group window
  */
 
@@ -1057,7 +1053,7 @@
  */
 
 .v-vaadin-version:after {
-	content: "8.3.1";
+	content: "8.4.3";
 }
 
 .v-widget {
@@ -2337,10 +2333,6 @@ div.v-layout.v-horizontal.v-widget {
  * @param {string} $primary-stylename (v-upload) -
  *
  * @group upload
- */
-
-/**
- *
  */
 
 /**
@@ -13924,6 +13916,7 @@ div.v-layout.v-horizontal.v-widget {
 	width: 100% !important;
 	height: auto !important;
 	padding: 10px;
+	display: inline-flex;
 }
 
 .mytheme .v-colorpicker-preview-textfield {
