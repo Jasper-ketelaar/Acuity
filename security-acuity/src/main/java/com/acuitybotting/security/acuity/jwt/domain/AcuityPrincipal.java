@@ -19,5 +19,4 @@ public class AcuityPrincipal  {
         if (username == null || realm == null) return null;
         return username + "_" + sub + "_" + realm;
     }
-
 }
