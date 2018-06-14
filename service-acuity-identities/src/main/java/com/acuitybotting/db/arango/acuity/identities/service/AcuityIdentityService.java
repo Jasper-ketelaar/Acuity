@@ -19,13 +19,25 @@ public class AcuityIdentityService {
         this.identityRepository = identityRepository;
     }
 
-    public void createIfAbsent(AcuityPrincipal acuityPrincipal){
+    public AcuityIdentity createIfAbsent(AcuityPrincipal acuityPrincipal){
         String key = acuityPrincipal.getKey();
-        if (!identityRepository.findByPrincipalKeysContaining(key).isPresent()){
-            AcuityIdentity acuityIdentity = new AcuityIdentity();
+        AcuityIdentity acuityIdentity = identityRepository.findByPrincipalKeysContaining(key).orElse(null);
+
+        if (acuityIdentity == null){
+            long now = System.currentTimeMillis();
+            acuityIdentity = new AcuityIdentity();
             acuityIdentity.setEmail(acuityPrincipal.getEmail());
             acuityIdentity.setPrincipalKeys(new String[]{key});
-            identityRepository.save(acuityIdentity);
+            acuityIdentity.setLastSignInTime(now);
+            acuityIdentity.setCreationTime(now);
+            return identityRepository.save(acuityIdentity);
         }
+
+        return acuityIdentity;
+    }
+
+    public void updateLoginFields(AcuityIdentity acuityIdentity) {
+        acuityIdentity.setLastSignInTime(System.currentTimeMillis());
+        identityRepository.save(acuityIdentity);
     }
 }

@@ -1,6 +1,8 @@
 package com.acuitybotting.website.acuity.views.login;
 
+import com.acuitybotting.db.arango.acuity.identities.domain.AcuityIdentity;
 import com.acuitybotting.db.arango.acuity.identities.service.AcuityIdentityService;
+import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
 import com.acuitybotting.security.acuity.spring.AcuitySecurityContext;
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
@@ -51,7 +53,11 @@ public class LoginView extends MVerticalLayout implements View {
             loginMessage.withVisible(false);
             Authentication token = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username.getValue(), password.getValue()));
             SecurityContextHolder.getContext().setAuthentication(token);
-            AcuitySecurityContext.getPrincipal().ifPresent(identityService::createIfAbsent);
+            AcuityPrincipal acuityPrincipal = AcuitySecurityContext.getPrincipal().orElse(null);
+            if (acuityPrincipal != null){
+                AcuityIdentity acuityIdentity = identityService.createIfAbsent(acuityPrincipal);
+                identityService.updateLoginFields(acuityIdentity);
+            }
         }
         catch (Exception e){
             loginMessage.withValue(e.getMessage()).withVisible(true);

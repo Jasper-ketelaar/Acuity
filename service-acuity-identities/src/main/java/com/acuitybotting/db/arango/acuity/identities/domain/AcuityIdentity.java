@@ -22,4 +22,8 @@ public class AcuityIdentity {
     private String username;
 
     private String[] principalKeys;
+
+    private Long lastSignInTime;
+    private Long creationTime;
+
 }
