@@ -5,29 +5,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.acuitybotting</groupId>
-    <artifactId>security-web</artifactId>
+    <artifactId>service-acuity-identities</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.2.RELEASE</version>
+    </parent>
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>2.0.1.RELEASE</version>
-        </dependency>
-        <dependency>
             <groupId>com.acuitybotting</groupId>
-            <artifactId>security-acuity</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-            <version>RELEASE</version>
+            <artifactId>db-arango</artifactId>
+            <version>1.0.0.BUILD-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

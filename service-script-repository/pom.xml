@@ -25,11 +25,7 @@
             <artifactId>ant</artifactId>
             <version>1.10.3</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>5.0.6.RELEASE</version>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -47,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>com.acuitybotting</groupId>
-            <artifactId>security-web</artifactId>
+            <artifactId>security-acuity</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

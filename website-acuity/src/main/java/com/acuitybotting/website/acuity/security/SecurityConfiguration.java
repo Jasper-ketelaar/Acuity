@@ -52,6 +52,7 @@ public class SecurityConfiguration extends GlobalMethodSecurityConfiguration {
                         .poolId("us-east-1_aVWAQrVQG")
                         .clientAppId("46bktvte40p27r0mudbgcso6qn")
                         .region("us-east-1")
+                        .redirectUrl("https://rspeer.org")
                         .build()
         );
     }

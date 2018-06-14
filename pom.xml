@@ -15,11 +15,12 @@
         <module>service-bot-control</module>
         <module>service-bot-statistics</module>
         <module>db-influx</module>
-        <module>security-web</module>
         <module>security-acuity</module>
         <module>data-flow-messaging</module>
         <module>service-script-repository</module>
         <module>website-acuity</module>
+        <module>security-web-api</module>
+        <module>service-acuity-identities</module>
     </modules>
 
     <properties>

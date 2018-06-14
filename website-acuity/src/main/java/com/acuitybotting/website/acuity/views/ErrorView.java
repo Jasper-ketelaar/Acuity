@@ -24,6 +24,6 @@ public class ErrorView extends VerticalLayout implements View {
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-        errorLabel.setValue(String.format("No such view: %s", event.getViewName()));
+        errorLabel.setValue(String.format("Failed to load view %s check the link it right and you have access.", event.getViewName()));
     }
 }

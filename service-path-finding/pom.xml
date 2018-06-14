@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>com.acuitybotting</groupId>
-            <artifactId>security-web</artifactId>
+            <artifactId>security-web-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

@@ -1,22 +1,24 @@
-package com.acuitybotting.security.acuity.web;
+package com.acuitybotting.security.acuity.spring;
 
 import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Optional;
+
 /**
  * Created by Zachary Herridge on 6/7/2018.
  */
-public class AcuityWebSecurity {
+public class AcuitySecurityContext {
 
-    public static AcuityPrincipal getPrincipal(){
+    public static Optional<AcuityPrincipal> getPrincipal(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof AcuityPrincipal)) return null;
-        return (AcuityPrincipal) authentication.getPrincipal();
+        if (authentication == null || !(authentication.getPrincipal() instanceof AcuityPrincipal)) return Optional.empty();
+        return Optional.of((AcuityPrincipal) authentication.getPrincipal());
     }
 
     public static String getPrincipalKey(){
-        AcuityPrincipal principal = getPrincipal();
+        AcuityPrincipal principal = getPrincipal().orElse(null);
         if (principal != null) return principal.getKey();
         return null;
     }

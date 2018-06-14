@@ -20,6 +20,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Zachary Herridge on 6/5/2018.
@@ -34,7 +35,7 @@ public class AcuityJwtService {
             acuityPrincipal.setSub(decodedJWT.getClaim("sub").asString());
             acuityPrincipal.setRealm(decodedJWT.getClaim("iss").asString());
             acuityPrincipal.setEmail(decodedJWT.getClaim("email").asString());
-            acuityPrincipal.setRoles(decodedJWT.getClaim("cognito:roles").asArray(String.class));
+            acuityPrincipal.setRoles(decodedJWT.getClaim("cognito:groups").asArray(String.class));
            return acuityPrincipal;
         });
     }
@@ -42,7 +43,7 @@ public class AcuityJwtService {
     public Optional<DecodedJWT> decodeAndVerify(String token){
         if (token == null) return Optional.empty();
         try {
-            JWTVerifier verifier = JWT.require(getRSA256()).build();
+            JWTVerifier verifier = JWT.require(getRSA256()).acceptLeeway(TimeUnit.HOURS.toMillis(1)).build();
             return Optional.ofNullable(verifier.verify(token));
         }
         catch (Exception exception){
