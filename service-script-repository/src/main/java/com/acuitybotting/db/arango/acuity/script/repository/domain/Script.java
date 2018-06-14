@@ -7,6 +7,9 @@ import com.arangodb.springframework.annotation.Ref;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
+import java.util.Collections;
+import java.util.Set;
+
 @Document("Script")
 @Data
 public class Script {
@@ -20,5 +23,16 @@ public class Script {
     @Ref
     private AcuityIdentity author;
 
+    private String category;
+    private String title;
+    private String description;
+
     private String githubUrl;
+
+    private long creationTime;
+    private long lastCompileTime;
+
+    public static Set<String> getCategories(){
+        return Collections.singleton("Other");
+    }
 }

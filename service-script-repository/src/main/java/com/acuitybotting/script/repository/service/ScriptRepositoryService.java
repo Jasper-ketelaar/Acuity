@@ -105,12 +105,16 @@ public class ScriptRepositoryService {
         return "";
     }
 
-    public Script createRepository(String principalKey, String repositoryName, String githubUsername) throws Exception {
+    public Script createRepository(String principalKey, String repositoryName, String githubUsername, String title, String desc, String category) throws Exception {
         AcuityIdentity acuityIdentity = acuityIdentityService.getIdentityRepository().findByPrincipalKeysContaining(principalKey).orElseThrow(() -> new IllegalStateException("Invalid principal key."));
         String url = gitHubService.createRepo(repositoryName, githubUsername);
         Script script = new Script();
         script.setAuthor(acuityIdentity);
         script.setGithubUrl(url);
+        script.setTitle(title);
+        script.setCreationTime(System.currentTimeMillis());
+        script.setDescription(desc);
+        script.setCategory(category);
         return scriptRepository.save(script);
     }
 }

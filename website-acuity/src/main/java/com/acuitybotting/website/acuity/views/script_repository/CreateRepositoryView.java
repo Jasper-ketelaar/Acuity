@@ -6,6 +6,8 @@ import com.acuitybotting.security.acuity.spring.AcuitySecurityContext;
 import com.acuitybotting.website.acuity.security.ViewAccess;
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.TextArea;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.viritin.button.MButton;
 import org.vaadin.viritin.fields.MTextField;
@@ -25,6 +27,9 @@ public class CreateRepositoryView extends MVerticalLayout implements View{
 
     private MTextField repositoryName = new MTextField("Repository Name");
     private MTextField githubUsername = new MTextField("Github Username");
+    private MTextField scriptTitle = new MTextField("Script Title");
+    private TextArea scriptDesc = new TextArea("Desc");
+    private ComboBox<String> scriptCategory = new ComboBox<>("Script Category", Script.getCategories());
     private MLabel errorLabel = new MLabel().withVisible(false);
 
     @Autowired
@@ -34,12 +39,27 @@ public class CreateRepositoryView extends MVerticalLayout implements View{
 
     @PostConstruct
     public void init(){
-        with(repositoryName, githubUsername, errorLabel, new MButton("Request").addClickListener(this::createRepo));
+        with(
+                repositoryName,
+                githubUsername,
+                scriptTitle,
+                scriptCategory,
+                scriptDesc,
+                errorLabel,
+                new MButton("Request").addClickListener(this::createRepo));
     }
 
     private void createRepo(){
         try {
-            Script script = scriptRepositoryService.createRepository(AcuitySecurityContext.getPrincipalKey(), repositoryName.getValue(), githubUsername.getValue());
+            Script script = scriptRepositoryService.createRepository(
+                    AcuitySecurityContext.getPrincipalKey(),
+                    repositoryName.getValue(),
+                    githubUsername.getValue(),
+                    scriptTitle.getValue(),
+                    scriptDesc.getValue(),
+                    scriptCategory.getSelectedItem().orElse(null)
+
+            );
             if (script != null){
                 getUI().getNavigator().navigateTo("Script/" + script.getKey());
             }
