@@ -26,12 +26,12 @@ public class ScriptView extends MVerticalLayout implements View {
     }
 
     public void init(){
-        with(new MLabel("Script Key", script.getKey()));
+        with(new MLabel("Script Key", script.getKey()), new MLabel("Script Repo Url", script.getGithubUrl()));
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-        scriptRepositoryService.getScriptRepository().findById(event.getParameters()).orElseThrow(() -> new RuntimeException("Failed to load script"));
+        script = scriptRepositoryService.getScriptRepository().findById(event.getParameters()).orElseThrow(() -> new RuntimeException("Failed to load script"));
         init();
     }
 }
