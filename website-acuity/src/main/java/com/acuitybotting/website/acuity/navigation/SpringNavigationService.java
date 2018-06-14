@@ -37,17 +37,6 @@ public class SpringNavigationService extends SpringNavigator {
         return Conventions.deriveMappingForView(viewClass, springView);
     }
 
-    public void navigateTo(Class<? extends View> targetView) {
-        String viewId = getViewId(targetView);
-        navigateTo(viewId);
-
-    }
-
-    public void navigateTo(Class<? extends View> targetView, Object parameter) {
-        String viewId = getViewId(targetView);
-        navigateTo(viewId + "/" + parameter.toString());
-    }
-
     @Override
     public void navigateTo(String navigationState) {
         if (null == this.getViewProvider(navigationState)) {
@@ -60,7 +49,7 @@ public class SpringNavigationService extends SpringNavigator {
         if (!getState().isEmpty()) {
             return;
         }
-        navigateTo(LoginView.class);
+        navigateTo(getViewId(LoginView.class));
     }
 
     public void updateViewParameter(String parameter) {

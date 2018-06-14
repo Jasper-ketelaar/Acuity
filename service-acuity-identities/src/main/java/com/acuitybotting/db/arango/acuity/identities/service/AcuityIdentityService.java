@@ -3,6 +3,7 @@ package com.acuitybotting.db.arango.acuity.identities.service;
 import com.acuitybotting.db.arango.acuity.identities.domain.AcuityIdentity;
 import com.acuitybotting.db.arango.acuity.identities.repositories.AcuityIdentityRepository;
 import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
  * Created by Zachary Herridge on 6/14/2018.
  */
 @Service
+@Data
 public class AcuityIdentityService {
 
     private final AcuityIdentityRepository identityRepository;

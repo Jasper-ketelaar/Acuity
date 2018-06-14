@@ -1,5 +1,9 @@
 package com.acuitybotting.script.repository.service;
 
+import com.acuitybotting.db.arango.acuity.script.repository.domain.Script;
+import com.acuitybotting.db.arango.acuity.script.repository.repositories.ScriptRepository;
+import com.acuitybotting.db.arango.acuity.identities.domain.AcuityIdentity;
+import com.acuitybotting.db.arango.acuity.identities.service.AcuityIdentityService;
 import com.acuitybotting.script.repository.compile.CompileService;
 import com.acuitybotting.script.repository.github.GitHubService;
 import com.acuitybotting.script.repository.obfuscator.ObfuscatorService;
@@ -14,12 +18,16 @@ import java.util.UUID;
 @Service
 public class ScriptRepositoryService {
 
+    private final AcuityIdentityService acuityIdentityService;
+    private final ScriptRepository scriptRepository;
     private final CompileService compileService;
     private final GitHubService gitHubService;
     private final ObfuscatorService obfuscatorService;
 
     @Autowired
-    public ScriptRepositoryService(CompileService compileService, GitHubService gitHubService, ObfuscatorService obfuscatorService) {
+    public ScriptRepositoryService(AcuityIdentityService acuityIdentityService, ScriptRepository scriptRepository, CompileService compileService, GitHubService gitHubService, ObfuscatorService obfuscatorService) {
+        this.acuityIdentityService = acuityIdentityService;
+        this.scriptRepository = scriptRepository;
         this.compileService = compileService;
         this.gitHubService = gitHubService;
         this.obfuscatorService = obfuscatorService;
@@ -95,5 +103,14 @@ public class ScriptRepositoryService {
 
     private String uploadJar(File file){
         return "";
+    }
+
+    public Script createRepository(String principalKey, String repositoryName, String githubUsername) throws Exception {
+        AcuityIdentity acuityIdentity = acuityIdentityService.getIdentityRepository().findByPrincipalKeysContaining(principalKey).orElseThrow(() -> new IllegalStateException("Invalid principal key."));
+        String url = gitHubService.createRepo(repositoryName, githubUsername);
+        Script script = new Script();
+        script.setAuthor(acuityIdentity);
+        script.setGithubUrl(url);
+        return scriptRepository.save(script);
     }
 }
