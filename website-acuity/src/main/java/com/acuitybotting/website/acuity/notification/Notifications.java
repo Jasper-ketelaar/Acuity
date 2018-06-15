@@ -2,8 +2,11 @@ package com.acuitybotting.website.acuity.notification;
 
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.ui.CssLayout;
 import kaesdingeling.hybridmenu.components.Notification;
 import kaesdingeling.hybridmenu.components.NotificationCenter;
+
+import java.lang.reflect.Field;
 
 /**
  * Created by Zachary Herridge on 6/15/2018.
@@ -11,7 +14,34 @@ import kaesdingeling.hybridmenu.components.NotificationCenter;
 public class Notifications {
 
     private static Notification buildDefault() {
-        return Notification.get().withDisplayTime(3000);
+        return new CustomNotification()
+                .withCloseable()
+                .withDisplayTime(3000);
+    }
+
+    public static void markAsRead(CustomNotification notification){
+        markAsRead(notification, null);
+    }
+
+    public static void markAsRead(CustomNotification notification, Notification popup){
+        NotificationCenter center = VaadinSession.getCurrent().getAttribute(NotificationCenter.class);
+        if (center != null) {
+            notification.makeAsReaded();
+            if (popup != null){
+                popup.makeAsReaded();
+                center.getUI().access(() -> {
+                    try {
+                        Field lastNotification = center.getClass().getDeclaredField("lastNotification");
+                        lastNotification.setAccessible(true);
+                        CssLayout o = (CssLayout) lastNotification.get(center);
+                        o.removeComponent(popup);
+                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            center.updateToolTip();
+        }
     }
 
     private static void display(Notification notification) {
