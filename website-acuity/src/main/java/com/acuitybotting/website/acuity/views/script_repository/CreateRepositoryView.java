@@ -54,6 +54,7 @@ public class CreateRepositoryView extends MVerticalLayout implements View{
         try {
             Script script = scriptRepositoryService.createRepository(
                     AcuityIdentityContext.getCurrent().orElseThrow(() -> new IllegalStateException("Invalid identity.")),
+                    Script.ACCESS_PUBLIC,
                     repositoryName.getValue(),
                     scriptTitle.getValue(),
                     scriptDesc.getValue(),

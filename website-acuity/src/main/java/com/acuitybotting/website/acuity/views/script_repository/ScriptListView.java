@@ -36,8 +36,7 @@ public class ScriptListView extends MVerticalLayout implements View{
     @PostConstruct
     public void init(){
         withComponent(scriptMGrid.withHeight(90, Unit.PERCENTAGE));
-        scriptMGrid.setDataProvider(DataProvider.ofCollection(Lists.newArrayList(scriptRepositoryService.getScriptRepository().findAll())));
-
+        scriptMGrid.setDataProvider(DataProvider.ofCollection(scriptRepositoryService.findAllScripts(AcuityIdentityContext.getCachedOrUpdate().orElse(null))));
         if (AcuityIdentityContext.isLoggedIn()) with(new MButton("Create Repo", clickEvent -> SpringNavigationService.navigateTo(CreateRepositoryView.class)));
     }
 }

@@ -2,6 +2,7 @@ package com.acuitybotting.website.acuity.views.script_repository;
 
 import com.acuitybotting.db.arango.acuity.script.repository.domain.Script;
 import com.acuitybotting.script.repository.service.ScriptRepositoryService;
+import com.acuitybotting.website.acuity.security.AcuityIdentityContext;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
@@ -32,6 +33,6 @@ public class ScriptView extends MVerticalLayout implements View {
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
         script = scriptRepositoryService.getScriptRepository().findById(event.getParameters()).orElseThrow(() -> new RuntimeException("Failed to load script"));
-        init();
+        if (script != null && scriptRepositoryService.isAuthedForScript(AcuityIdentityContext.getCachedOrUpdate().orElse(null), script)) init();
     }
 }

@@ -14,6 +14,9 @@ import java.util.Set;
 @Data
 public class Script {
 
+    public static final int ACCESS_PUBLIC = 1;
+    public static final int ACCESS_PRIVATE = 2;
+
     @Id
     private String id;
 
@@ -22,6 +25,8 @@ public class Script {
 
     @Ref
     private AcuityIdentity author;
+
+    private int accessLevel;
 
     private String category;
     private String title;
