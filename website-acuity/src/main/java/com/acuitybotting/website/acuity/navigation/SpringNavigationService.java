@@ -1,13 +1,14 @@
 package com.acuitybotting.website.acuity.navigation;
 
 import com.acuitybotting.website.acuity.views.ErrorView;
-import com.acuitybotting.website.acuity.views.login.LoginView;
+import com.acuitybotting.website.acuity.views.script_repository.ScriptListView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.UIScope;
 import com.vaadin.spring.internal.Conventions;
 import com.vaadin.spring.navigator.SpringNavigator;
+import com.vaadin.ui.UI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +50,7 @@ public class SpringNavigationService extends SpringNavigator {
         if (!getState().isEmpty()) {
             return;
         }
-        navigateTo(getViewId(LoginView.class));
+        navigateTo(getViewId(ScriptListView.class));
     }
 
     public void updateViewParameter(String parameter) {
@@ -62,5 +63,9 @@ public class SpringNavigationService extends SpringNavigator {
         }
 
         updateNavigationState(new ViewChangeEvent(this, getCurrentView(), getCurrentView(), viewName, parameters));
+    }
+
+    public static void navigateTo(Class<? extends View> view) {
+        UI.getCurrent().getNavigator().navigateTo(getViewId(view));
     }
 }

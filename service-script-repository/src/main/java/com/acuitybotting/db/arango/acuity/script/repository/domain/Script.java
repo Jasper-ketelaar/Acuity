@@ -27,6 +27,7 @@ public class Script {
     private String title;
     private String description;
 
+    private String githubRepoName;
     private String githubUrl;
 
     private long creationTime;

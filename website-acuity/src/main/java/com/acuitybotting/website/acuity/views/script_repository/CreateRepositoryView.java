@@ -55,13 +55,13 @@ public class CreateRepositoryView extends MVerticalLayout implements View{
             Script script = scriptRepositoryService.createRepository(
                     AcuityIdentityContext.getCurrent().orElseThrow(() -> new IllegalStateException("Invalid identity.")),
                     repositoryName.getValue(),
-                    githubUsername.getValue(),
                     scriptTitle.getValue(),
                     scriptDesc.getValue(),
                     scriptCategory.getSelectedItem().orElse(null)
             );
             if (script != null){
                 getUI().getNavigator().navigateTo("Script/" + script.getKey());
+                scriptRepositoryService.getGitHubService().addCollaborator(script.getGithubRepoName(), githubUsername.getValue());
             }
         } catch (Exception e) {
             errorLabel.withValue(e.getMessage()).withVisible(true);

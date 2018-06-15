@@ -53,13 +53,9 @@ public class GitHubService {
         return Optional.ofNullable(service.getRepository(getUsername(), repositoryName));
     }
 
-    public String createRepo(String repositoryName, String... collaboratorGitHubUsernames) throws IOException {
+    public String createRepo(String repositoryName) throws IOException {
         RepositoryService service = new RepositoryService(getClient());
-        CollaboratorService collaboratorService = new CollaboratorService(getClient());
         Repository repository = service.createRepository(new Repository().setName(repositoryName).setPrivate(true));
-        for (String collaboratorGitHubUsername : collaboratorGitHubUsernames) {
-            collaboratorService.addCollaborator(repository, collaboratorGitHubUsername);
-        }
         return repository.getHtmlUrl();
     }
 

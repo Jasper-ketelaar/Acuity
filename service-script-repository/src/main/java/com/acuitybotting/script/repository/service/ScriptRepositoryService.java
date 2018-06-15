@@ -103,9 +103,10 @@ public class ScriptRepositoryService {
         return "";
     }
 
-    public Script createRepository(AcuityIdentity author, String repositoryName, String githubUsername, String title, String desc, String category) throws Exception {
-        String url = gitHubService.createRepo(repositoryName, githubUsername);
+    public Script createRepository(AcuityIdentity author, String repositoryName, String title, String desc, String category) throws Exception {
+        String url = gitHubService.createRepo(repositoryName);
         Script script = new Script();
+        script.setGithubRepoName(repositoryName);
         script.setAuthor(author);
         script.setGithubUrl(url);
         script.setTitle(title);

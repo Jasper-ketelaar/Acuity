@@ -32,4 +32,8 @@ public class AcuityIdentityContext {
         if (acuityIdentity != null) return Optional.of(acuityIdentity);
         return getCurrent();
     }
+
+    public static boolean isLoggedIn() {
+        return AcuitySecurityContext.getPrincipal().isPresent();
+    }
 }
