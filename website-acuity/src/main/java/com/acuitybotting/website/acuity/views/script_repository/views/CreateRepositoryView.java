@@ -14,12 +14,9 @@ import com.vaadin.ui.TextArea;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.viritin.button.MButton;
 import org.vaadin.viritin.fields.MTextField;
-import org.vaadin.viritin.label.MLabel;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
 import javax.annotation.PostConstruct;
-
-import static com.acuitybotting.db.arango.acuity.identities.domain.AcuityIdentity.PROPERTY_GITHUB_USERNAME;
 
 /**
  * Created by Zachary Herridge on 6/13/2018.
@@ -31,7 +28,7 @@ public class CreateRepositoryView extends MVerticalLayout implements View{
     private final ScriptRepositoryService scriptRepositoryService;
 
     private MTextField repositoryName = new MTextField("Repository Name");
-    private MTextField githubUsername = new MTextField("Github Username", AcuityIdentityContext.getProperty(PROPERTY_GITHUB_USERNAME, String.class).orElse(""));
+    private MTextField githubUsername = new MTextField("Github Username", AcuityIdentityContext.getProperty(AcuityIdentity.PROPERTY_GITHUB_USERNAME, String.class).orElse(""));
     private MTextField scriptTitle = new MTextField("Script Title");
     private TextArea scriptDesc = new TextArea("Desc");
     private ComboBox<String> scriptCategory = new ComboBox<>("Script Category", Script.getCategories());
@@ -65,7 +62,7 @@ public class CreateRepositoryView extends MVerticalLayout implements View{
             if (script != null){
                 SpringNavigationService.navigateTo(ScriptView.class, script.getKey());
                 scriptRepositoryService.getGitHubService().addCollaborator(script.getGithubRepoName(), githubUsername.getValue());
-                AcuityIdentityContext.putProperty(PROPERTY_GITHUB_USERNAME, githubUsername.getValue());
+                AcuityIdentityContext.putProperty(AcuityIdentity.PROPERTY_GITHUB_USERNAME, githubUsername.getValue());
             }
         } catch (Exception e) {
             Notifications.displayWarning(e);
