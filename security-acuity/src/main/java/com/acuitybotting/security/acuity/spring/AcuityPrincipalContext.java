@@ -24,7 +24,7 @@ public class AcuityPrincipalContext {
         return null;
     }
 
-    public static boolean hasRole(String owner) {
-        return getPrincipal().map(acuityPrincipal -> acuityPrincipal.getRoles() != null && Arrays.stream(acuityPrincipal.getRoles()).anyMatch(s -> s.equalsIgnoreCase(owner))).orElse(false);
+    public static boolean hasRole(String role) {
+        return getPrincipal().map(acuityPrincipal -> acuityPrincipal.getRoles() != null && Arrays.stream(acuityPrincipal.getRoles()).anyMatch(s -> s.equalsIgnoreCase(role))).orElse(false);
     }
 }

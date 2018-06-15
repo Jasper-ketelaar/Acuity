@@ -5,6 +5,7 @@ import com.acuitybotting.db.arango.acuity.identities.service.AcuityIdentityServi
 import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
 import com.acuitybotting.security.acuity.spring.AcuityPrincipalContext;
 import com.acuitybotting.website.acuity.navigation.SpringNavigationService;
+import com.acuitybotting.website.acuity.notification.Notifications;
 import com.acuitybotting.website.acuity.security.AcuityIdentityContext;
 import com.acuitybotting.website.acuity.views.script_repository.views.ScriptListView;
 import com.vaadin.navigator.View;
@@ -61,6 +62,7 @@ public class LoginView extends MVerticalLayout implements View {
                 AcuityIdentity acuityIdentity = identityService.createIfAbsent(acuityPrincipal);
                 identityService.updateLoginFields(acuityIdentity);
                 AcuityIdentityContext.getCurrent(false);
+                Notifications.displayInfo("Welcome to Acuity Botting!");
                 SpringNavigationService.navigateTo(ScriptListView.class);
             }
         }

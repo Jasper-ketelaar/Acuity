@@ -62,6 +62,7 @@ public class Notifications {
 
     public static void displayInfo(String info) {
         display(buildDefault()
+                .makeAsReaded()
                 .withTitle("Info")
                 .withContent(info)
                 .withIcon(VaadinIcons.INFO));
