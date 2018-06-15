@@ -4,8 +4,9 @@ import com.acuitybotting.db.arango.acuity.identities.domain.AcuityIdentity;
 import com.acuitybotting.db.arango.acuity.identities.service.AcuityIdentityService;
 import com.acuitybotting.security.acuity.spring.AcuityPrincipalContext;
 import com.vaadin.server.VaadinSession;
-import com.vaadin.ui.UI;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -54,5 +55,30 @@ public class AcuityIdentityContext {
 
     public static boolean isLoggedIn() {
         return AcuityPrincipalContext.getPrincipal().isPresent();
+    }
+
+    public static <T> Optional<T> getProperty(String key, Class<T> tClass){
+        return getProperty(key, tClass, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> Optional<T> getProperty(String key, Class<T> tClass, boolean cached){
+        return getCurrent(cached).map(AcuityIdentity::getProperties).map(stringObjectMap -> (T) stringObjectMap.get(key));
+    }
+
+    public static boolean putProperty(String key, Object value){
+        VaadinSession session = VaadinSession.getCurrent();
+        if (session == null) return false;
+        AcuityIdentityService service = session.getAttribute(AcuityIdentityService.class);
+        if (service == null) return false;
+        String principalKey = AcuityPrincipalContext.getPrincipalKey();
+        if (principalKey == null) return false;
+        AcuityIdentity acuityIdentity = service.getIdentityRepository().findByPrincipalKeysContaining(principalKey).orElse(null);
+
+        Map<String, Object> properties = acuityIdentity.getProperties();
+        if (properties == null) properties = new HashMap<>();
+        properties.put(key, value);
+        session.setAttribute(AcuityIdentity.class, service.getIdentityRepository().save(acuityIdentity));
+        return true;
     }
 }

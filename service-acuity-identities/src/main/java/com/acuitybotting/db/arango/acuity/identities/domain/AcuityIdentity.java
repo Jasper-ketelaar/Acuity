@@ -5,6 +5,7 @@ import com.arangodb.springframework.annotation.Key;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -13,6 +14,8 @@ import java.util.Objects;
 @Document("AcuityIdentity")
 @Data
 public class AcuityIdentity {
+
+    public static final String PROPERTY_GITHUB_USERNAME = "githubUsername";
 
     @Id
     private String id;
@@ -27,6 +30,8 @@ public class AcuityIdentity {
 
     private Long lastSignInTime;
     private Long creationTime;
+
+    private Map<String, Object> properties;
 
     @Override
     public boolean equals(Object object) {

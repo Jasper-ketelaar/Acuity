@@ -12,6 +12,9 @@ import com.vaadin.ui.UI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 /**
  * Governs view navigation of the app.
  */
@@ -25,17 +28,6 @@ public class SpringNavigationService extends SpringNavigator {
     public SpringNavigationService(ErrorView errorView) {
         this.errorView = errorView;
         setErrorView(errorView);
-    }
-
-    public static String getViewId(Class<? extends View> viewClass) {
-        SpringView springView = viewClass.getAnnotation(SpringView.class);
-        if (springView == null) {
-            throw new IllegalArgumentException("The target class must be a @SpringView");
-        }
-
-        String name = springView.name();
-        if (!"USE CONVENTIONS".equals(name)) return name;
-        return Conventions.deriveMappingForView(viewClass, springView);
     }
 
     @Override
@@ -53,19 +45,18 @@ public class SpringNavigationService extends SpringNavigator {
         navigateTo(getViewId(ScriptListView.class));
     }
 
-    public void updateViewParameter(String parameter) {
-        String viewName = getViewId(getCurrentView().getClass());
-        String parameters;
-        if (parameter == null) {
-            parameters = "";
-        } else {
-            parameters = parameter;
-        }
-
-        updateNavigationState(new ViewChangeEvent(this, getCurrentView(), getCurrentView(), viewName, parameters));
+    public static void navigateTo(Class<? extends View> view, String... urlParams) {
+        UI.getCurrent().getNavigator().navigateTo(getViewId(view) + Arrays.stream(urlParams).collect(Collectors.joining("/", "/", null)));
     }
 
-    public static void navigateTo(Class<? extends View> view) {
-        UI.getCurrent().getNavigator().navigateTo(getViewId(view));
+    public static String getViewId(Class<? extends View> viewClass) {
+        SpringView springView = viewClass.getAnnotation(SpringView.class);
+        if (springView == null) {
+            throw new IllegalArgumentException("The target class must be a @SpringView");
+        }
+
+        String name = springView.name();
+        if (!"USE CONVENTIONS".equals(name)) return name;
+        return Conventions.deriveMappingForView(viewClass, springView);
     }
 }
