@@ -50,10 +50,12 @@ public class ScriptView extends MVerticalLayout implements View {
         this.script = script;
 
         scriptKey.setValue(script.getKey());
-        scriptGitHubUrl.setValue(script.getGithubUrl());
+        scriptGitHubUrl.withVisible(script.isGithubPublicRepo()).setValue(script.getGithubUrl());
 
-        if (AcuityIdentityContext.isCurrent(script.getAuthor())) managementComponent.withScript(script).setVisible(true);
-        if (AcuityPrincipalContext.hasRole("OWNER")) compile.setVisible(true);
+        if (AcuityPrincipalContext.hasRole(AcuityPrincipalContext.OWNER_ROLE) || AcuityIdentityContext.isCurrent(script.getAuthor())) {
+            scriptGitHubUrl.withVisible(true);
+            managementComponent.withScript(script).setVisible(true);
+        }
     }
 
     private void compileScript(){

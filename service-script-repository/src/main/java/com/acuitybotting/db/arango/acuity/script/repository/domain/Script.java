@@ -35,6 +35,7 @@ public class Script {
     private String title;
     private String description;
 
+    private boolean githubPublicRepo;
     private String githubRepoName;
     private String githubUrl;
 

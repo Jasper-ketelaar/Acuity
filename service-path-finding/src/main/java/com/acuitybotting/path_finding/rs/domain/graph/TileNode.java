@@ -1,6 +1,5 @@
 package com.acuitybotting.path_finding.rs.domain.graph;
 
-import com.acuitybotting.db.arango.path_finding.domain.SceneEntity;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
@@ -11,7 +10,10 @@ import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import static com.acuitybotting.path_finding.rs.utils.Direction.*;
 
@@ -55,68 +57,43 @@ public class TileNode implements Node, Locateable {
     public Collection<Edge> getNeighbors() {
         Set<Edge> edges = new HashSet<>(8);
 
-        Optional<TileNode> north = getEdge(getX(), getY() + 1, getPlane(), NORTH);
-        north.ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
-        getDoor(getX(), getY() + 1, getPlane(), NORTH).ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
+        boolean north = addEdge(edges, getX(), getY() + 1, getPlane(), NORTH);
+        boolean east = addEdge(edges, getX() + 1, getY(), getPlane(), EAST);
+        boolean west = addEdge(edges, getX() - 1, getY(), getPlane(), WEST);
+        boolean south = addEdge(edges, getX(), getY() - 1, getPlane(), SOUTH);
 
-        Optional<TileNode> east = getEdge(getX() + 1, getY(), getPlane(), EAST);
-        east.ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
-        getDoor(getX() + 1, getY(), getPlane(), EAST).ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
-
-        Optional<TileNode> west = getEdge(getX() - 1, getY(), getPlane(), WEST);
-        west.ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
-        getDoor(getX() - 1, getY(), getPlane(), WEST).ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
-
-        Optional<TileNode> south = getEdge(getX(), getY() - 1, getPlane(), SOUTH);
-        south.ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
-        getDoor(getX(), getY() - 1, getPlane(), SOUTH).ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
-
-        if (north.isPresent()) {
-            if (east.isPresent())
-                getEdge(getX() + 1, getY() + 1, getPlane(), NORTH_EAST).ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
-            if (west.isPresent())
-                getEdge(getX() - 1, getY() + 1, getPlane(), NORTH_WEST).ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
+        if (north) {
+            if (east) addEdge(edges,getX() + 1, getY() + 1, getPlane(), NORTH_EAST);
+            if (west) addEdge(edges,getX() - 1, getY() + 1, getPlane(), NORTH_WEST);
         }
 
-        if (south.isPresent()) {
-            if (east.isPresent())
-                getEdge(getX() + 1, getY() - 1, getPlane(), SOUTH_EAST).ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
-            if (west.isPresent())
-                getEdge(getX() - 1, getY() - 1, getPlane(), SOUTH_WEST).ifPresent(aStarLocation -> edges.add(new TileEdge(this, aStarLocation)));
+        if (south) {
+            if (east) addEdge(edges, getX() + 1, getY() - 1, getPlane(), SOUTH_EAST);
+            if (west) addEdge(edges, getX() - 1, getY() - 1, getPlane(), SOUTH_WEST);
         }
 
         return edges;
     }
 
-    private Optional<TileNode> getDoor(int x, int y, int z, Direction dir) {
-        if (getDoor(new Location(getX(), getY(), getPlane())).orElse(null) != null) {
-            return Optional.of(RsEnvironment.getNode(new Location(x, y, z), DOOR));
-        }
-
-        if (getDoor(new Location(x, y, z)).orElse(null) != null) {
-            return Optional.of(RsEnvironment.getNode(new Location(x, y, z), DOOR));
-        }
-
-        return Optional.empty();
+    private boolean containsDoor(Location location){
+        return RsEnvironment.getDoorsAt(location).size() > 0;
     }
 
-    private Optional<SceneEntity> getDoor(Location location) {
-        List<SceneEntity> doors = RsEnvironment.getDoorsAt(location);
-        if (doors.size() > 0) {
-            return Optional.of(doors.get(0));
-        }
-        return Optional.empty();
-    }
-
-    private Optional<TileNode> getEdge(int x, int y, int z, Direction dir) {
+    private boolean addEdge(Set<Edge> edges, int x, int y, int z, Direction dir) {
+        Location location = new Location(x, y, z);
         Integer localFlag = RsEnvironment.getFlagAt(new Location(getX(), getY(), getPlane()));
-        Integer flag = RsEnvironment.getFlagAt(new Location(x, y, z));
+        Integer flag = RsEnvironment.getFlagAt(location);
 
         if (CollisionFlags.checkWalkable(dir, localFlag, flag)) {
-            return Optional.of(RsEnvironment.getNode(new Location(x, y, z)));
+            edges.add(new TileEdge(this, RsEnvironment.getNode(new Location(x, y, z))));
+            return true;
         }
-
-        return Optional.empty();
+        else if (containsDoor(location)){
+            edges.add(new TileEdge(this, RsEnvironment.getNode(new Location(x, y, z), DOOR)));
+            //Possibly return false when contains door to replicate previous performance.
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -135,10 +112,8 @@ public class TileNode implements Node, Locateable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("TileNode{");
-        sb.append("location=").append(location);
-        sb.append(", type=").append(type);
-        sb.append('}');
-        return sb.toString();
+        return "TileNode{" + "location=" + location +
+                ", type=" + type +
+                '}';
     }
 }

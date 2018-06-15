@@ -12,6 +12,8 @@ import java.util.Optional;
  */
 public class AcuityPrincipalContext {
 
+    public static final String OWNER_ROLE = "OWNER";
+
     public static Optional<AcuityPrincipal> getPrincipal(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof AcuityPrincipal)) return Optional.empty();

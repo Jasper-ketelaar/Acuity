@@ -104,39 +104,6 @@ public class CollisionFlags {
                 || CollisionFlags.check(collisionData, CollisionFlags.CLOSED));
     }
 
-    public static int remove(int flag, int change) {
-        int newHash = 0;
-        if (OCCUPIED != change && blocked(flag, OCCUPIED)) newHash = newHash | OCCUPIED;
-        if (SOLID != change && blocked(flag, SOLID)) newHash = newHash | SOLID;
-        if (BLOCKED != change && blocked(flag, BLOCKED)) newHash = newHash | BLOCKED;
-        if (OCCUPIED != change && blocked(flag, OCCUPIED)) newHash = newHash | OCCUPIED;
-        if (WEST_WALL != change && blocked(flag, WEST_WALL)) newHash = newHash | WEST_WALL;
-        if (SOUTH_WEST_WALL != change && blocked(flag, SOUTH_WEST_WALL)) newHash = newHash | SOUTH_WEST_WALL;
-        if (SOUTH_WALL != change && blocked(flag, SOUTH_WALL)) newHash = newHash | SOUTH_WALL;
-        if (SOUTH_EAST_WALL != change && blocked(flag, SOUTH_EAST_WALL)) newHash = newHash | SOUTH_EAST_WALL;
-        if (EAST_WALL != change && blocked(flag, EAST_WALL)) newHash = newHash | EAST_WALL;
-        if (NORTH_EAST_WALL != change && blocked(flag, NORTH_EAST_WALL)) newHash = newHash | NORTH_EAST_WALL;
-        if (NORTH_WALL != change && blocked(flag, NORTH_WALL)) newHash = newHash | NORTH_WALL;
-        if (NORTH_WEST_WALL != change && blocked(flag, NORTH_WEST_WALL)) newHash = newHash | NORTH_WEST_WALL;
-        return newHash;
-    }
-
-    public static int add(int flag, int change) {
-        int newHash = change;
-        if (blocked(flag, OCCUPIED)) newHash = newHash | OCCUPIED;
-        if (blocked(flag, SOLID)) newHash = newHash | SOLID;
-        if (blocked(flag, BLOCKED)) newHash = newHash | BLOCKED;
-        if (blocked(flag, WEST_WALL)) newHash = newHash | WEST_WALL;
-        if (blocked(flag, SOUTH_WEST_WALL)) newHash = newHash | SOUTH_WEST_WALL;
-        if (blocked(flag, SOUTH_WALL)) newHash = newHash | SOUTH_WALL;
-        if (blocked(flag, SOUTH_EAST_WALL)) newHash = newHash | SOUTH_EAST_WALL;
-        if (blocked(flag, EAST_WALL)) newHash = newHash | EAST_WALL;
-        if (blocked(flag, NORTH_EAST_WALL)) newHash = newHash | NORTH_EAST_WALL;
-        if (blocked(flag, NORTH_WALL)) newHash = newHash | NORTH_WALL;
-        if (blocked(flag, NORTH_WEST_WALL)) newHash = newHash | NORTH_WEST_WALL;
-        return newHash;
-    }
-
     public static String toString(int flag) {
         StringJoiner builder = new StringJoiner(", ");
         if (blocked(flag, OCCUPIED)) builder.add("OCCUPIED");
