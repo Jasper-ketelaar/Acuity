@@ -25,12 +25,31 @@ public class AcuityIdentityContext {
         return acuityIdentity;
     }
 
-    public static Optional<AcuityIdentity> getCachedOrUpdate(){
+    public static Optional<AcuityIdentity> getCurrent(boolean cached){
+        if (!cached) return getCurrent();
+
         VaadinSession session = UI.getCurrent().getSession();
         if (session == null) return Optional.empty();
         AcuityIdentity acuityIdentity = session.getAttribute(AcuityIdentity.class);
         if (acuityIdentity != null) return Optional.of(acuityIdentity);
         return getCurrent();
+    }
+
+    public static String getIdNullSafe(){
+        return getIdNullSafe(true);
+    }
+
+    public static String getIdNullSafe(boolean cached){
+        return getCurrent(cached).map(AcuityIdentity::getId).orElse("NULL");
+    }
+
+    public static boolean isCurrent(AcuityIdentity identity){
+        return isCurrent(identity, true);
+    }
+
+    public static boolean isCurrent(AcuityIdentity identity, boolean cached){
+        if (identity == null) return false;
+        return getIdNullSafe(cached).equals(identity.getId());
     }
 
     public static boolean isLoggedIn() {

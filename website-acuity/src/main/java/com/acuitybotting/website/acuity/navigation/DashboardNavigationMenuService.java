@@ -1,7 +1,7 @@
 package com.acuitybotting.website.acuity.navigation;
 
 import com.acuitybotting.website.acuity.views.login.LoginView;
-import com.acuitybotting.website.acuity.views.script_repository.ScriptListView;
+import com.acuitybotting.website.acuity.views.script_repository.views.ScriptListView;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.spring.annotation.UIScope;

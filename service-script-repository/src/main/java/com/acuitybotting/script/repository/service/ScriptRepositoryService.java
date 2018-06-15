@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -72,17 +73,18 @@ public class ScriptRepositoryService {
         return parentFile;
     }
 
-    public boolean isAuthedForScript(AcuityIdentity acuityIdentity, Script script){
+    public boolean isAuthedForScript(String identityId, Script script){
         Objects.requireNonNull(script);
 
         if (script.getAccessLevel() == Script.ACCESS_PUBLIC) return true;
-        if (acuityIdentity != null && script.getAuthor().getId().equals(acuityIdentity.getId())) return true;
-        return scriptAuthRepository.findAllByScriptAndPrincipal(script, acuityIdentity).stream().anyMatch(ScriptAuth::isActive);
+        if (identityId != null && script.getAuthor().getId().equals(identityId)) return true;
+        return scriptAuthRepository.findAllByScriptAndPrincipal(script.getId(), identityId).stream().anyMatch(ScriptAuth::isActive);
     }
 
-    public Collection<Script> findAllScripts(AcuityIdentity user){
-        Collection<Script> authed = scriptAuthRepository.findAllByPrincipal(user).stream().map(ScriptAuth::getScript).collect(Collectors.toList());
-        Collection<Script> allByAuthorOrAccessLevel = scriptRepository.findAllByAuthorOrAccessLevel(user, Script.ACCESS_PUBLIC);
+    public Collection<Script> findAllScripts(String identityID){
+        Collection<Script> authed = Collections.emptyList();
+        if (identityID != null) authed = scriptAuthRepository.findAllByPrincipal(identityID).stream().map(ScriptAuth::getScript).collect(Collectors.toList());
+        Collection<Script> allByAuthorOrAccessLevel = scriptRepository.findAllByAuthorOrAccessLevel(identityID, Script.ACCESS_PUBLIC);
         allByAuthorOrAccessLevel.addAll(authed);
         return allByAuthorOrAccessLevel;
     }

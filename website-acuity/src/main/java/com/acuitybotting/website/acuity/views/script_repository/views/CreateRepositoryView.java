@@ -1,4 +1,4 @@
-package com.acuitybotting.website.acuity.views.script_repository;
+package com.acuitybotting.website.acuity.views.script_repository.views;
 
 import com.acuitybotting.db.arango.acuity.script.repository.domain.Script;
 import com.acuitybotting.script.repository.service.ScriptRepositoryService;

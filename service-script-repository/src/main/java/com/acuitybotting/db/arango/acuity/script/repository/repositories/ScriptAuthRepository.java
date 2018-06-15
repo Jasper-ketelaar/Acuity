@@ -1,7 +1,5 @@
 package com.acuitybotting.db.arango.acuity.script.repository.repositories;
 
-import com.acuitybotting.db.arango.acuity.identities.domain.AcuityIdentity;
-import com.acuitybotting.db.arango.acuity.script.repository.domain.Script;
 import com.acuitybotting.db.arango.acuity.script.repository.domain.ScriptAuth;
 import com.arangodb.springframework.repository.ArangoRepository;
 
@@ -12,7 +10,9 @@ import java.util.Collection;
  */
 public interface ScriptAuthRepository extends ArangoRepository<ScriptAuth>{
 
-    Collection<ScriptAuth> findAllByPrincipal(AcuityIdentity principal);
+    Collection<ScriptAuth> findAllByPrincipal(String principalId);
 
-    Collection<ScriptAuth> findAllByScriptAndPrincipal(Script script, AcuityIdentity principal);
+    Collection<ScriptAuth> findAllByScriptAndPrincipal(String scriptId, String principalId);
+
+    Collection<ScriptAuth> findAllByScript(String scriptId);
 }

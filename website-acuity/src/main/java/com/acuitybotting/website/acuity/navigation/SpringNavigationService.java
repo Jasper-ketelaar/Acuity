@@ -1,7 +1,7 @@
 package com.acuitybotting.website.acuity.navigation;
 
 import com.acuitybotting.website.acuity.views.ErrorView;
-import com.acuitybotting.website.acuity.views.script_repository.ScriptListView;
+import com.acuitybotting.website.acuity.views.script_repository.views.ScriptListView;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.spring.annotation.SpringView;

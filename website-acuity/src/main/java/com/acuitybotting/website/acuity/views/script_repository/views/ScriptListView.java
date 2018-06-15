@@ -1,16 +1,14 @@
-package com.acuitybotting.website.acuity.views.script_repository;
+package com.acuitybotting.website.acuity.views.script_repository.views;
 
 import com.acuitybotting.db.arango.acuity.script.repository.domain.Script;
 import com.acuitybotting.script.repository.service.ScriptRepositoryService;
 import com.acuitybotting.website.acuity.navigation.SpringNavigationService;
 import com.acuitybotting.website.acuity.security.AcuityIdentityContext;
-import com.google.common.collect.Lists;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.ViewScope;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.querydsl.QPageRequest;
 import org.vaadin.viritin.button.MButton;
 import org.vaadin.viritin.grid.MGrid;
 import org.vaadin.viritin.layouts.MVerticalLayout;
@@ -36,7 +34,7 @@ public class ScriptListView extends MVerticalLayout implements View{
     @PostConstruct
     public void init(){
         withComponent(scriptMGrid.withHeight(90, Unit.PERCENTAGE));
-        scriptMGrid.setDataProvider(DataProvider.ofCollection(scriptRepositoryService.findAllScripts(AcuityIdentityContext.getCachedOrUpdate().orElse(null))));
+        scriptMGrid.setDataProvider(DataProvider.ofCollection(scriptRepositoryService.findAllScripts(AcuityIdentityContext.getIdNullSafe())));
         if (AcuityIdentityContext.isLoggedIn()) with(new MButton("Create Repo", clickEvent -> SpringNavigationService.navigateTo(CreateRepositoryView.class)));
     }
 }
