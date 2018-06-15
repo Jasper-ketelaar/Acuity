@@ -27,7 +27,11 @@ public class DashboardNavigationMenuService {
         HybridMenu hybridMenu = HybridMenu.get()
                 .withInitNavigator(false)
                 .withNaviContent(new VerticalLayout())
-                .withConfig(MenuConfig.get().withDesignItem(DesignItem.getDarkDesign()))
+                .withConfig(
+                        MenuConfig.get()
+                                .withDesignItem(DesignItem.getDarkDesign())
+                                .withNotificationRemoveIcon(VaadinIcons.CLOSE)
+                )
                 .build();
 
         buildTopMenu(hybridMenu);

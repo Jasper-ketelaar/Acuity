@@ -2,7 +2,7 @@ package com.acuitybotting.bot_control.api;
 
 import com.acuitybotting.bot_control.services.managment.BotControlManagementService;
 import com.acuitybotting.db.arango.acuity.bot_control.domain.BotInstance;
-import com.acuitybotting.security.acuity.spring.AcuitySecurityContext;
+import com.acuitybotting.security.acuity.spring.AcuityPrincipalContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +26,7 @@ public class BotControlAPI {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public BotInstance registerInstance(HttpServletRequest request){
-        String principalKey = AcuitySecurityContext.getPrincipalKey();
+        String principalKey = AcuityPrincipalContext.getPrincipalKey();
         BotInstance register = managementService.register(principalKey, request.getRemoteAddr());
         if (register == null) throw new RuntimeException("Failed to register bot instance. " + principalKey + ", " + request.getRemoteAddr());
         return register;
@@ -34,7 +34,7 @@ public class BotControlAPI {
 
     @RequestMapping(value = "/update-queue-policy", method = RequestMethod.POST)
     public boolean requestQueuePolicyUpdate(@RequestBody String instanceKey, HttpServletRequest request){
-        return managementService.updateQueuePolicy(AcuitySecurityContext.getPrincipalKey(), instanceKey, request.getRemoteAddr());
+        return managementService.updateQueuePolicy(AcuityPrincipalContext.getPrincipalKey(), instanceKey, request.getRemoteAddr());
     }
 
     @RequestMapping(value = "/heartbeat", method = RequestMethod.POST)

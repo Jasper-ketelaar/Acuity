@@ -60,8 +60,8 @@ public class ScriptRepositoryService {
 
         File obfuscatedJarLocation = new File(parentFile,repositoryName + "-Obbed.jar");
         obfuscatorService.obfuscate(
-                new File("C:\\Users\\zgher\\IdeaProjects\\Acuity\\service-script-repository\\src\\main\\resources\\allatori.jar"),
-                new File("C:\\Users\\zgher\\IdeaProjects\\Acuity\\service-script-repository\\src\\main\\resources\\config-placeholder.xml"),
+                new File("C:\\Users\\S3108772\\IdeaProjects\\Acuity\\service-script-repository\\src\\main\\resources\\allatori.jar"),
+                new File("C:\\Users\\S3108772\\IdeaProjects\\Acuity\\service-script-repository\\src\\main\\resources\\config-placeholder.xml"),
                 new File(parentFile,"active.xml"),
                 jarLocation,
                 obfuscatedJarLocation
@@ -79,10 +79,8 @@ public class ScriptRepositoryService {
     }
 
     public Collection<Script> findAllScripts(String identityID){
-        Collection<Script> authed = Collections.emptyList();
-        if (identityID != null) authed = scriptAuthRepository.findAllByPrincipal(identityID).stream().map(ScriptAuth::getScript).collect(Collectors.toList());
         Set<Script> allByAuthorOrAccessLevel = scriptRepository.findAllByAuthorOrAccessLevel(identityID, Script.ACCESS_PUBLIC);
-        allByAuthorOrAccessLevel.addAll(authed);
+        if (identityID != null) scriptAuthRepository.findAllByPrincipal(identityID).stream().map(ScriptAuth::getScript).forEach(allByAuthorOrAccessLevel::add);
         return allByAuthorOrAccessLevel;
     }
 

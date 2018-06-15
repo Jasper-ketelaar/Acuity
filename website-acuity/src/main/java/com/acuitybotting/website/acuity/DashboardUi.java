@@ -6,10 +6,12 @@ import com.acuitybotting.website.acuity.navigation.SpringNavigationService;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Viewport;
+import com.vaadin.navigator.PushStateNavigation;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.UI;
 import kaesdingeling.hybridmenu.HybridMenu;
+import kaesdingeling.hybridmenu.components.NotificationCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Theme("mytheme")
 @Viewport("width=device-width,initial-scale=1.0,user-scalable=no")
 @Push
+@PushStateNavigation
 @SpringUI
 public class DashboardUi extends UI {
 
@@ -35,10 +38,13 @@ public class DashboardUi extends UI {
     }
 
     protected void init(VaadinRequest vaadinRequest) {
+        getUI().getSession().setAttribute(AcuityIdentityService.class, acuityIdentityService);
+
         HybridMenu hybridMenu = dashboardNavigationMenuService.build();
+        //getUI().getSession().setAttribute(NotificationCenter.class, hybridMenu.getNotificationCenter());
         setContent(hybridMenu);
+
         springNavigationService.init(this, hybridMenu.getNaviContent());
         springNavigationService.navigateToDefaultView();
-        getUI().getSession().setAttribute(AcuityIdentityService.class, acuityIdentityService);
     }
 }

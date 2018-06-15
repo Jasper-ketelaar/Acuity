@@ -2,7 +2,6 @@ package com.acuitybotting.website.acuity.views.script_repository.views;
 
 import com.acuitybotting.db.arango.acuity.script.repository.domain.Script;
 import com.acuitybotting.script.repository.service.ScriptRepositoryService;
-import com.acuitybotting.security.acuity.spring.AcuitySecurityContext;
 import com.acuitybotting.website.acuity.security.AcuityIdentityContext;
 import com.acuitybotting.website.acuity.security.ViewAccess;
 import com.vaadin.navigator.View;

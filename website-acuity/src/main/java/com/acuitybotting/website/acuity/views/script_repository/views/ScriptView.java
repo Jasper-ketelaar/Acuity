@@ -2,18 +2,21 @@ package com.acuitybotting.website.acuity.views.script_repository.views;
 
 import com.acuitybotting.db.arango.acuity.script.repository.domain.Script;
 import com.acuitybotting.script.repository.service.ScriptRepositoryService;
+import com.acuitybotting.security.acuity.spring.AcuityPrincipalContext;
+import com.acuitybotting.website.acuity.notification.Notifications;
 import com.acuitybotting.website.acuity.security.AcuityIdentityContext;
 import com.acuitybotting.website.acuity.views.script_repository.components.ScriptAuthManagementComponent;
-import com.vaadin.data.Binder;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.spring.annotation.SpringView;
 import com.vaadin.spring.annotation.ViewScope;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.viritin.button.MButton;
 import org.vaadin.viritin.label.MLabel;
 import org.vaadin.viritin.layouts.MVerticalLayout;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
 
 /**
  * Created by Zachary Herridge on 6/14/2018.
@@ -29,6 +32,7 @@ public class ScriptView extends MVerticalLayout implements View {
 
     private MLabel scriptKey = new MLabel("Script Key", "");
     private MLabel scriptGitHubUrl = new MLabel("Script Repo Url", "");
+    private MButton compile = new MButton("Compile", clickEvent -> compileScript()).withVisible(false);
 
     @Autowired
     public ScriptView(ScriptRepositoryService scriptRepositoryService, ScriptAuthManagementComponent managementComponent) {
@@ -38,7 +42,7 @@ public class ScriptView extends MVerticalLayout implements View {
 
     @PostConstruct
     public void init(){
-        with(scriptKey, scriptGitHubUrl, managementComponent.withVisible(false));
+        with(compile, scriptKey, scriptGitHubUrl, managementComponent.withVisible(false));
     }
 
     public void withScript(Script script){
@@ -48,6 +52,18 @@ public class ScriptView extends MVerticalLayout implements View {
         scriptGitHubUrl.setValue(script.getGithubUrl());
 
         if (AcuityIdentityContext.isCurrent(script.getAuthor())) managementComponent.withScript(script).setVisible(true);
+        if (AcuityPrincipalContext.hasRole("OWNER")) compile.setVisible(true);
+    }
+
+    private void compileScript(){
+        try {
+            File file = scriptRepositoryService.downloadAndCompile(script.getGithubRepoName());
+            Notifications.displayInfo("Compile complete.");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            Notifications.displayWarning(e);
+        }
     }
 
     @Override

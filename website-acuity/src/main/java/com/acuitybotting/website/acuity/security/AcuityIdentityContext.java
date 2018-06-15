@@ -2,7 +2,7 @@ package com.acuitybotting.website.acuity.security;
 
 import com.acuitybotting.db.arango.acuity.identities.domain.AcuityIdentity;
 import com.acuitybotting.db.arango.acuity.identities.service.AcuityIdentityService;
-import com.acuitybotting.security.acuity.spring.AcuitySecurityContext;
+import com.acuitybotting.security.acuity.spring.AcuityPrincipalContext;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 
@@ -14,11 +14,11 @@ import java.util.Optional;
 public class AcuityIdentityContext {
 
     public static Optional<AcuityIdentity> getCurrent(){
-        VaadinSession session = UI.getCurrent().getSession();
+        VaadinSession session = VaadinSession.getCurrent();
         if (session == null) return Optional.empty();
         AcuityIdentityService service = session.getAttribute(AcuityIdentityService.class);
         if (service == null) return Optional.empty();
-        String principalKey = AcuitySecurityContext.getPrincipalKey();
+        String principalKey = AcuityPrincipalContext.getPrincipalKey();
         if (principalKey == null) return Optional.empty();
         Optional<AcuityIdentity> acuityIdentity = service.getIdentityRepository().findByPrincipalKeysContaining(principalKey);
         session.setAttribute(AcuityIdentity.class, acuityIdentity.orElse(null));
@@ -28,7 +28,7 @@ public class AcuityIdentityContext {
     public static Optional<AcuityIdentity> getCurrent(boolean cached){
         if (!cached) return getCurrent();
 
-        VaadinSession session = UI.getCurrent().getSession();
+        VaadinSession session = VaadinSession.getCurrent();
         if (session == null) return Optional.empty();
         AcuityIdentity acuityIdentity = session.getAttribute(AcuityIdentity.class);
         if (acuityIdentity != null) return Optional.of(acuityIdentity);
@@ -53,6 +53,6 @@ public class AcuityIdentityContext {
     }
 
     public static boolean isLoggedIn() {
-        return AcuitySecurityContext.getPrincipal().isPresent();
+        return AcuityPrincipalContext.getPrincipal().isPresent();
     }
 }
