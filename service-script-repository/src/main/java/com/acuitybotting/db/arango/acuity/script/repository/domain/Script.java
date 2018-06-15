@@ -4,14 +4,17 @@ import com.acuitybotting.db.arango.acuity.identities.domain.AcuityIdentity;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.Key;
 import com.arangodb.springframework.annotation.Ref;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 @Document("Script")
-@Data
+@Setter
+@Getter
 public class Script {
 
     public static final int ACCESS_PUBLIC = 1;
@@ -38,7 +41,22 @@ public class Script {
     private long creationTime;
     private long lastCompileTime;
 
+    private Boolean compileRequested;
+
     public static Set<String> getCategories(){
         return Collections.singleton("Other");
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Script)) return false;
+        Script script = (Script) object;
+        return Objects.equals(getId(), script.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }

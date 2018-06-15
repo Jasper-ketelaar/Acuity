@@ -27,6 +27,6 @@ public class ScriptAuth {
     private AcuityIdentity principal;
 
     public boolean isActive(){
-        return System.currentTimeMillis() < expirationTime;
+        return expirationTime == 0 || System.currentTimeMillis() < expirationTime;
     }
 }

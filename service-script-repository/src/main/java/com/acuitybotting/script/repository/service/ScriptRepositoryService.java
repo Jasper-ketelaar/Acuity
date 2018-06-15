@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -84,7 +81,7 @@ public class ScriptRepositoryService {
     public Collection<Script> findAllScripts(String identityID){
         Collection<Script> authed = Collections.emptyList();
         if (identityID != null) authed = scriptAuthRepository.findAllByPrincipal(identityID).stream().map(ScriptAuth::getScript).collect(Collectors.toList());
-        Collection<Script> allByAuthorOrAccessLevel = scriptRepository.findAllByAuthorOrAccessLevel(identityID, Script.ACCESS_PUBLIC);
+        Set<Script> allByAuthorOrAccessLevel = scriptRepository.findAllByAuthorOrAccessLevel(identityID, Script.ACCESS_PUBLIC);
         allByAuthorOrAccessLevel.addAll(authed);
         return allByAuthorOrAccessLevel;
     }

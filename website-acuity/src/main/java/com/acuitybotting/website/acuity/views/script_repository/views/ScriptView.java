@@ -27,8 +27,8 @@ public class ScriptView extends MVerticalLayout implements View {
 
     private final ScriptAuthManagementComponent managementComponent;
 
-    private MLabel scriptKey = new MLabel("Script Key");
-    private MLabel scriptGitHubUrl = new MLabel("Script Repo Url");
+    private MLabel scriptKey = new MLabel("Script Key", "");
+    private MLabel scriptGitHubUrl = new MLabel("Script Repo Url", "");
 
     @Autowired
     public ScriptView(ScriptRepositoryService scriptRepositoryService, ScriptAuthManagementComponent managementComponent) {
