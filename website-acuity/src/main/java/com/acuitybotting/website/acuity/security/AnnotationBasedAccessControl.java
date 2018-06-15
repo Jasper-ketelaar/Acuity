@@ -13,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SampleViewAccessControl implements ViewInstanceAccessControl {
+public class AnnotationBasedAccessControl implements ViewInstanceAccessControl {
 
     @Override
     public boolean isAccessGranted(UI ui, String s, View view) {

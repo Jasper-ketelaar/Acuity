@@ -3,6 +3,7 @@ package com.acuitybotting.website.acuity.views.script_repository;
 import com.acuitybotting.db.arango.acuity.script.repository.domain.Script;
 import com.acuitybotting.script.repository.service.ScriptRepositoryService;
 import com.acuitybotting.security.acuity.spring.AcuitySecurityContext;
+import com.acuitybotting.website.acuity.security.AcuityIdentityContext;
 import com.acuitybotting.website.acuity.security.ViewAccess;
 import com.vaadin.navigator.View;
 import com.vaadin.spring.annotation.SpringView;
@@ -52,13 +53,12 @@ public class CreateRepositoryView extends MVerticalLayout implements View{
     private void createRepo(){
         try {
             Script script = scriptRepositoryService.createRepository(
-                    AcuitySecurityContext.getPrincipalKey(),
+                    AcuityIdentityContext.getCurrent().orElseThrow(() -> new IllegalStateException("Invalid identity.")),
                     repositoryName.getValue(),
                     githubUsername.getValue(),
                     scriptTitle.getValue(),
                     scriptDesc.getValue(),
                     scriptCategory.getSelectedItem().orElse(null)
-
             );
             if (script != null){
                 getUI().getNavigator().navigateTo("Script/" + script.getKey());

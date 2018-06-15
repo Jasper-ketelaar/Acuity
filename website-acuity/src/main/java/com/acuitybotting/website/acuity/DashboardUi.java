@@ -1,5 +1,6 @@
 package com.acuitybotting.website.acuity;
 
+import com.acuitybotting.db.arango.acuity.identities.service.AcuityIdentityService;
 import com.acuitybotting.website.acuity.navigation.DashboardNavigationMenuService;
 import com.acuitybotting.website.acuity.navigation.SpringNavigationService;
 import com.vaadin.annotations.Push;
@@ -23,10 +24,13 @@ public class DashboardUi extends UI {
     private final SpringNavigationService springNavigationService;
     private final DashboardNavigationMenuService dashboardNavigationMenuService;
 
+    private final AcuityIdentityService acuityIdentityService;
+
     @Autowired
-    public DashboardUi(SpringNavigationService springNavigationService, DashboardNavigationMenuService dashboardNavigationMenuService) {
+    public DashboardUi(SpringNavigationService springNavigationService, DashboardNavigationMenuService dashboardNavigationMenuService, AcuityIdentityService acuityIdentityService) {
         this.springNavigationService = springNavigationService;
         this.dashboardNavigationMenuService = dashboardNavigationMenuService;
+        this.acuityIdentityService = acuityIdentityService;
         setNavigator(this.springNavigationService);
     }
 
@@ -35,5 +39,6 @@ public class DashboardUi extends UI {
         setContent(hybridMenu);
         springNavigationService.init(this, hybridMenu.getNaviContent());
         springNavigationService.navigateToDefaultView();
+        getUI().getSession().setAttribute(AcuityIdentityService.class, acuityIdentityService);
     }
 }

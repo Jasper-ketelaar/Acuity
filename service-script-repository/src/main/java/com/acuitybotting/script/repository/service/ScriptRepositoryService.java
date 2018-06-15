@@ -18,15 +18,13 @@ import java.util.UUID;
 @Service
 public class ScriptRepositoryService {
 
-    private final AcuityIdentityService acuityIdentityService;
     private final ScriptRepository scriptRepository;
     private final CompileService compileService;
     private final GitHubService gitHubService;
     private final ObfuscatorService obfuscatorService;
 
     @Autowired
-    public ScriptRepositoryService(AcuityIdentityService acuityIdentityService, ScriptRepository scriptRepository, CompileService compileService, GitHubService gitHubService, ObfuscatorService obfuscatorService) {
-        this.acuityIdentityService = acuityIdentityService;
+    public ScriptRepositoryService(ScriptRepository scriptRepository, CompileService compileService, GitHubService gitHubService, ObfuscatorService obfuscatorService) {
         this.scriptRepository = scriptRepository;
         this.compileService = compileService;
         this.gitHubService = gitHubService;
@@ -105,11 +103,10 @@ public class ScriptRepositoryService {
         return "";
     }
 
-    public Script createRepository(String principalKey, String repositoryName, String githubUsername, String title, String desc, String category) throws Exception {
-        AcuityIdentity acuityIdentity = acuityIdentityService.getIdentityRepository().findByPrincipalKeysContaining(principalKey).orElseThrow(() -> new IllegalStateException("Invalid principal key."));
+    public Script createRepository(AcuityIdentity author, String repositoryName, String githubUsername, String title, String desc, String category) throws Exception {
         String url = gitHubService.createRepo(repositoryName, githubUsername);
         Script script = new Script();
-        script.setAuthor(acuityIdentity);
+        script.setAuthor(author);
         script.setGithubUrl(url);
         script.setTitle(title);
         script.setCreationTime(System.currentTimeMillis());
