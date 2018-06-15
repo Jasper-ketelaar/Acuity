@@ -5,9 +5,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 
-/**
- * A custom {@link SecurityContextHolderStrategy} that stores the {@link SecurityContext} in the Vaadin Session.
- */
 public class VaadinSessionSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
 
     @Override

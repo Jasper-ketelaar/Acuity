@@ -2,10 +2,12 @@ package com.acuitybotting.path_finding.algorithms.astar.implmentation;
 
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.function.Predicate;
 
+@Slf4j
 public class AStarImplementation {
 
     private int maxAttempts = 1000000;
@@ -30,12 +32,12 @@ public class AStarImplementation {
             AStarStore current = open.poll();
 
             if (attempts >= maxAttempts){
-                System.out.println("Failed to find  path");
+                log.warn("Failed to find path form {} to {} after {} attempts.", start, end, attempts);
                 break;
             }
 
             if (current.getNode().equals(end)){
-                System.out.println("Path found");
+                log.info("Found path from {} to {} in {} attempts.", start, end, attempts);
                 List<Edge> path = collectPath(end, start);
                 clear();
                 return Optional.ofNullable(path);
