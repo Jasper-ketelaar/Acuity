@@ -27,10 +27,6 @@ public class RsEnvironment {
         return rsMapService.getNode(location);
     }
 
-    public static TileNode getNode(Location location, int type) {
-        return rsMapService.getNode(location, type);
-    }
-
     public static Integer getFlagAt(Location location) {
         Integer flag = flagCache.get(location);
         if (flag != null) return flag;

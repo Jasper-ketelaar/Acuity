@@ -6,7 +6,7 @@ public interface Edge {
 
     Node getEnd();
 
-    default Double getCost(){
-        return 0d;
+    default double getCostPenalty(){
+        return 0;
     }
 }

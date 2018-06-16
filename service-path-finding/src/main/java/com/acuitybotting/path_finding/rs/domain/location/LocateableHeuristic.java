@@ -10,6 +10,6 @@ public class LocateableHeuristic implements AStarHeuristicSupplier {
     public Double getHeuristic(Node start, Node current, Node end, Edge edge) {
         Location currentLocation = ((Locateable) current).getLocation();
         Location endLocation = ((Locateable) end).getLocation();
-        return  currentLocation.getTraversalCost(endLocation);
+        return  currentLocation.getTraversalCost(endLocation) + edge.getCostPenalty();
     }
 }

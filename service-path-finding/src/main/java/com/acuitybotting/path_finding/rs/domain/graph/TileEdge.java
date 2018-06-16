@@ -12,13 +12,20 @@ import java.util.Objects;
  */
 @Setter
 @Getter
-public class TileEdge implements Edge{
+public class TileEdge implements Edge {
 
     private TileNode start, end;
+    private double costPenalty = 0;
 
     public TileEdge(TileNode start, TileNode end) {
         this.start = start;
         this.end = end;
+    }
+
+    public TileEdge(TileNode start, TileNode end, double costPenalty) {
+        this.start = start;
+        this.end = end;
+        this.costPenalty = costPenalty;
     }
 
     @Override
@@ -29,6 +36,11 @@ public class TileEdge implements Edge{
     @Override
     public Node getEnd() {
         return end;
+    }
+
+    @Override
+    public double getCostPenalty(){
+        return costPenalty;
     }
 
     @Override

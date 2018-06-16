@@ -25,20 +25,11 @@ import static com.acuitybotting.path_finding.rs.utils.Direction.*;
 @Getter
 public class TileNode implements Node, Locateable {
 
-    public static final int WALK = 1;
-    public static final int DOOR = 2;
-
     private Location location;
     private int type;
 
     public TileNode(Location location) {
         this.location = location;
-        this.type = WALK;
-    }
-
-    public TileNode(Location location, int type) {
-        this.location = location;
-        this.type = type;
     }
 
     public int getX() {
@@ -89,7 +80,7 @@ public class TileNode implements Node, Locateable {
             return true;
         }
         else if (containsDoor(location)){
-            edges.add(new TileEdge(this, RsEnvironment.getNode(new Location(x, y, z), DOOR)));
+            edges.add(new TileEdge(this, RsEnvironment.getNode(new Location(x, y, z)), 1));
             //Possibly return false when contains door to replicate previous performance.
             return true;
         }

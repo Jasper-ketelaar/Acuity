@@ -29,11 +29,7 @@ public class RsMapService {
     }
 
     public TileNode getNode(Location location) {
-        return getNode(location, TileNode.WALK);
-    }
-
-    public TileNode getNode(Location location, int type) {
-        return new TileNode(location, type);
+        return new TileNode(location);
     }
 
     public Integer getFlagAt(Location location) {
