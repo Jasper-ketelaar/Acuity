@@ -2,6 +2,7 @@ package com.acuitybotting.path_finding;
 
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
+import com.acuitybotting.path_finding.debugging.interactive_map.MapFrame;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -36,7 +37,7 @@ public class PathFindingRunner implements CommandLineRunner{
 
     private void dumpImage()  {
         try {
-            BufferedImage image = webImageProcessingService.createDoorImage(0, 2000, 2000, 4000, 5000, 4);
+            BufferedImage image = webImageProcessingService.createDoorImage(0, 3138, 3384, 2000, 2000, 3);
             ImageIO.write(image, "png", new File("saved3.png"));
             image = null;
             System.out.println("Image dump complete.");
@@ -61,6 +62,10 @@ public class PathFindingRunner implements CommandLineRunner{
 
     @Override
     public void run(String... args) {
-        dumpImage();
+        try {
+            new MapFrame().show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

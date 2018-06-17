@@ -48,4 +48,23 @@ public class Location implements Locateable{
         result = 31 * result + getPlane();
         return result;
     }
+
+    public Location transform(int xOff, int yOff) {
+        this.x += xOff;
+        this.y += yOff;
+        return this;
+    }
+
+    @Override
+    public Location clone() {
+        return new Location(getX(), getY(), getPlane());
+    }
+
+    public Location translate(int xOff, int yOff) {
+        return clone().transform(xOff, yOff);
+    }
+
+    public Location subtract(Location other) {
+        return translate(-other.getX(), -other.getY());
+    }
 }
