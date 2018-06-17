@@ -4,20 +4,19 @@ import com.acuitybotting.path_finding.debugging.interactive_map.util.GameMap;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.Perspective;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PositionPlugin;
+import com.acuitybotting.path_finding.rs.domain.location.Location;
 import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Getter
-public class MapPanel extends JPanel implements MouseMotionListener, MouseListener {
+public class MapPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener {
 
     private GameMap gameMap;
     private Perspective perspective;
@@ -34,6 +33,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
 
         addMouseMotionListener(this);
         addMouseListener(this);
+        addMouseWheelListener(this);
 
         plugins.add(new PositionPlugin(this));
 
@@ -55,8 +55,8 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
 
         Graphics2D g1 = (Graphics2D)g.create();
         Graphics2D g2 = (Graphics2D)g.create();
-        //g2.scale(scale, scale);
 
+        g2.scale(perspective.getScale(), perspective.getScale());
         Point point = perspective.locationToMap(perspective.getBase());
         g2.drawImage(this.gameMap.getMapImage(), -point.x, -point.y, this);
 
@@ -84,6 +84,15 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
     public void mouseReleased(MouseEvent e) {
         mouseStartDragPoint = null;
         mouseCurrentDragPoint = null;
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        Location location = perspective.getCenterLocation();
+        boolean zoom = e.getWheelRotation() > 0;
+        perspective.incScale(zoom ? -.2 : .2);
+        perspective.centerOn(location);
+        repaint();
     }
 
     @Override

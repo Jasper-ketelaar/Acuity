@@ -19,9 +19,10 @@ public class PositionPlugin extends Plugin {
         graphics.setColor(new Color(0, 0, 0, 200));
         graphics.fillRect(start.x, start.y, 300, 100);
         graphics.setColor(Color.WHITE);
-        graphics.drawString("Cursor: " + this.getMapPanel().getMousePosition(), start.x + 20, start.y + 35);
         graphics.drawString("Cursor (Map): " + getPerspective().screenToLocation(this.getMapPanel().getMousePosition()), start.x + 20, start.y + 20);
+        graphics.drawString("Cursor: " + this.getMapPanel().getMousePosition(), start.x + 20, start.y + 35);
         graphics.drawString("View Base: " + getPerspective().getBase(), start.x + 20, start.y + 50);
+        graphics.drawString("View Size " + getPerspective().getTileWidth() + ", " + getPerspective().getTileHeight(), start.x + 20, start.y + 65);
     }
 
     public void onLoad() {

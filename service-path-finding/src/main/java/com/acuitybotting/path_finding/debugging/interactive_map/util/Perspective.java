@@ -42,8 +42,20 @@ public class Perspective {
         return new Point(round(point.x * scale), round(point.y * scale));
     }
 
+    public void incScale(double value){
+        scale = Math.max(0.2, scale + value);
+    }
+
     public double getTileSize(){
         return gameMap.getTilePixelSize() * scale;
+    }
+
+    public Location getCenterLocation(){
+        return base.clone(round(getTileWidth() / 2), round(getTileHeight() / 2));
+    }
+
+    public void centerOn(Location location){
+        base = location.clone(-round(getTileWidth() / 2), -round(getTileHeight() / 2));
     }
 
     public double getTileWidth(){
