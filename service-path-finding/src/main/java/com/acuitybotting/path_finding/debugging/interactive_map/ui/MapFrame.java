@@ -1,5 +1,6 @@
-package com.acuitybotting.path_finding.debugging.interactive_map;
+package com.acuitybotting.path_finding.debugging.interactive_map.ui;
 
+import com.acuitybotting.path_finding.debugging.interactive_map.util.GameMap;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 import javax.swing.*;

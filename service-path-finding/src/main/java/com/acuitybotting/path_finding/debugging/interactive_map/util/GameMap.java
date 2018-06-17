@@ -1,4 +1,4 @@
-package com.acuitybotting.path_finding.debugging.interactive_map;
+package com.acuitybotting.path_finding.debugging.interactive_map.util;
 
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import lombok.Getter;
