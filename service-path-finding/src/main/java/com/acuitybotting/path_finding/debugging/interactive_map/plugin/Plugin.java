@@ -1,25 +1,25 @@
 package com.acuitybotting.path_finding.debugging.interactive_map.plugin;
 
 import com.acuitybotting.path_finding.debugging.interactive_map.util.GameMap;
-import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapRenderer;
+import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapPanel;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.Perspective;
 import lombok.Getter;
 
 @Getter
 public abstract class Plugin implements PaintListener{
 
-    private final MapRenderer mapRenderer;
+    private final MapPanel mapPanel;
 
-    public Plugin(final MapRenderer mapRenderer) {
-        this.mapRenderer = mapRenderer;
+    public Plugin(final MapPanel mapPanel) {
+        this.mapPanel = mapPanel;
     }
 
     public GameMap getGameMap(){
-        return getMapRenderer().getGameMap();
+        return this.getMapPanel().getGameMap();
     }
 
     public Perspective getPerspective(){
-        return getMapRenderer().getPerspective();
+        return this.getMapPanel().getPerspective();
     }
 
     public abstract void onLoad();

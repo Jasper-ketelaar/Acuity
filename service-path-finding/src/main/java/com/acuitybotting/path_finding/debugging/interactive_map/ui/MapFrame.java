@@ -9,7 +9,7 @@ import java.awt.*;
 public class MapFrame {
 
     private final JFrame mapFrame;
-    private final MapRenderer mapRenderer;
+    private final MapPanel mapPanel;
 
     public MapFrame() throws Exception {
         this.mapFrame = new JFrame("Map Suite");
@@ -17,24 +17,13 @@ public class MapFrame {
         this.mapFrame.setLayout(new BorderLayout(0, 0));
         this.mapFrame.setSize(800, 600);
 
-        this.mapRenderer = new MapRenderer(new GameMap("C:\\Users\\zgher\\IdeaProjects\\Acuity\\service-path-finding\\src\\main\\resources\\saved3.png", new Location(3138, 3384 + 2000, 0), 3));
-        this.mapFrame.add(this.mapRenderer, BorderLayout.CENTER);
+        this.mapPanel = new MapPanel(new GameMap("C:\\Users\\zgher\\IdeaProjects\\Acuity\\service-path-finding\\src\\main\\resources\\saved3.png", new Location(3138, 3384 + 2000, 0), 3));
+        this.mapFrame.add(this.mapPanel, BorderLayout.CENTER);
         this.centerFrame();
-    }
-    public MapRenderer getMapRenderer() {
-        return mapRenderer;
     }
 
     public void show() {
-        if (!this.mapFrame.isVisible()) {
-            this.mapFrame.setVisible(true);
-        }
-    }
-
-    public void hide() {
-        if (this.mapFrame.isVisible()) {
-            this.mapFrame.setVisible(false);
-        }
+        this.mapFrame.setVisible(true);
     }
 
     public void centerFrame() {

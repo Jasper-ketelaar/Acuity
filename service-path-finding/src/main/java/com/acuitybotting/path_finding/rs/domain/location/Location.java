@@ -60,11 +60,11 @@ public class Location implements Locateable{
         return new Location(getX(), getY(), getPlane());
     }
 
-    public Location translate(int xOff, int yOff) {
+    public Location clone(int xOff, int yOff) {
         return clone().transform(xOff, yOff);
     }
 
     public Location subtract(Location other) {
-        return translate(-other.getX(), -other.getY());
+        return clone(-other.getX(), -other.getY());
     }
 }

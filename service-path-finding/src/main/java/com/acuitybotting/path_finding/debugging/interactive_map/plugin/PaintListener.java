@@ -5,5 +5,4 @@ import java.awt.*;
 public interface PaintListener {
 
     void onPaint(Graphics2D graphics, Graphics2D scaledGraphics);
-
 }
