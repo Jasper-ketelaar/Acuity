@@ -4,7 +4,6 @@ import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
-import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapPanel;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -38,19 +37,17 @@ public class PathPlugin extends Plugin {
     @Override
     public void onPaint(Graphics2D graphics, Graphics2D scaledGraphics) {
         for (Map.Entry<Node, Double> entry : aStarService.getAStarImplementation().getCostCache().entrySet()) {
-            Location location = ((Locateable) entry.getKey()).getLocation();
-            getPaintUtil().markTile(graphics, location, Color.ORANGE);
+            getPaintUtil().markLocation(graphics, entry.getKey(), Color.ORANGE);
         }
 
         if (path != null){
             for (Edge edge : path) {
-                Location location = ((Locateable) edge.getEnd()).getLocation();
-                getPaintUtil().markTile(graphics, location, Color.CYAN);
+                getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), Color.CYAN);
             }
         }
 
-        if (l1 != null) getPaintUtil().markTile(graphics, l1, Color.RED);
-        if (l2 != null) getPaintUtil().markTile(graphics, l2, Color.GREEN);
+        if (l1 != null) getPaintUtil().markLocation(graphics, l1, Color.RED);
+        if (l2 != null) getPaintUtil().markLocation(graphics, l2, Color.GREEN);
     }
 
     @Override
