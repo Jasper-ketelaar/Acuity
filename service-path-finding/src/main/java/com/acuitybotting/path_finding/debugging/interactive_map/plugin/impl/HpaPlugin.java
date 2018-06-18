@@ -31,7 +31,7 @@ public class HpaPlugin extends Plugin{
         if (curRegion != null){
             getPaintUtil().fillArea(
                     graphics,
-                    curRegion.getRoot().clone(0, curRegion.getHeight()),
+                    curRegion.getRoot().clone(0, curRegion.getHeight() - 1),
                     curRegion.getWidth(),
                     curRegion.getHeight(),
                     Color.RED

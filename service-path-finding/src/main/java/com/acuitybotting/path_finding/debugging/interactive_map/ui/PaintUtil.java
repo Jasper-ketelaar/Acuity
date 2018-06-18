@@ -55,7 +55,7 @@ public class PaintUtil {
         ScreenLocation point = mapPanel.getPerspective().locationToScreen(convertToLocation(base));
         double tileSize = mapPanel.getPerspective().getTileSize();
         graphics2D.setColor(color);
-        graphics2D.drawRect(round(point.getX() + tileOffset), round(point.getY() + tileOffset), round(tileSize * tileWidth), round(tileHeight * tileSize));
+        graphics2D.drawRect(round(point.getX()), round(point.getY()), round((tileSize * tileWidth)), round((tileHeight * tileSize)));
     }
 
     private Location convertToLocation(Object object){

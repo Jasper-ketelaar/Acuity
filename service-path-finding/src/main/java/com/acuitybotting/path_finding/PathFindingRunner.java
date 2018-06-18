@@ -58,7 +58,7 @@ public class PathFindingRunner implements CommandLineRunner{
     }
 
     private void buildHpa(){
-        hpaService.setDimensions(15, 15);
+        hpaService.setDimensions(25, 25);
         Map<Location, HPANode> build = hpaService.getGraphBuilder().build(
                 new Location(3138, 3384, 0),
                 new Location(3138 + 300, 3384 + 300, 0),

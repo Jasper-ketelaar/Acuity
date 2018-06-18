@@ -20,6 +20,8 @@ public class GraphBuilder {
 
     private int regionWidth, regionHeight;
 
+    private int innerConnectionLimit = 5;
+
     private Set<Region> regions;
     private List<LocationPair> connections = new CopyOnWriteArrayList<>();
 
@@ -78,7 +80,7 @@ public class GraphBuilder {
                         return new LocationPair(c1, location).setCost(pathLength);
                     })
                     .filter(locationPair -> locationPair.getCost() > 0)
-                    .limit(3)
+                    .limit(innerConnectionLimit)
                     .forEach(connections::add);
         });
         return connections;
