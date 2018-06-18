@@ -1,6 +1,7 @@
 package com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl;
 
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
+import com.acuitybotting.path_finding.algorithms.astar.implmentation.AStarImplementation;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
@@ -15,6 +16,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Zachary Herridge on 6/18/2018.
@@ -31,13 +33,17 @@ public class PathPlugin extends Plugin {
 
     public PathPlugin(AStarService aStarService) {
         this.aStarService = aStarService;
-        aStarService.getAStarImplementation().setDebugMode(true);
+        aStarService.setDebugMode(true);
+        Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(() -> getMapPanel().repaint(), 5000, 100, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void onPaint(Graphics2D graphics, Graphics2D scaledGraphics) {
-        for (Map.Entry<Node, Double> entry : aStarService.getAStarImplementation().getCostCache().entrySet()) {
-            getPaintUtil().markLocation(graphics, entry.getKey(), Color.ORANGE);
+        for (AStarImplementation aStarImplementation : AStarService.getCurrentSearches()) {
+            if(aStarImplementation == null) continue;
+            for (Node node : new ArrayList<>(aStarImplementation.getCostCache().keySet())) {
+                getPaintUtil().markLocation(graphics, node, Color.ORANGE);
+            }
         }
 
         if (path != null){
