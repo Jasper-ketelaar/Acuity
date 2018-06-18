@@ -26,6 +26,10 @@ public class MapFrame {
         this.mapFrame.setVisible(true);
     }
 
+    public MapPanel getMapPanel() {
+        return mapPanel;
+    }
+
     public void centerFrame() {
         final Toolkit toolkit = Toolkit.getDefaultToolkit();
         final int x = (toolkit.getScreenSize().width / 2) - (this.mapFrame.getWidth() / 2);

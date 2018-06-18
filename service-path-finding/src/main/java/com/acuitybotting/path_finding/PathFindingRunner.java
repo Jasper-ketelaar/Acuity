@@ -2,6 +2,7 @@ package com.acuitybotting.path_finding;
 
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
+import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PathPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapFrame;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
@@ -28,11 +29,14 @@ public class PathFindingRunner implements CommandLineRunner{
     private RsMapService rsMapService;
     private AStarService aStarService;
 
+    private final PathPlugin pathPlugin;
+
     @Autowired
-    public PathFindingRunner(WebImageProcessingService webImageProcessingService, RsMapService rsMapService, AStarService aStarService) {
+    public PathFindingRunner(WebImageProcessingService webImageProcessingService, RsMapService rsMapService, AStarService aStarService, PathPlugin pathPlugin) {
         this.webImageProcessingService = webImageProcessingService;
         this.rsMapService = rsMapService;
         this.aStarService = aStarService;
+        this.pathPlugin = pathPlugin;
     }
 
     private void dumpImage()  {
@@ -46,26 +50,16 @@ public class PathFindingRunner implements CommandLineRunner{
         }
     }
 
-    private Optional<List<Edge>> findPath(Locateable start, Locateable end){
-        return aStarService.findPath(
-                new LocateableHeuristic(),
-                RsEnvironment.getNode(start.getLocation()),
-                RsEnvironment.getNode(end.getLocation())
-        );
-    }
-
-    private void findPath(){
-        RsEnvironment.setRsMapService(rsMapService);
-        List<Edge> edges = findPath(new Location(3207, 3502, 0), new Location(3207, 3504, 0)).orElse(null);
-        System.out.println(edges);
-    }
-
     @Override
     public void run(String... args) {
-        try {
-            new MapFrame().show();
+        dumpImage();
+      /*  try {
+            RsEnvironment.setRsMapService(rsMapService);
+            MapFrame mapFrame = new MapFrame();
+            mapFrame.getMapPanel().addPlugin(pathPlugin);
+            mapFrame.show();
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 }

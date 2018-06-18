@@ -66,7 +66,7 @@ public class Perspective {
         return mapPanel.getHeight() / getTileSize();
     }
 
-    private static int round(double value){
+    public static int round(double value){
         return (int) Math.round(value);
     }
 }

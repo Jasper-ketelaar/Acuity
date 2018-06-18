@@ -23,7 +23,6 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
 
     private List<Plugin> plugins = new ArrayList<>();
 
-
     private Point mouseStartDragPoint = null;
     private Point mouseCurrentDragPoint = null;
 
@@ -35,9 +34,14 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
         addMouseListener(this);
         addMouseWheelListener(this);
 
-        plugins.add(new PositionPlugin(this));
+        addPlugin(new PositionPlugin());
 
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::handleDrag, 100, 120, TimeUnit.MILLISECONDS);
+    }
+
+    public void addPlugin(Plugin plugin){
+        plugin.attach(this);
+        plugins.add(plugin);
     }
 
     private void handleDrag(){
@@ -63,6 +67,10 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
         for (Plugin plugin : plugins) {
             plugin.onPaint(g1, g2);
         }
+    }
+
+    public Location getMouseLocation(){
+        return perspective.screenToLocation(getMousePosition());
     }
 
     @Override

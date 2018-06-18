@@ -16,6 +16,6 @@ public class PathFindingApplication {
     public static void main(String[] args) {
         SpringApplicationBuilder builder = new SpringApplicationBuilder(PathFindingApplication.class);
         builder.headless(false);
-        ConfigurableApplicationContext context = builder.run(args);
+        builder.run(args);
     }
 }

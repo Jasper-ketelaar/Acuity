@@ -1,3 +1,4 @@
+/*
 package com.acuitybotting.path_finding.tile_capture.api;
 
 import com.acuitybotting.path_finding.tile_capture.domain.TileCapture;
@@ -35,3 +36,4 @@ public class TileCaptureAPI {
         return service.save(tileCapture);
     }
 }
+*/

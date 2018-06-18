@@ -2,6 +2,7 @@ package com.acuitybotting.data.flow.messaging.services;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.*;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

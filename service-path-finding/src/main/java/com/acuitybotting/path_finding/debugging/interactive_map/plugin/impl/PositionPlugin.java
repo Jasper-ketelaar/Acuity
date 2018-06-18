@@ -9,10 +9,6 @@ public class PositionPlugin extends Plugin {
 
     private Point start = new Point(10, 10);
 
-    public PositionPlugin(MapPanel mapPanel) {
-        super(mapPanel);
-    }
-
     @Override
     public void onPaint(Graphics2D graphics, Graphics2D scaledGraphics) {
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
