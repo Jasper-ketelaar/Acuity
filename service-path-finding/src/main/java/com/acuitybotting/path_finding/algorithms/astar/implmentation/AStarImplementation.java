@@ -2,14 +2,17 @@ package com.acuitybotting.path_finding.algorithms.astar.implmentation;
 
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.function.Predicate;
 
 @Slf4j
+@Getter
 public class AStarImplementation {
 
+    private boolean debugMode = false;
     private int maxAttempts = 1000000;
 
     private Map<Node, Edge> pathCache = new HashMap<>();
@@ -39,7 +42,7 @@ public class AStarImplementation {
             if (current.getNode().equals(end)){
                 log.info("Found path from {} to {} in {} attempts.", start, end, attempts);
                 List<Edge> path = collectPath(end, start);
-                clear();
+                if (!debugMode) clear();
                 return Optional.ofNullable(path);
             }
 
@@ -60,7 +63,7 @@ public class AStarImplementation {
             }
         }
 
-        clear();
+        if (!debugMode) clear();
         return Optional.empty();
     }
 
@@ -84,6 +87,11 @@ public class AStarImplementation {
 
     public AStarImplementation setMaxAttempts(int maxAttempts) {
         this.maxAttempts = maxAttempts;
+        return this;
+    }
+
+    public AStarImplementation setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
         return this;
     }
 }

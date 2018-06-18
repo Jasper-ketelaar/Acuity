@@ -4,12 +4,14 @@ import com.acuitybotting.path_finding.algorithms.astar.implmentation.AStarHeuris
 import com.acuitybotting.path_finding.algorithms.astar.implmentation.AStarImplementation;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+@Getter
 @Service
 public class AStarService {
 

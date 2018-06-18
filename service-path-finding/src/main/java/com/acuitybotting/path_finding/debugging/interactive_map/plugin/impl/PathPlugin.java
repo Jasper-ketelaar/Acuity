@@ -2,6 +2,7 @@ package com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl;
 
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
+import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapPanel;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
@@ -13,6 +14,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Created by Zachary Herridge on 6/18/2018.
@@ -25,14 +28,29 @@ public class PathPlugin extends Plugin {
     private Location l1, l2;
     private List<Edge> path;
 
+    private Executor executor = Executors.newSingleThreadExecutor();
+
     public PathPlugin(AStarService aStarService) {
         this.aStarService = aStarService;
+        aStarService.getAStarImplementation().setDebugMode(true);
     }
 
     @Override
     public void onPaint(Graphics2D graphics, Graphics2D scaledGraphics) {
+        for (Map.Entry<Node, Double> entry : aStarService.getAStarImplementation().getCostCache().entrySet()) {
+            Location location = ((Locateable) entry.getKey()).getLocation();
+            getPaintUtil().markTile(graphics, location, Color.ORANGE);
+        }
+
+        if (path != null){
+            for (Edge edge : path) {
+                Location location = ((Locateable) edge.getEnd()).getLocation();
+                getPaintUtil().markTile(graphics, location, Color.CYAN);
+            }
+        }
+
         if (l1 != null) getPaintUtil().markTile(graphics, l1, Color.RED);
-        if (l2 != null) getPaintUtil().markTile(graphics, l1, Color.GREEN);
+        if (l2 != null) getPaintUtil().markTile(graphics, l2, Color.GREEN);
     }
 
     @Override
@@ -40,13 +58,18 @@ public class PathPlugin extends Plugin {
         if (e.isControlDown()){
             if (e.isShiftDown()){
                 l2 = getMapPanel().getMouseLocation();
+                getMapPanel().repaint();
             }
             else {
                 l1 = getMapPanel().getMouseLocation();
+                getMapPanel().repaint();
             }
 
             if (l1 != null && l2 != null){
-                path = findPath(l1, l2).orElse(null);
+                executor.execute(() -> {
+                    path = findPath(l1, l2).orElse(null);
+                    getMapPanel().repaint();
+                });
             }
         }
     }

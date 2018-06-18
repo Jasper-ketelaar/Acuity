@@ -24,7 +24,7 @@ public class Perspective {
     public Point locationToScreen(Location location){
         Point basePoint = locationToMap(base);
         Point locationPoint = locationToMap(location);
-        return scale(new Point(locationPoint.x - basePoint.x, basePoint.y - locationPoint.y));
+        return scale(new Point(locationPoint.x - basePoint.x, locationPoint.y - basePoint.y));
     }
 
     public Point locationToMap(Location location){

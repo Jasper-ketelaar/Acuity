@@ -17,7 +17,7 @@ public class MapFrame {
         this.mapFrame.setLayout(new BorderLayout(0, 0));
         this.mapFrame.setSize(800, 600);
 
-        this.mapPanel = new MapPanel(new GameMap("C:\\Users\\zgher\\IdeaProjects\\Acuity\\service-path-finding\\src\\main\\resources\\saved3.png", new Location(3138, 3384 + 2000, 0), 3));
+        this.mapPanel = new MapPanel(new GameMap("C:\\Users\\S3108772\\IdeaProjects\\Acuity\\service-path-finding\\src\\main\\resources\\saved3.png", new Location(3138, 3384 + 2000, 0), 3));
         this.mapFrame.add(this.mapPanel, BorderLayout.CENTER);
         this.centerFrame();
     }
