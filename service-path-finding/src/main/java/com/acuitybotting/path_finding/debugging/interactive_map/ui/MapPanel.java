@@ -4,6 +4,7 @@ import com.acuitybotting.path_finding.debugging.interactive_map.util.GameMap;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.Perspective;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PositionPlugin;
+import com.acuitybotting.path_finding.debugging.interactive_map.util.ScreenLocation;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import lombok.Getter;
 
@@ -62,8 +63,8 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
         Graphics2D g2 = (Graphics2D)g.create();
 
         g2.scale(perspective.getScale(), perspective.getScale());
-        Point point = perspective.locationToMap(perspective.getBase());
-        g2.drawImage(this.gameMap.getMapImage(), -point.x, -point.y, this);
+        ScreenLocation point = perspective.locationToMap(perspective.getBase());
+        g2.drawImage(this.gameMap.getMapImage(), -Perspective.round(point.getX()), -Perspective.round(point.getY()), this);
 
         for (Plugin plugin : plugins) {
             plugin.onPaint(g1, g2);

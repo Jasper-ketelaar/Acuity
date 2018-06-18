@@ -49,7 +49,11 @@ public class GraphBuilder {
             connections.addAll(innerConnections);
         });
 
-        return buildNodes(connections);
+        Map<Location, HPANode> graph = buildNodes(connections);
+
+        log.info("Finished building HPA graph with {} nodes.", graph.size());
+
+        return graph;
     }
 
     private Map<Location, HPANode> buildNodes(List<LocationPair> nodeCollection) {

@@ -21,25 +21,34 @@ public class Perspective {
         this.mapPanel = mapPanel;
     }
 
-    public Point locationToScreen(Location location){
-        Point basePoint = locationToMap(base);
-        Point locationPoint = locationToMap(location);
-        return scale(new Point(locationPoint.x - basePoint.x, locationPoint.y - basePoint.y));
+    public ScreenLocation locationToScreen(Location location){
+        return new ScreenLocation(locationXToScreen(location.getX()), locationYToScreen(location.getY()));
     }
 
-    public Point locationToMap(Location location){
-        Location offset = new Location(location.getX() - gameMap.getBase().getX(), gameMap.getBase().getY() - location.getY(), location.getPlane());
-        return new Point(round(offset.getX() * gameMap.getTilePixelSize()), round(offset.getY() * gameMap.getTilePixelSize()));
+    public ScreenLocation locationToMap(Location location){
+        return new ScreenLocation(locationXToMap(location.getX()), locationYToMap(location.getY()));
     }
 
     public Location screenToLocation(Point point){
         if (point == null) return null;
-        Location offset = new Location(round(point.x / getTileSize()), round(point.y / getTileSize()), base.getPlane());
+        Location offset = new Location((int) (point.x / getTileSize()) , (int) (point.y / getTileSize()), base.getPlane());
         return base.clone(offset.getX(), -offset.getY());
     }
 
-    public Point scale(Point point){
-        return new Point(round(point.x * scale), round(point.y * scale));
+    private double locationXToScreen(int x){
+        return (locationXToMap(x) - locationXToMap(base.getX())) * scale;
+    }
+
+    private double locationYToScreen(int y){
+        return ((locationYToMap(y) - locationYToMap(base.getY())) * scale) - (getTileSize() / 2);
+    }
+
+    private double locationXToMap(int x){
+        return (x - gameMap.getBase().getX()) * gameMap.getTilePixelSize();
+    }
+
+    private double locationYToMap(int y){
+        return ((gameMap.getBase().getY() - y) * gameMap.getTilePixelSize()) - gameMap.getTilePixelSize();
     }
 
     public void incScale(double value){

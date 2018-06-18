@@ -52,7 +52,10 @@ public class PathPlugin extends Plugin {
             }
         }
 
-        if (l1 != null) getPaintUtil().markLocation(graphics, l1, Color.RED);
+        if (l1 != null) {
+            getPaintUtil().markLocation(graphics, l1, Color.RED);
+            getPaintUtil().connectLocations(graphics, l1, l1.clone(1, 1), Color.MAGENTA);
+        }
         if (l2 != null) getPaintUtil().markLocation(graphics, l2, Color.GREEN);
     }
 

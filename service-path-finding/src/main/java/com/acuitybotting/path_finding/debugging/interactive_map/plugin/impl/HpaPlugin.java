@@ -2,6 +2,7 @@ package com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl;
 
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.Region;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -39,7 +40,8 @@ public class HpaPlugin extends Plugin{
 
         for (HPANode hpaNode : graph.values()) {
             for (Edge edge : hpaNode.getNeighbors()) {
-                getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), Color.BLUE);
+                Color color = ((HPAEdge) edge).isInternal() ? Color.BLUE : Color.ORANGE;
+                getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), color);
             }
         }
 

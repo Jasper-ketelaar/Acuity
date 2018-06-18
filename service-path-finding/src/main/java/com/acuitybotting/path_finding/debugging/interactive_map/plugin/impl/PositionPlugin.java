@@ -1,6 +1,5 @@
 package com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl;
 
-import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapPanel;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 
 import java.awt.*;
