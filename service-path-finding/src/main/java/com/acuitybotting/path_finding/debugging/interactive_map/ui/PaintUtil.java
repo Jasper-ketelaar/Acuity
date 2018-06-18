@@ -39,6 +39,15 @@ public class PaintUtil {
                 round(endPoint.y + tileSize));
     }
 
+    public void fillArea(Graphics2D graphics2D, Object base, int tileWidth, int tileHeight, Color color) {
+        Point point = mapPanel.getPerspective().locationToScreen(convertToLocation(base));
+
+        double tileSize = mapPanel.getPerspective().getTileSize();
+
+        graphics2D.setColor(color);
+        graphics2D.drawRect(point.x, point.y, round(tileSize * tileWidth), round(tileHeight * tileSize));
+    }
+
     private Location convertToLocation(Object object){
         if (object == null) return null;
         if (object instanceof Location) return (Location) object;
