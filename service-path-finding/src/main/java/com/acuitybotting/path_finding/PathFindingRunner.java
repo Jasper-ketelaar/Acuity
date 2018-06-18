@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 @Component
-public class PathFindingRunner implements CommandLineRunner{
+public class PathFindingRunner implements CommandLineRunner {
 
     private final WebImageProcessingService webImageProcessingService;
     private final RsMapService rsMapService;
@@ -46,7 +46,7 @@ public class PathFindingRunner implements CommandLineRunner{
         this.pathPlugin = pathPlugin;
     }
 
-    private void dumpImage()  {
+    private void dumpImage() {
         try {
             BufferedImage image = webImageProcessingService.createDoorImage(0, 3138, 3384, 2000, 2000, 3);
             ImageIO.write(image, "png", new File("saved3.png"));
@@ -57,7 +57,7 @@ public class PathFindingRunner implements CommandLineRunner{
         }
     }
 
-    private void buildHpa(){
+    private void buildHpa() {
         hpaService.setDimensions(25, 25);
         Map<Location, HPANode> build = hpaService.getGraphBuilder().build(
                 new Location(3138, 3384, 0),
@@ -83,9 +83,7 @@ public class PathFindingRunner implements CommandLineRunner{
         );
 
         hpaPlugin.setGraph(build);
-
     }
-
 
     @Override
     public void run(String... args) {

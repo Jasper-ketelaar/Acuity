@@ -25,6 +25,10 @@ public class GraphBuilder {
     private Set<Region> regions;
     private List<LocationPair> connections = new CopyOnWriteArrayList<>();
 
+    //Region (Location base, int width, hieght) has
+    //Nodes Aka External connection locations (Location location) which have
+    //Edges to other Nodes (internal/external connections)
+
     public Map<Location, HPANode> build(Location lower, Location upper, PathFindingSupplier pathFindingSupplier) {
         log.info("Started building HPA graph between {} and {}.", lower, upper);
         regions = findRegions(lower, upper);

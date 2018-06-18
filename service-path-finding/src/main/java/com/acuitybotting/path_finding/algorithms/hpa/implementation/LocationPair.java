@@ -3,9 +3,6 @@ package com.acuitybotting.path_finding.algorithms.hpa.implementation;
 
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 
-/**
- * Created by Zachary Herridge on 12/1/2017.
- */
 public class LocationPair {
 
     private Location location1, location2;

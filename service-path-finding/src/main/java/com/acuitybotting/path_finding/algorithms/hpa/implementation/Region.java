@@ -6,9 +6,6 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Zachary Herridge on 12/1/2017.
- */
 public class Region {
 
     private final Location root;
