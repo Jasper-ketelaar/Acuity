@@ -1,12 +1,9 @@
-package com.acuitybotting.path_finding.algorithms.hpa.implementation;
+package com.acuitybotting.path_finding.rs.domain.location;
 
-
-import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 public class LocationPair {
 
     private Location start, end;
-    private int cost = -1;
 
     public LocationPair(Location start, Location end) {
         this.start = start;
@@ -29,15 +26,6 @@ public class LocationPair {
     public LocationPair setEnd(Location end) {
         this.end = end;
         return this;
-    }
-
-    public LocationPair setCost(int cost) {
-        this.cost = cost;
-        return this;
-    }
-
-    public int getCost() {
-        return cost;
     }
 
     @Override

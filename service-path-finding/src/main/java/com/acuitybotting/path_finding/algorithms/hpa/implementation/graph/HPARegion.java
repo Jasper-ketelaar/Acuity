@@ -1,8 +1,8 @@
-package com.acuitybotting.path_finding.algorithms.hpa.implementation;
+package com.acuitybotting.path_finding.algorithms.hpa.implementation.graph;
 
 
-import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.Set;
 
 @Getter
-public class Region {
+public class HPARegion {
 
     private final Location root;
     private final int width, height;
 
     private final Set<HPANode> nodes = new HashSet<>();
 
-    public Region(Location root, int width, int height) {
+    public HPARegion(Location root, int width, int height) {
         this.root = root;
         this.width = width;
         this.height = height;
@@ -27,13 +27,13 @@ public class Region {
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
-        if (!(object instanceof Region)) return false;
+        if (!(object instanceof HPARegion)) return false;
 
-        Region region = (Region) object;
+        HPARegion HPARegion = (HPARegion) object;
 
-        if (width != region.width) return false;
-        if (height != region.height) return false;
-        return root != null ? root.equals(region.root) : region.root == null;
+        if (width != HPARegion.width) return false;
+        if (height != HPARegion.height) return false;
+        return root != null ? root.equals(HPARegion.root) : HPARegion.root == null;
     }
 
     public boolean contains(Location location) {
@@ -48,28 +48,28 @@ public class Region {
                 locations.add(new LocationPair(
                         root.clone(i, 0),
                         root.clone(i, -1)
-                ).setCost(1));
+                ));
             }
         } else if (direction == 1) {
             for (int i = 0; i < width; i++) {
                 locations.add(new LocationPair(
                         root.clone(width - 1, i),
                         root.clone(width, i)
-                ).setCost(1));
+                ));
             }
         } else if (direction == 2) {
             for (int i = 0; i < width; i++) {
                 locations.add(new LocationPair(
                         root.clone(i, height - 1),
                         root.clone(i, height)
-                ).setCost(1));
+                ));
             }
         } else if (direction == 3) {
             for (int i = 0; i < width; i++) {
                 locations.add(new LocationPair(
                         root.clone(0, i),
                         root.clone(-1, i)
-                ).setCost(1));
+                ));
             }
         }
         return locations;
