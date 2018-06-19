@@ -1,8 +1,5 @@
 package com.acuitybotting.data.flow.messaging.services;
 
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.*;
-import lombok.Getter;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,23 +18,13 @@ public class MessagingClientService {
     private static final String RESPONSE_ID = "responseId";
     private static final String RESPONSE_URL = "responseUrl";
 
-    private AmazonSQS amazonSQS;
 
-    private Map<String, CompletableFuture<Message>> messageCallbacks = new HashMap<>();
+    private Map<String, CompletableFuture<MessageWrapper>> messageCallbacks = new HashMap<>();
 
     private int maxMessages = 3;
     private int messageTimeout = 20;
 
-    public AmazonSQS getSQS() {
-        return Optional.ofNullable(amazonSQS).orElseThrow(() -> new RuntimeException("Connect to SQS before referencing the SQS object. Call messagingClientService.setAmazonSQS()."));
-    }
-
-    public MessagingClientService setAmazonSQS(AmazonSQS amazonSQS) {
-        this.amazonSQS = amazonSQS;
-        return this;
-    }
-
-    public CompletableFuture<Message> sendMessage(String queueUrl, String localUrl, String body){
+    public CompletableFuture<MessageWrapper> sendMessage(String queueUrl, String localUrl, String body){
         return sendMessage(queueUrl, localUrl, null, body);
     }
 
@@ -45,73 +32,66 @@ public class MessagingClientService {
         sendMessage(queueUrl, null, null, body);
     }
 
-    public void respondToMessage(Message message, String body) {
+    public void respondToMessage(MessageWrapper message, String body) {
         respondToMessage(message, null, body);
     }
 
-    public CompletableFuture<Message> respondToMessage(Message message, String localUrl, String body) {
-        String responseId = message.getMessageAttributes().get(RESPONSE_ID).getStringValue();
-        String responseUrl = message.getMessageAttributes().get(RESPONSE_URL).getStringValue();
+    public CompletableFuture<MessageWrapper> respondToMessage(MessageWrapper message, String localUrl, String body) {
+        String responseId = message.getAttributes().get(RESPONSE_ID);
+        String responseUrl = message.getAttributes().get(RESPONSE_URL);
         return sendMessage(responseUrl, localUrl, responseId, body);
     }
 
-    private CompletableFuture<Message> sendMessage(String queueUrl, String localUrl, String futureId, String body){
-        Map<String, MessageAttributeValue> attributeValueMap = new HashMap<>();
+    private CompletableFuture<MessageWrapper> sendMessage(String queueUrl, String localUrl, String futureId, String body){
+        Map<String, String> attributeValueMap = new HashMap<>();
 
         if (futureId != null){
-            attributeValueMap.put(FUTURE_ID, new MessageAttributeValue().withDataType("String").withStringValue(futureId));
+            attributeValueMap.put(FUTURE_ID, futureId);
         }
 
-        CompletableFuture<Message> future = null;
+        CompletableFuture<MessageWrapper> future = null;
         if (localUrl != null){
             String id = UUID.randomUUID().toString().replaceAll("\\.", "-");
             future = new CompletableFuture<>();
             messageCallbacks.put(id, future);
-            attributeValueMap.put(RESPONSE_ID, new MessageAttributeValue().withDataType("String").withStringValue(id));
-            attributeValueMap.put(RESPONSE_URL, new MessageAttributeValue().withDataType("String").withStringValue(localUrl));
+            attributeValueMap.put(RESPONSE_ID, id);
+            attributeValueMap.put(RESPONSE_URL, localUrl);
         }
 
-        SendMessageRequest sendMessageRequest = new SendMessageRequest()
-                .withMessageGroupId("channel-1")
-                .withMessageDeduplicationId(UUID.randomUUID().toString())
-                .withQueueUrl(queueUrl)
-                .withMessageBody(body)
-                .withMessageAttributes(attributeValueMap);
-
-        getSQS().sendMessage(sendMessageRequest);
+        //Todo make http request.
         return future;
     }
 
-    public void deleteMessage(String queueUrl, Message message){
-        getSQS().deleteMessage(new DeleteMessageRequest().withQueueUrl(queueUrl).withReceiptHandle(message.getReceiptHandle()));
+    public void deleteMessage(String queueUrl, MessageWrapper message){
+        //Todo make http request.
     }
 
     public CompletableFuture<Boolean> consumeQueue(String queueUrl){
         return consumeQueue(queueUrl, null);
     }
 
-    public CompletableFuture<Boolean> consumeQueue(String queueUrl, Consumer<Message> callback){
+    public CompletableFuture<Boolean> consumeQueue(String queueUrl, Consumer<MessageWrapper> callback){
         return consumeQueue(queueUrl, callback, null);
     }
 
-    public CompletableFuture<Boolean> consumeQueue(String queueUrl, Consumer<Message> callback, BiConsumer<Boolean, ? super Throwable> shutdownCallback){
+    public CompletableFuture<Boolean> consumeQueue(String queueUrl, Consumer<MessageWrapper> callback, BiConsumer<Boolean, ? super Throwable> shutdownCallback){
         CompletableFuture<Boolean> running = new CompletableFuture<>();
         if (shutdownCallback != null) running.whenCompleteAsync(shutdownCallback);
         Executors.newSingleThreadExecutor().submit(() -> {
             try {
                 while (!running.isDone()){
-                    read(queueUrl).ifPresent(receiveMessageResult -> {
-                        for (Message message : receiveMessageResult.getMessages()) {
+                    read(queueUrl).ifPresent(messageWrappers -> {
+                        for (MessageWrapper messageWrapper : messageWrappers) {
                             try {
-                                MessageAttributeValue messageAttributeValue = message.getMessageAttributes().get(FUTURE_ID);
-                                if (messageAttributeValue != null){
-                                    CompletableFuture<Message> completableFuture = messageCallbacks.get(messageAttributeValue.getStringValue());
+                                String futureId = messageWrapper.getAttributes().get(FUTURE_ID);
+                                if (futureId != null){
+                                    CompletableFuture<MessageWrapper> completableFuture = messageCallbacks.get(futureId);
                                     if (completableFuture != null){
-                                        completableFuture.complete(message);
+                                        completableFuture.complete(messageWrapper);
                                     }
+                                    if (callback != null) callback.accept(messageWrapper);
+                                    deleteMessage(queueUrl, messageWrapper);
                                 }
-                                if (callback != null) callback.accept(message);
-                                deleteMessage(queueUrl, message);
                             }
                             catch (Exception e){
                                 e.printStackTrace();
@@ -130,16 +110,11 @@ public class MessagingClientService {
         return running;
     }
 
-    public Optional<ReceiveMessageResult> read(String queueUrl){
+    public Optional<List<MessageWrapper>> read(String queueUrl){
         return read(queueUrl, maxMessages, messageTimeout);
     }
 
-    public Optional<ReceiveMessageResult> read(String queueUrl, int maxMessages, int timeout){
-        ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest();
-        receiveMessageRequest.withQueueUrl(queueUrl);
-        receiveMessageRequest.withMaxNumberOfMessages(maxMessages);
-        receiveMessageRequest.withWaitTimeSeconds(timeout);
-        receiveMessageRequest.withMessageAttributeNames("All");
-        return Optional.ofNullable(getSQS().receiveMessage(receiveMessageRequest));
+    public Optional<List<MessageWrapper>> read(String queueUrl, int maxMessages, int timeout){
+        return null; //Todo make http request.
     }
 }
