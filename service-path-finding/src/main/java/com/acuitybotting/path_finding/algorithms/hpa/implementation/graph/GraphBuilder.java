@@ -11,83 +11,83 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class GraphBuilder {
 
+    private Location lower, upper;
     private int regionWidth, regionHeight;
 
-    private int innerConnectionLimit = 5;
+    private Map<String, Region> regions;
 
-    private Set<Region> regions;
-    private List<LocationPair> connections = new CopyOnWriteArrayList<>();
+    private int externalConnectionsCount = 0;
+    private int internalConnectionCount = 0;
 
-    //Region (Location base, int width, hieght) has
-    //Nodes Aka External connection locations (Location location) which have
-    //Edges to other Nodes (internal/external connections)
+    public Map<String, Region> build(Location lower, Location upper, PathFindingSupplier pathFindingSupplier) {
+        this.lower = lower;
+        this.upper = upper;
 
-    public Map<Location, HPANode> build(Location lower, Location upper, PathFindingSupplier pathFindingSupplier) {
-        log.info("Started building HPA graph between {} and {}.", lower, upper);
-        regions = findRegions(lower, upper);
+        log.info("Started building HPA graph between {} and {} with width {} and height {}.", lower, upper, regionWidth, regionHeight);
+        regions = findRegions();
 
         log.info("Found {} regions.", regions.size());
 
-        regions.stream().parallel().forEach(region -> {
-            List<LocationPair> outgoingConnections = findExternalConnections(region, pathFindingSupplier);
-            connections.addAll(outgoingConnections);
-        });
+        for (Region internalRegion : regions.values()) { //Multi-thread this.
+            List<LocationPair> externalConnections = findExternalConnections(internalRegion, pathFindingSupplier);
+            for (LocationPair externalConnection : externalConnections) {
+                Region externalRegion = getRegionContaining(externalConnection.getEnd()); //Check this is actually always the external region, and isn't null
 
-        log.info("Found {} external connections.", connections.size());
+                HPANode internalNode = new HPANode(internalRegion, externalConnection.getStart());
+                HPANode externalNode = new HPANode(externalRegion, externalConnection.getEnd());
 
-        regions.parallelStream().forEach(region -> {
-            Set<Location> internalLocations = connections.parallelStream()
-                    .map(locationPair -> {
-                        if (region.contains(locationPair.getLocation1())) return locationPair.getLocation1();
-                        if (region.contains(locationPair.getLocation2())) return locationPair.getLocation2();
-                        return null;
-                    })
-                    .filter(Objects::nonNull).collect(Collectors.toSet());
+                internalNode.addConnection(externalNode);
+                externalNode.addConnection(internalNode);
 
-            List<LocationPair> innerConnections = findInnerConnections(region, internalLocations, pathFindingSupplier);
-            connections.addAll(innerConnections);
-        });
+                internalRegion.getNodes().add(internalNode);
+                externalRegion.getNodes().add(externalNode);
 
-        Map<Location, HPANode> graph = buildNodes(connections);
+                externalConnectionsCount++;
+            }
+        }
 
-        log.info("Finished building HPA graph with {} nodes.", graph.size());
+        log.info("Found {} external connections.", externalConnectionsCount);
 
-        return graph;
+        for (Region region : regions.values()) { //Muli-thread this.
+            findInternalConnections(region, pathFindingSupplier);
+        }
+
+        log.info("Found {} internal connections.", internalConnectionCount);
+        return regions;
     }
 
-    private Map<Location, HPANode> buildNodes(List<LocationPair> nodeCollection) {
-        Map<Location, HPANode> nodes = new HashMap<>();
-        nodeCollection.forEach(locationPair -> {
-            HPANode node1 = nodes.computeIfAbsent(locationPair.getLocation1(), location -> new HPANode(location).setRegion(findRegionContaining(location)));
-            HPANode node2 = nodes.computeIfAbsent(locationPair.getLocation2(), location -> new HPANode(location).setRegion(findRegionContaining(location)));
-            node1.getNeighbors().add(new HPAEdge(node1, node2));
-            node2.getNeighbors().add(new HPAEdge(node2, node1));
-        });
-        return nodes;
+    public Region getRegionContaining(Locateable locateable){
+        Location offset = locateable.getLocation().subtract(lower);
+        int offX = ((int) (offset.getX() / (double) regionWidth)) * regionWidth;
+        int offY = ((int) (offset.getY() / (double) regionHeight)) * regionHeight;
+        Location base = lower.clone(offX, offY);
+        return regions.get(Region.getKey(base.getX(), base.getY(), base.getPlane(), regionWidth, regionHeight));
+
     }
 
-    private List<LocationPair> findInnerConnections(Region region, Set<Location> intneralLocations, PathFindingSupplier pathFindingSupplier) {
-        List<LocationPair> connections = new CopyOnWriteArrayList<>();
-        intneralLocations.forEach(c1 -> {
-            intneralLocations.stream().parallel()
-                    .filter(location -> !c1.equals(location))
-                    .sorted(Comparator.comparingDouble(o -> o.getTraversalCost(c1)))
-                    .map(location -> {
-                        int pathLength = pathFindingSupplier.findPath(c1, location, edge -> limitToRegion(region, edge));
-                        return new LocationPair(c1, location).setCost(pathLength);
-                    })
-                    .filter(locationPair -> locationPair.getCost() > 0)
-                    .limit(innerConnectionLimit)
-                    .forEach(connections::add);
-        });
-        return connections;
+    private void findInternalConnections(Region region, PathFindingSupplier pathFindingSupplier) {
+        for (HPANode startNode : region.getNodes()) {
+            for (HPANode endNode : region.getNodes()) {
+                if (startNode.equals(endNode)) continue;
+                if (startNode.getEdges().stream().anyMatch(edge -> edge.getEnd().equals(endNode))) continue;
+
+                int pathSize = pathFindingSupplier.findPath(
+                        startNode.getLocation(),
+                        endNode.getLocation(),
+                        edge -> limitToRegion(region, edge)
+                );
+
+                if (pathSize > 0) {
+                    internalConnectionCount++;
+                    startNode.addConnection(endNode);
+                    endNode.addConnection(startNode);
+                }
+            }
+        }
     }
 
     private boolean limitToRegion(Region region, Edge edge) {
@@ -110,24 +110,20 @@ public class GraphBuilder {
         return connections;
     }
 
-    public Region findRegionContaining(Location location) {
-        return regions.stream().filter(region -> region.contains(location)).findAny().orElse(null);
-    }
-
     private List<LocationPair> filterEdgeConnections(List<LocationPair> connections, PathFindingSupplier pathFindingSupplier) {
         boolean lastPairConnected = false;
         for (LocationPair connection : new ArrayList<>(connections)) {
-            boolean directlyConnected = pathFindingSupplier.isDirectlyConnected(connection.getLocation1(), connection.getLocation2());
+            boolean directlyConnected = pathFindingSupplier.isDirectlyConnected(connection.getStart(), connection.getEnd());
             if (lastPairConnected || !directlyConnected) connections.remove(connection);
             lastPairConnected = directlyConnected;
         }
 
-        if (connections.size() > 0) {
-            Region region = findRegionContaining(connections.get(0).getLocation2());
+        if (connections.size() > 0) { //Evaluate this.
+            Region region = getRegionContaining(connections.get(0).getEnd());
             for (LocationPair connection : new ArrayList<>(connections)) {
                 boolean duplicate = connections.stream()
                         .filter(locationPair -> !locationPair.equals(connection))
-                        .anyMatch(locationPair -> pathFindingSupplier.isReachableFrom(connection.getLocation2(), locationPair.getLocation2(), edge -> limitToRegion(region, edge)));
+                        .anyMatch(locationPair -> pathFindingSupplier.isReachableFrom(connection.getEnd(), locationPair.getEnd(), edge -> limitToRegion(region, edge)));
                 if (duplicate) connections.remove(connection);
             }
         }
@@ -135,19 +131,16 @@ public class GraphBuilder {
         return connections;
     }
 
-    private Set<Region> findRegions(Location lower, Location upper) {
-        Set<Region> regions = new HashSet<>();
+    private Map<String, Region> findRegions() {
+        Map<String, Region> regions = new HashMap<>();
         for (int z = lower.getPlane(); z <= upper.getPlane(); z++) {
             for (int x = lower.getX(); x <= upper.getX(); x += regionWidth) {
                 for (int y = lower.getY(); y <= upper.getY(); y += regionHeight) {
-                    regions.add(new Region(new Location(x, y, z), regionWidth, regionHeight));
+                    Region region = new Region(new Location(x, y, z), regionWidth, regionHeight);
+                    regions.put(region.getKey(), region);
                 }
             }
         }
-        return regions;
-    }
-
-    public Set<Region> getRegions() {
         return regions;
     }
 

@@ -1,32 +1,27 @@
 package com.acuitybotting.path_finding.algorithms.hpa.implementation;
 
 
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+@Getter
 public class Region {
 
     private final Location root;
     private final int width, height;
 
+    private final Set<HPANode> nodes = new HashSet<>();
+
     public Region(Location root, int width, int height) {
         this.root = root;
         this.width = width;
         this.height = height;
-    }
-
-    public Location getRoot() {
-        return root;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
     }
 
     @Override
@@ -78,6 +73,14 @@ public class Region {
             }
         }
         return locations;
+    }
+
+    public String getKey(){
+        return getKey(root.getX(), root.getY(), root.getPlane(), getWidth(), getHeight());
+    }
+
+    public static String getKey(int baseX, int baseY, int plane, int width, int height){
+        return baseX + "_" + baseY + "_" + plane + "_" + width + "_" + height;
     }
 
     @Override

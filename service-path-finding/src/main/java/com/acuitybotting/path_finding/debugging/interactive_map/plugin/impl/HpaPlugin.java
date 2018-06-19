@@ -17,10 +17,10 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class HpaPlugin extends Plugin{
 
-    private Map<Location, HPANode> graph;
+    private Map<String, Region> graph;
     private Region curRegion;
 
-    public void setGraph(Map<Location, HPANode> graph) {
+    public void setGraph(Map<String, Region> graph) {
         this.graph = graph;
     }
 
@@ -38,13 +38,14 @@ public class HpaPlugin extends Plugin{
             );
         }
 
-        for (HPANode hpaNode : graph.values()) {
-            for (Edge edge : hpaNode.getNeighbors()) {
-                Color color = ((HPAEdge) edge).isInternal() ? Color.BLUE : Color.ORANGE;
-                getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), color);
+        for (Region region : graph.values()) {
+            for (HPANode hpaNode : region.getNodes()) {
+                for (Edge edge : hpaNode.getNeighbors()) {
+                    Color color = ((HPAEdge) edge).isInternal() ? Color.BLUE : Color.ORANGE;
+                    getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), color);
+                }
             }
         }
-
     }
 
     @Override
@@ -52,9 +53,8 @@ public class HpaPlugin extends Plugin{
         if (e.isAltDown()){
             Location mouseLocation = getMapPanel().getMouseLocation();
             if (graph != null && mouseLocation != null){
-                for (HPANode hpaNode : graph.values()) {
-                    Region region = hpaNode.getRegion();
-                    if (region != null && region.contains(mouseLocation)){
+                for (Region region : graph.values()) {
+                    if (region.contains(mouseLocation)){
                         curRegion = region;
                         return;
                     }

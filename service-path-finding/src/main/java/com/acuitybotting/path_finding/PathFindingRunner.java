@@ -4,6 +4,7 @@ import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.HpaService;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.PathFindingSupplier;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.Region;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.HpaPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PathPlugin;
@@ -59,7 +60,7 @@ public class PathFindingRunner implements CommandLineRunner {
 
     private void buildHpa() {
         hpaService.setDimensions(25, 25);
-        Map<Location, HPANode> build = hpaService.getGraphBuilder().build(
+        Map<String, Region> build = hpaService.getGraphBuilder().build(
                 new Location(3138, 3384, 0),
                 new Location(3138 + 300, 3384 + 300, 0),
                 new PathFindingSupplier() {

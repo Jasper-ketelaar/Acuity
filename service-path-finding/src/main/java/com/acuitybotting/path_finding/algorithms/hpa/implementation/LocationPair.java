@@ -5,29 +5,29 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 public class LocationPair {
 
-    private Location location1, location2;
+    private Location start, end;
     private int cost = -1;
 
-    public LocationPair(Location location1, Location location2) {
-        this.location1 = location1;
-        this.location2 = location2;
+    public LocationPair(Location start, Location end) {
+        this.start = start;
+        this.end = end;
     }
 
-    public Location getLocation1() {
-        return location1;
+    public Location getStart() {
+        return start;
     }
 
-    public LocationPair setLocation1(Location location1) {
-        this.location1 = location1;
+    public LocationPair setStart(Location start) {
+        this.start = start;
         return this;
     }
 
-    public Location getLocation2() {
-        return location2;
+    public Location getEnd() {
+        return end;
     }
 
-    public LocationPair setLocation2(Location location2) {
-        this.location2 = location2;
+    public LocationPair setEnd(Location end) {
+        this.end = end;
         return this;
     }
 
@@ -47,15 +47,19 @@ public class LocationPair {
 
         LocationPair that = (LocationPair) object;
 
-        if (getLocation1() != null ? !getLocation1().equals(that.getLocation1()) : that.getLocation1() != null)
+        if (getStart() != null ? !getStart().equals(that.getStart()) : that.getStart() != null)
             return false;
-        return getLocation2() != null ? getLocation2().equals(that.getLocation2()) : that.getLocation2() == null;
+        return getEnd() != null ? getEnd().equals(that.getEnd()) : that.getEnd() == null;
     }
 
     @Override
     public int hashCode() {
-        int result = getLocation1() != null ? getLocation1().hashCode() : 0;
-        result = 31 * result + (getLocation2() != null ? getLocation2().hashCode() : 0);
+        int result = getStart() != null ? getStart().hashCode() : 0;
+        result = 31 * result + (getEnd() != null ? getEnd().hashCode() : 0);
         return result;
+    }
+
+    public LocationPair reverse() {
+        return new LocationPair(getEnd(), getStart());
     }
 }
