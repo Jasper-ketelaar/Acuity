@@ -1,11 +1,11 @@
-package com.acuitybotting.data.flow.messaging.services.client;
+package com.acuitybotting.data.flow.messaging.services.client.message;
 
 import java.util.Map;
 
 /**
  * Created by Zachary Herridge on 6/19/2018.
  */
-public class MessageWrapper {
+public class Message {
 
     private String id;
     private String receiptHandle;
@@ -17,7 +17,7 @@ public class MessageWrapper {
         return id;
     }
 
-    public MessageWrapper setId(String id) {
+    public Message setId(String id) {
         this.id = id;
         return this;
     }
@@ -26,7 +26,7 @@ public class MessageWrapper {
         return receiptHandle;
     }
 
-    public MessageWrapper setReceiptHandle(String receiptHandle) {
+    public Message setReceiptHandle(String receiptHandle) {
         this.receiptHandle = receiptHandle;
         return this;
     }
@@ -35,7 +35,7 @@ public class MessageWrapper {
         return bodyMD5;
     }
 
-    public MessageWrapper setBodyMD5(String bodyMD5) {
+    public Message setBodyMD5(String bodyMD5) {
         this.bodyMD5 = bodyMD5;
         return this;
     }
@@ -44,7 +44,7 @@ public class MessageWrapper {
         return body;
     }
 
-    public MessageWrapper setBody(String body) {
+    public Message setBody(String body) {
         this.body = body;
         return this;
     }
@@ -53,14 +53,14 @@ public class MessageWrapper {
         return attributes;
     }
 
-    public MessageWrapper setAttributes(Map<String, String> attributes) {
+    public Message setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
         return this;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("MessageWrapper{");
+        final StringBuilder sb = new StringBuilder("Message{");
         sb.append("id='").append(id).append('\'');
         sb.append(", receiptHandle='").append(receiptHandle).append('\'');
         sb.append(", bodyMD5='").append(bodyMD5).append('\'');

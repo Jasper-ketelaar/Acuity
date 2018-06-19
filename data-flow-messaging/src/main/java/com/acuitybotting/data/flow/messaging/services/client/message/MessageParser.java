@@ -1,4 +1,4 @@
-package com.acuitybotting.data.flow.messaging.services.client;
+package com.acuitybotting.data.flow.messaging.services.client.message;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -28,15 +28,15 @@ public class MessageParser extends DefaultHandler {
     private static final String MESSAGE_ATTRIBUTE_NAME = "Name";
     private static final String MESSAGE_ATTRIBUTE_VALUE = "Value";
 
-    private List<MessageWrapper> results = new ArrayList<>();
+    private List<Message> results = new ArrayList<>();
 
     private StringBuilder valueBuilder = new StringBuilder();
 
-    private MessageWrapper currentMessage;
+    private Message currentMessage;
     private String currentAttributeName;
     private String currentAttributeValue;
 
-    public static List<MessageWrapper> parse(String xml) throws Exception {
+    public static List<Message> parse(String xml) throws Exception {
         SAXParserFactory parserFactor = SAXParserFactory.newInstance();
         SAXParser parser = parserFactor.newSAXParser();
         MessageParser handler = new MessageParser();
@@ -47,7 +47,7 @@ public class MessageParser extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         if (MESSAGE.equals(qName)) {
-            currentMessage = new MessageWrapper();
+            currentMessage = new Message();
             currentMessage.setAttributes(new HashMap<>());
         }
     }
@@ -101,7 +101,7 @@ public class MessageParser extends DefaultHandler {
         valueBuilder.append(String.copyValueOf(ch, start, length).trim());
     }
 
-    public List<MessageWrapper> getResults() {
+    public List<Message> getResults() {
         return results;
     }
 }
