@@ -48,6 +48,5 @@ public class BotControlMessagingService {
                 .withRegion(region)
                 .build();
         queueService.setAmazonSQS(build);
-        clientService.setAmazonSQS(build);
     }
 }

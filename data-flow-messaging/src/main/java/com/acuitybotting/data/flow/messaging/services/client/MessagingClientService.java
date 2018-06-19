@@ -6,8 +6,6 @@ import com.acuitybotting.data.flow.messaging.services.client.message.MessagePars
 import com.acuitybotting.data.flow.messaging.services.client.util.HttpUtil;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -26,13 +24,12 @@ public class MessagingClientService {
 
     private Map<String, MessageFuture> messageCallbacks = new HashMap<>();
 
+    private String accessKey;
+    private String accessSecret;
+
     private int maxMessages = 3;
     private int messageTimeout = 20;
     private int visibilityTimeout = 20;
-
-    private static String encode(Object in) throws UnsupportedEncodingException {
-        return URLEncoder.encode(String.valueOf(in), "UTF-8");
-    }
 
     public CompletableFuture<Message> sendMessage(String queueUrl, String localUrl, String body) throws Exception {
         return sendMessage(queueUrl, localUrl, null, body);
@@ -68,34 +65,36 @@ public class MessagingClientService {
             attributeValueMap.put(RESPONSE_URL, localUrl);
         }
 
-        StringBuilder requestBuilder = new StringBuilder(queueUrl);
-        requestBuilder.append("?Action=SendMessage");
-        requestBuilder.append("&Version=").append(encode("2012-11-05"));
+
+        TreeMap<String, String> params = new TreeMap<>();
+        params.put("Action", "SendMessage");
+        params.put("Version", "2012-11-05");
 
         if (queueUrl.endsWith(".fifo") || queueUrl.endsWith(".fifo/")) {
-            requestBuilder.append("&MessageGroupId=").append(encode("channel1"));
-            requestBuilder.append("&MessageDeduplicationId=").append(encode(UUID.randomUUID().toString()));
+            params.put("MessageGroupId", "channel1");
+            params.put("MessageDeduplicationId", UUID.randomUUID().toString());
         }
 
-        requestBuilder.append("&MessageBody=").append(encode(body));
+        params.put("MessageBody", body);
+
 
         int attributeIndex = 1;
         for (Map.Entry<String, String> entry : attributeValueMap.entrySet()) {
-            requestBuilder.append("&MessageAttribute.").append(attributeIndex).append(".Name=").append(encode(entry.getKey()));
-            requestBuilder.append("&MessageAttribute.").append(attributeIndex).append(".Value.StringValue=").append(encode(entry.getValue()));
+            params.put("MessageAttribute." + attributeIndex + ".Name", entry.getKey());
+            params.put("MessageAttribute." + attributeIndex + ".Value.StringValue", entry.getValue());
             attributeIndex++;
         }
 
-        HttpUtil.get(requestBuilder.toString());
+        HttpUtil.get(accessKey, accessSecret, queueUrl, params);
 
         return future;
     }
 
     public void deleteMessage(String queueUrl, Message message) throws Exception {
         String request = queueUrl + "?Action=DeleteMessage" +
-                "&Version=" + encode("2012-11-05") +
-                "&ReceiptHandle=" + encode(message.getReceiptHandle());
-        HttpUtil.get(request);
+                "&Version=" + "2012-11-05" +
+                "&ReceiptHandle=" + message.getReceiptHandle();
+        HttpUtil.get(accessKey, accessSecret, request, null);
     }
 
     public CompletableFuture<Boolean> consumeQueue(String queueUrl) {
@@ -145,13 +144,15 @@ public class MessagingClientService {
 
     public Optional<List<Message>> read(String queueUrl, int maxMessages, int visibilityTimeout) throws Exception {
         String request = queueUrl + "?Action=ReceiveMessage" +
-                "&Version=" + encode("2012-11-05") +
-                "&MaxNumberOfMessages=" + encode(maxMessages) +
-                "&VisibilityTimeout=" + encode(visibilityTimeout) +
-                "&WaitTimeSeconds=" + encode(messageTimeout) +
-                "&AttributeName=" + encode("All");
+                "&Version=" + "2012-11-05" +
+                "&MaxNumberOfMessages=" + maxMessages +
+                "&VisibilityTimeout=" + visibilityTimeout +
+                "&WaitTimeSeconds=" + messageTimeout +
+                "&AttributeName=" + "All";
 
-        return Optional.ofNullable(MessageParser.parse(HttpUtil.get(request)));
+
+
+        return Optional.ofNullable(MessageParser.parse(HttpUtil.get(accessKey, accessSecret, request, null)));
     }
 
     public int getMaxMessages() {
@@ -179,5 +180,26 @@ public class MessagingClientService {
     public MessagingClientService setVisibilityTimeout(int visibilityTimeout) {
         this.visibilityTimeout = visibilityTimeout;
         return this;
+    }
+
+    public MessagingClientService setAccessKey(String accessKey) {
+        this.accessKey = accessKey;
+        return this;
+    }
+
+    public MessagingClientService setAccessSecret(String accessSecret) {
+        this.accessSecret = accessSecret;
+        return this;
+    }
+
+    public static void main(String[] args) {
+        try {
+            new MessagingClientService()
+                    .setAccessKey("")
+                    .setAccessSecret("")
+                    .sendMessage("https://sqs.us-east-1.amazonaws.com/604080725100/test.fifo", "Sub mates");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
