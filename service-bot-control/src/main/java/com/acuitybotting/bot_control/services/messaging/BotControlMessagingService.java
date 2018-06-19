@@ -1,6 +1,6 @@
 package com.acuitybotting.bot_control.services.messaging;
 
-import com.acuitybotting.data.flow.messaging.services.MessagingClientService;
+import com.acuitybotting.data.flow.messaging.services.client.MessagingClientService;
 import com.acuitybotting.data.flow.messaging.services.MessagingQueueService;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;

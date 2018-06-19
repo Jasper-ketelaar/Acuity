@@ -1,4 +1,4 @@
-package com.acuitybotting.data.flow.messaging.services;
+package com.acuitybotting.data.flow.messaging.services.client;
 
 import java.util.Map;
 

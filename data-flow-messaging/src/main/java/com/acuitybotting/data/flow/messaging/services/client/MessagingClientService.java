@@ -1,4 +1,4 @@
-package com.acuitybotting.data.flow.messaging.services;
+package com.acuitybotting.data.flow.messaging.services.client;
 
 import org.springframework.stereotype.Service;
 
@@ -20,11 +20,14 @@ public class MessagingClientService {
     private static final String RESPONSE_ID = "responseId";
     private static final String RESPONSE_URL = "responseUrl";
 
-
     private Map<String, CompletableFuture<MessageWrapper>> messageCallbacks = new HashMap<>();
 
     private int maxMessages = 3;
     private int messageTimeout = 20;
+
+    private static String encode(Object in) throws UnsupportedEncodingException {
+        return URLEncoder.encode(String.valueOf(in), "UTF-8");
+    }
 
     public CompletableFuture<MessageWrapper> sendMessage(String queueUrl, String localUrl, String body) throws Exception {
         return sendMessage(queueUrl, localUrl, null, body);
@@ -39,20 +42,21 @@ public class MessagingClientService {
     }
 
     public CompletableFuture<MessageWrapper> respondToMessage(MessageWrapper message, String localUrl, String body) throws Exception {
-        String responseId = message.getAttributes().get(RESPONSE_ID);
         String responseUrl = message.getAttributes().get(RESPONSE_URL);
+        String responseId = message.getAttributes().get(RESPONSE_ID);
         return sendMessage(responseUrl, localUrl, responseId, body);
     }
 
     private CompletableFuture<MessageWrapper> sendMessage(String queueUrl, String localUrl, String futureId, String body) throws Exception {
         Map<String, String> attributeValueMap = new HashMap<>();
 
-        if (futureId != null){
+
+        if (futureId != null) {
             attributeValueMap.put(FUTURE_ID, futureId);
         }
 
         CompletableFuture<MessageWrapper> future = null;
-        if (localUrl != null){
+        if (localUrl != null) {
             String id = UUID.randomUUID().toString().replaceAll("\\.", "-");
             future = new CompletableFuture<>();
             messageCallbacks.put(id, future);
@@ -64,78 +68,89 @@ public class MessagingClientService {
         requestBuilder.append("?Action=SendMessage");
         requestBuilder.append("&Version=").append(encode("2012-11-05"));
 
+        if (queueUrl.endsWith(".fifo") || queueUrl.endsWith(".fifo/")) {
+            requestBuilder.append("&MessageGroupId=").append(encode("channel1"));
+            requestBuilder.append("&MessageDeduplicationId=").append(encode(UUID.randomUUID().toString()));
+        }
+
         requestBuilder.append("&MessageBody=").append(encode(body));
 
         int attributeIndex = 1;
         for (Map.Entry<String, String> entry : attributeValueMap.entrySet()) {
-            requestBuilder.append("&MessageAttribute.").append(attributeIndex).append("Name=").append(encode(entry.getKey()));
-            requestBuilder.append("&MessageAttribute.").append(attributeIndex).append("Value.StringValue=").append(encode(entry.getValue()));
+            requestBuilder.append("&MessageAttribute.").append(attributeIndex).append(".Name=").append(encode(entry.getKey()));
+            requestBuilder.append("&MessageAttribute.").append(attributeIndex).append(".Value.StringValue=").append(encode(entry.getValue()));
             attributeIndex++;
         }
 
-        String request = requestBuilder.toString();
-
-        //Todo make http request.
+        System.out.println(HttpUtil.get(requestBuilder.toString()));
+        ;
         return future;
     }
 
-    public void deleteMessage(String queueUrl, MessageWrapper message){
-        //Todo make http request.
+    public void deleteMessage(String queueUrl, MessageWrapper message) throws Exception {
+        StringBuilder requestBuilder = new StringBuilder(queueUrl);
+        requestBuilder.append("?Action=DeleteMessage");
+        requestBuilder.append("&Version=").append(encode("2012-11-05"));
+        requestBuilder.append("&ReceiptHandle=").append(encode(message.getReceiptHandle()));
+        HttpUtil.get(requestBuilder.toString());
     }
 
-    public CompletableFuture<Boolean> consumeQueue(String queueUrl){
+    public CompletableFuture<Boolean> consumeQueue(String queueUrl) {
         return consumeQueue(queueUrl, null);
     }
 
-    public CompletableFuture<Boolean> consumeQueue(String queueUrl, Consumer<MessageWrapper> callback){
+    public CompletableFuture<Boolean> consumeQueue(String queueUrl, Consumer<MessageWrapper> callback) {
         return consumeQueue(queueUrl, callback, null);
     }
 
-    public CompletableFuture<Boolean> consumeQueue(String queueUrl, Consumer<MessageWrapper> callback, BiConsumer<Boolean, ? super Throwable> shutdownCallback){
+    public CompletableFuture<Boolean> consumeQueue(String queueUrl, Consumer<MessageWrapper> callback, BiConsumer<Boolean, ? super Throwable> shutdownCallback) {
         CompletableFuture<Boolean> running = new CompletableFuture<>();
         if (shutdownCallback != null) running.whenCompleteAsync(shutdownCallback);
         Executors.newSingleThreadExecutor().submit(() -> {
             try {
-                while (!running.isDone()){
+                while (!running.isDone()) {
                     read(queueUrl).ifPresent(messageWrappers -> {
                         for (MessageWrapper messageWrapper : messageWrappers) {
                             try {
                                 String futureId = messageWrapper.getAttributes().get(FUTURE_ID);
-                                if (futureId != null){
+                                if (futureId != null) {
                                     CompletableFuture<MessageWrapper> completableFuture = messageCallbacks.get(futureId);
-                                    if (completableFuture != null){
+                                    if (completableFuture != null) {
                                         completableFuture.complete(messageWrapper);
                                     }
                                     if (callback != null) callback.accept(messageWrapper);
                                     deleteMessage(queueUrl, messageWrapper);
                                 }
-                            }
-                            catch (Exception e){
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
                     });
                 }
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 running.completeExceptionally(e);
-            }
-            finally {
+            } finally {
                 if (!running.isDone()) running.complete(null);
             }
         });
         return running;
     }
 
-    public Optional<List<MessageWrapper>> read(String queueUrl){
+    public Optional<List<MessageWrapper>> read(String queueUrl) throws Exception {
         return read(queueUrl, maxMessages, messageTimeout);
     }
 
-    public Optional<List<MessageWrapper>> read(String queueUrl, int maxMessages, int timeout){
-        return null; //Todo make http request.
-    }
+    public Optional<List<MessageWrapper>> read(String queueUrl, int maxMessages, int timeout) throws Exception {
+        StringBuilder requestBuilder = new StringBuilder(queueUrl);
+        requestBuilder.append("?Action=ReceiveMessage");
+        requestBuilder.append("&Version=").append(encode("2012-11-05"));
+        requestBuilder.append("&MaxNumberOfMessages=").append(encode(maxMessages));
+        requestBuilder.append("&VisibilityTimeout=").append(encode(15));
+        requestBuilder.append("&WaitTimeSeconds=").append(encode(timeout));
+        requestBuilder.append("&AttributeName=").append(encode("All"));
 
-    private static String encode(String in) throws UnsupportedEncodingException {
-        return URLEncoder.encode(in, "UTF-8");
+        String request = requestBuilder.toString();
+
+        return Optional.ofNullable(MessageParser.parse(HttpUtil.get(request)));
     }
 }
