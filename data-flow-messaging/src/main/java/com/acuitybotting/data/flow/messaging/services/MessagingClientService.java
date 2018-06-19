@@ -2,6 +2,8 @@ package com.acuitybotting.data.flow.messaging.services;
 
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -24,25 +26,25 @@ public class MessagingClientService {
     private int maxMessages = 3;
     private int messageTimeout = 20;
 
-    public CompletableFuture<MessageWrapper> sendMessage(String queueUrl, String localUrl, String body){
+    public CompletableFuture<MessageWrapper> sendMessage(String queueUrl, String localUrl, String body) throws Exception {
         return sendMessage(queueUrl, localUrl, null, body);
     }
 
-    public void sendMessage(String queueUrl, String body){
+    public void sendMessage(String queueUrl, String body) throws Exception {
         sendMessage(queueUrl, null, null, body);
     }
 
-    public void respondToMessage(MessageWrapper message, String body) {
+    public void respondToMessage(MessageWrapper message, String body) throws Exception {
         respondToMessage(message, null, body);
     }
 
-    public CompletableFuture<MessageWrapper> respondToMessage(MessageWrapper message, String localUrl, String body) {
+    public CompletableFuture<MessageWrapper> respondToMessage(MessageWrapper message, String localUrl, String body) throws Exception {
         String responseId = message.getAttributes().get(RESPONSE_ID);
         String responseUrl = message.getAttributes().get(RESPONSE_URL);
         return sendMessage(responseUrl, localUrl, responseId, body);
     }
 
-    private CompletableFuture<MessageWrapper> sendMessage(String queueUrl, String localUrl, String futureId, String body){
+    private CompletableFuture<MessageWrapper> sendMessage(String queueUrl, String localUrl, String futureId, String body) throws Exception {
         Map<String, String> attributeValueMap = new HashMap<>();
 
         if (futureId != null){
@@ -57,6 +59,21 @@ public class MessagingClientService {
             attributeValueMap.put(RESPONSE_ID, id);
             attributeValueMap.put(RESPONSE_URL, localUrl);
         }
+
+        StringBuilder requestBuilder = new StringBuilder(queueUrl);
+        requestBuilder.append("?Action=SendMessage");
+        requestBuilder.append("&Version=").append(encode("2012-11-05"));
+
+        requestBuilder.append("&MessageBody=").append(encode(body));
+
+        int attributeIndex = 1;
+        for (Map.Entry<String, String> entry : attributeValueMap.entrySet()) {
+            requestBuilder.append("&MessageAttribute.").append(attributeIndex).append("Name=").append(encode(entry.getKey()));
+            requestBuilder.append("&MessageAttribute.").append(attributeIndex).append("Value.StringValue=").append(encode(entry.getValue()));
+            attributeIndex++;
+        }
+
+        String request = requestBuilder.toString();
 
         //Todo make http request.
         return future;
@@ -116,5 +133,9 @@ public class MessagingClientService {
 
     public Optional<List<MessageWrapper>> read(String queueUrl, int maxMessages, int timeout){
         return null; //Todo make http request.
+    }
+
+    private static String encode(String in) throws UnsupportedEncodingException {
+        return URLEncoder.encode(in, "UTF-8");
     }
 }
