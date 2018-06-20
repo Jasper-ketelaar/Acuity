@@ -59,10 +59,10 @@ public class PathFindingRunner implements CommandLineRunner {
     }
 
     private void buildHpa() {
-        hpaService.setDimensions(65, 65);
+        hpaService.setDimensions(30, 30);
 
         Map<String, HPARegion> graph = hpaService.getHPAGraphBuilder().init(
-                new Location(3138, 3384, 0),
+                new Location(3138 - 700, 3384 - 700, 0),
                 new Location(3138 + 300, 3384 + 300, 0)
         );
 

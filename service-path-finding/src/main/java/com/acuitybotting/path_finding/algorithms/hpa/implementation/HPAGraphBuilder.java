@@ -26,6 +26,8 @@ public class HPAGraphBuilder {
 
     private Map<String, HPARegion> regions;
 
+    private int internalNodeConnectionLimit = 4;
+
     private int externalConnectionsCount = 0;
     private int internalConnectionCount = 0;
     private int stairNodesAddedCount = 0;
@@ -78,9 +80,19 @@ public class HPAGraphBuilder {
         log.info("Found {} external connections.", externalConnectionsCount);
 
 
+        executorService = Executors.newFixedThreadPool(20);
+
         for (HPARegion hpaRegion : regions.values()) {
-            addStairConnections(hpaRegion);
+            executorService.submit(() -> addStairConnections(hpaRegion));
         }
+
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(5, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
 
         log.info("Found {} stair nodes.", stairNodesAddedCount);
 
@@ -108,7 +120,7 @@ public class HPAGraphBuilder {
     }
 
     public void findInternalConnections(HPARegion region, HPANode startNode) {
-        findInternalConnections(region, startNode, 4);
+        findInternalConnections(region, startNode, internalNodeConnectionLimit);
     }
 
     public void findInternalConnections(HPARegion region, HPANode startNode, int limit) {
