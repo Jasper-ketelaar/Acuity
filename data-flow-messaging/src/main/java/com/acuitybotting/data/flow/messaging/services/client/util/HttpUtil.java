@@ -19,32 +19,11 @@ public class HttpUtil {
     private static final String USER_AGENT = "Mozilla/5.0";
 
     public static String get(String accessKey, String accessSecret, String url, TreeMap<String, String> queryParams) throws Exception {
-        Map<String, String> headers = Collections.emptyMap();
-        if (accessKey != null && accessSecret != null){
-            TreeMap<String, String> awsHeaders = new TreeMap<>();
-            awsHeaders.put("host", "sqs.us-east-1.amazonaws.com");
-            headers = new AWSV4Auth.Builder(accessKey, accessSecret)
-                    .regionName("us-east-1")
-                    .serviceName("sqs")
-                    .httpMethodName("GET")
-                    .canonicalURI("/604080725100/test.fifo")
-                    .queryParametes(queryParams)
-                    .awsHeaders(awsHeaders)
-                    .debug()
-                    .build()
-                    .getHeaders();
-        }
-
         url += "?" + queryParams.entrySet().stream().map(entry -> entry.getKey() + "=" + encode(entry.getValue())).collect(Collectors.joining("&"));
 
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
         con.setRequestMethod("GET");
-        con.setRequestProperty("User-Agent", USER_AGENT);
-        for (Map.Entry<String, String> entry : headers.entrySet()) {
-            con.setRequestProperty(entry.getKey(), entry.getValue());
-        }
 
         StringBuilder response = new StringBuilder();
         try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))){

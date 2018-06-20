@@ -195,7 +195,7 @@ public class MessagingClientService {
     public static void main(String[] args) {
         try {
             new MessagingClientService()
-                    .setAccessKey("")
+                    .setAccessKey("AKIAIHYKVNPDUZPLRDNQ")
                     .setAccessSecret("")
                     .sendMessage("https://sqs.us-east-1.amazonaws.com/604080725100/test.fifo", "Sub mates");
         } catch (Exception e) {
