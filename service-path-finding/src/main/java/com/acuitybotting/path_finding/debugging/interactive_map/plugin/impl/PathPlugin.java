@@ -34,18 +34,10 @@ public class PathPlugin extends Plugin {
     public PathPlugin(AStarService aStarService) {
         this.aStarService = aStarService;
         aStarService.setDebugMode(true);
-        Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(() -> getMapPanel().repaint(), 5000, 100, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void onPaint(Graphics2D graphics, Graphics2D scaledGraphics) {
-        for (AStarImplementation aStarImplementation : AStarService.getCurrentSearches()) {
-            if(aStarImplementation == null) continue;
-            for (Node node : new ArrayList<>(aStarImplementation.getCostCache().keySet())) {
-                getPaintUtil().markLocation(graphics, node, Color.ORANGE);
-            }
-        }
-
         if (path != null){
             for (Edge edge : path) {
                 getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), Color.CYAN);

@@ -11,6 +11,9 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class HPAGraphBuilder {
@@ -24,6 +27,8 @@ public class HPAGraphBuilder {
     private int internalConnectionCount = 0;
 
     public Map<String, HPARegion> build(Location lower, Location upper, PathFindingSupplier pathFindingSupplier) {
+        long startTimestamp = System.currentTimeMillis();
+
         this.lower = lower;
         this.upper = upper;
 
@@ -32,31 +37,53 @@ public class HPAGraphBuilder {
 
         log.info("Found {} regions.", regions.size());
 
+        ExecutorService executorService = Executors.newFixedThreadPool(20);
+
         for (HPARegion internalHPARegion : regions.values()) { //Multi-thread this.
-            List<LocationPair> externalConnections = findExternalConnections(internalHPARegion, pathFindingSupplier);
-            for (LocationPair externalConnection : externalConnections) {
-                HPARegion externalHPARegion = getRegionContaining(externalConnection.getEnd()); //Check this is actually always the external region, and isn't null
+            executorService.submit(() -> {
+                List<LocationPair> externalConnections = findExternalConnections(internalHPARegion, pathFindingSupplier);
+                for (LocationPair externalConnection : externalConnections) {
+                    HPARegion externalHPARegion = getRegionContaining(externalConnection.getEnd()); //Check this is actually always the external region, and isn't null
 
-                HPANode internalNode = new HPANode(internalHPARegion, externalConnection.getStart());
-                HPANode externalNode = new HPANode(externalHPARegion, externalConnection.getEnd());
+                    HPANode internalNode = new HPANode(internalHPARegion, externalConnection.getStart());
+                    HPANode externalNode = new HPANode(externalHPARegion, externalConnection.getEnd());
 
-                internalNode.addConnection(externalNode, 1);
-                externalNode.addConnection(internalNode, 1);
+                    internalNode.addConnection(externalNode, 1);
+                    externalNode.addConnection(internalNode, 1);
 
-                internalHPARegion.getNodes().add(internalNode);
-                externalHPARegion.getNodes().add(externalNode);
+                    internalHPARegion.getNodes().add(internalNode);
+                    externalHPARegion.getNodes().add(externalNode);
 
-                externalConnectionsCount++;
-            }
+                    externalConnectionsCount++;
+                }
+            });
+        }
+
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(5,  TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         log.info("Found {} external connections.", externalConnectionsCount);
 
+
+        executorService = Executors.newFixedThreadPool(10);
         for (HPARegion HPARegion : regions.values()) { //Muli-thread this.
-            findInternalConnections(HPARegion, pathFindingSupplier);
+            executorService.submit(() -> findInternalConnections(HPARegion, pathFindingSupplier));
+        }
+
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(5,  TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         log.info("Found {} internal connections.", internalConnectionCount);
+
+        log.info("Finished creating HPA graph in {} seconds.", (System.currentTimeMillis() - startTimestamp) / 1000);
         return regions;
     }
 
