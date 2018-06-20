@@ -88,7 +88,7 @@ public class HPAGraphBuilder {
         for (HPARegion region : regions.values()) {
             executorService.submit(() -> {
                 for (HPANode startNode : region.getNodes().values()) {
-                    findInternalConnections(region, startNode, true);
+                    findInternalConnections(region, startNode);
                 }
             });
         }
@@ -107,7 +107,11 @@ public class HPAGraphBuilder {
         return regions;
     }
 
-    public void findInternalConnections(HPARegion region, HPANode startNode, boolean twoWay) {
+    public void findInternalConnections(HPARegion region, HPANode startNode) {
+        findInternalConnections(region, startNode, 4);
+    }
+
+    public void findInternalConnections(HPARegion region, HPANode startNode, int limit) {
         List<HPANode> endNodes = region.getNodes().values().stream()
                 .filter(hpaNode -> !hpaNode.equals(startNode))
                 .sorted(Comparator.comparingDouble(o -> o.getLocation().getTraversalCost(startNode.getLocation())))
@@ -115,7 +119,7 @@ public class HPAGraphBuilder {
 
         int found = 0;
         for (HPANode endNode : endNodes) {
-            if (found >= 4) break;
+            if (limit != 0 && found >= limit) break;
 
             if (startNode.getEdges().stream().anyMatch(edge -> edge.getEnd().equals(endNode))) {
                 found++;
@@ -132,7 +136,7 @@ public class HPAGraphBuilder {
                 found++;
                 internalConnectionCount++;
                 startNode.addConnection(endNode, path);
-                if (twoWay) endNode.addConnection(startNode, path);
+                endNode.addConnection(startNode, path);
             }
         }
     }

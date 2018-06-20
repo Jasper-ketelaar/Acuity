@@ -34,6 +34,13 @@ public class HPANode implements Node, Locateable {
         return edges;
     }
 
+    public void unlink() {
+        for (Edge edge : edges) {
+            ((HPANode) edge.getEnd()).getEdges().removeIf(edge1 -> edge1.getEnd().equals(this));
+        }
+        edges.clear();
+    }
+
     public HPAEdge addConnection(HPANode other){
         HPAEdge hpaEdge = new HPAEdge(this, other);
         List<Edge> path = Collections.singletonList(hpaEdge);
