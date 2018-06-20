@@ -66,7 +66,7 @@ public class PathFindingRunner implements CommandLineRunner {
                 new Location(3138 + 300, 3384 + 300, 0)
         );
 
-        hpaPlugin.setGraph(graph);
+        hpaPlugin.setGraph(hpaService.getHPAGraphBuilder());
 
         hpaService.getHPAGraphBuilder().build(
                 new PathFindingSupplier() {

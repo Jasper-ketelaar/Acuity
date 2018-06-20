@@ -30,7 +30,9 @@ public class HPAGraphBuilder {
     private int internalConnectionCount = 0;
     private int stairNodesAddedCount = 0;
 
-    public Map<String, HPARegion> init(Location lower, Location upper){
+    private PathFindingSupplier pathFindingSupplier;
+
+    public Map<String, HPARegion> init(Location lower, Location upper) {
         this.lower = lower;
         this.upper = upper;
 
@@ -41,6 +43,7 @@ public class HPAGraphBuilder {
     }
 
     public Map<String, HPARegion> build(PathFindingSupplier pathFindingSupplier) {
+        this.pathFindingSupplier = pathFindingSupplier;
         log.info("Started building HPA graph between {} and {} with width {} and height {}.", lower, upper, regionWidth, regionHeight);
 
         long startTimestamp = System.currentTimeMillis();
@@ -82,8 +85,12 @@ public class HPAGraphBuilder {
         log.info("Found {} stair nodes.", stairNodesAddedCount);
 
         executorService = Executors.newFixedThreadPool(10);
-        for (HPARegion HPARegion : regions.values()) {
-            executorService.submit(() -> findInternalConnections(HPARegion, pathFindingSupplier));
+        for (HPARegion region : regions.values()) {
+            executorService.submit(() -> {
+                for (HPANode startNode : region.getNodes().values()) {
+                    findInternalConnections(region, startNode, true);
+                }
+            });
         }
 
         executorService.shutdown();
@@ -100,13 +107,43 @@ public class HPAGraphBuilder {
         return regions;
     }
 
-    private void addStairConnections(HPARegion region){
+    public void findInternalConnections(HPARegion region, HPANode startNode, boolean twoWay) {
+        List<HPANode> endNodes = region.getNodes().values().stream()
+                .filter(hpaNode -> !hpaNode.equals(startNode))
+                .sorted(Comparator.comparingDouble(o -> o.getLocation().getTraversalCost(startNode.getLocation())))
+                .collect(Collectors.toList());
+
+        int found = 0;
+        for (HPANode endNode : endNodes) {
+            if (found >= 4) break;
+
+            if (startNode.getEdges().stream().anyMatch(edge -> edge.getEnd().equals(endNode))) {
+                found++;
+                continue;
+            }
+
+            List<Edge> path = pathFindingSupplier.findPath(
+                    startNode.getLocation(),
+                    endNode.getLocation(),
+                    edge -> limitToRegion(region, edge)
+            ).orElse(null);
+
+            if (path != null) {
+                found++;
+                internalConnectionCount++;
+                startNode.addConnection(endNode, path);
+                if (twoWay) endNode.addConnection(startNode, path);
+            }
+        }
+    }
+
+    private void addStairConnections(HPARegion region) {
         for (SceneEntity sceneEntity : RsEnvironment.getStairsWithin(region)) {
             if (sceneEntity.getActions() == null) continue;
             boolean up = Arrays.stream(sceneEntity.getActions()).anyMatch(s -> s.toLowerCase().contains("up"));
             boolean down = Arrays.stream(sceneEntity.getActions()).anyMatch(s -> s.toLowerCase().contains("down"));
 
-            if (up || down){
+            if (up || down) {
                 HPANode stairNode = region.getOrCreateNode(new Location(sceneEntity.getX(), sceneEntity.getY(), sceneEntity.getPlane()), HPANode.STAIR);
                 stairNodesAddedCount++;
             }
@@ -122,45 +159,13 @@ public class HPAGraphBuilder {
 
     }
 
-    private void findInternalConnections(HPARegion region, PathFindingSupplier pathFindingSupplier) {
-        for (HPANode startNode : region.getNodes().values()) {
-            List<HPANode> endNodes = region.getNodes().values().stream()
-                    .filter(hpaNode -> !hpaNode.equals(startNode))
-                    .sorted(Comparator.comparingDouble(o -> o.getLocation().getTraversalCost(startNode.getLocation())))
-                    .collect(Collectors.toList());
-
-            int found = 0;
-            for (HPANode endNode : endNodes) {
-                if (found >= 4) break;
-
-                if (startNode.getEdges().stream().anyMatch(edge -> edge.getEnd().equals(endNode))){
-                    found++;
-                    continue;
-                }
-
-                List<Edge> path = pathFindingSupplier.findPath(
-                        startNode.getLocation(),
-                        endNode.getLocation(),
-                        edge -> limitToRegion(region, edge)
-                ).orElse(null);
-
-                if (path != null) {
-                    found++;
-                    internalConnectionCount++;
-                    startNode.addConnection(endNode, path);
-                    endNode.addConnection(startNode, path);
-                }
-            }
-        }
-    }
-
-    private boolean limitToRegion(HPARegion HPARegion, Edge edge) {
-        if (HPARegion == null) return false;
+    private boolean limitToRegion(HPARegion region, Edge edge) {
+        if (region == null) return false;
         Node node = edge.getStart();
-        if (node == null || node instanceof Locateable && !HPARegion.contains(((Locateable) node).getLocation()))
+        if (node == null || node instanceof Locateable && !region.contains(((Locateable) node).getLocation()))
             return false;
         node = edge.getEnd();
-        if (node == null || node instanceof Locateable && !HPARegion.contains(((Locateable) node).getLocation()))
+        if (node == null || node instanceof Locateable && !region.contains(((Locateable) node).getLocation()))
             return false;
         return true;
     }
@@ -210,5 +215,9 @@ public class HPAGraphBuilder {
     public HPAGraphBuilder setRegionWidth(int regionWidth) {
         this.regionWidth = regionWidth;
         return this;
+    }
+
+    public Map<String, HPARegion> getRegions() {
+        return regions;
     }
 }

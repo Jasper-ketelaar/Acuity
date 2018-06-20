@@ -1,11 +1,14 @@
 package com.acuitybotting.path_finding.debugging.interactive_map.ui;
 
+import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.Perspective;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.ScreenLocation;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 import static com.acuitybotting.path_finding.debugging.interactive_map.util.Perspective.round;
 
@@ -63,5 +66,11 @@ public class PaintUtil {
         if (object instanceof Location) return (Location) object;
         if (object instanceof Locateable) return ((Locateable) object).getLocation();
         throw new RuntimeException(object + " must be instance of Location or Locateable.");
+    }
+
+    public void connectLocations(Graphics2D graphics, List<Edge> neighbors, Color color) {
+        for (Edge neighbor : neighbors) {
+            connectLocations(graphics, neighbor.getStart(), neighbor.getEnd(), color);
+        }
     }
 }
