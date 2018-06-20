@@ -84,6 +84,17 @@ public class HPARegion {
     }
 
     @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("HPARegion{");
+        sb.append("root=").append(root);
+        sb.append(", width=").append(width);
+        sb.append(", height=").append(height);
+        sb.append(", nodes=").append(nodes);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
     public int hashCode() {
         int result = root != null ? root.hashCode() : 0;
         result = 31 * result + width;

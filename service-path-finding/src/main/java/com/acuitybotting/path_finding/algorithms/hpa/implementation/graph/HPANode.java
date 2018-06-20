@@ -15,9 +15,13 @@ import java.util.Objects;
 @Getter
 public class HPANode implements Node, Locateable {
 
+    public static final int GROUND = 0;
+    public static final int STAIR = 1;
+
     private List<Edge> edges = new ArrayList<>();
     private Location location;
     private HPARegion HPARegion;
+    private int type = GROUND;
 
     public HPANode(HPARegion HPARegion, Location location) {
         this.location = location;
@@ -43,6 +47,11 @@ public class HPANode implements Node, Locateable {
         HPANode hpaNode = (HPANode) object;
         return Objects.equals(getLocation(), hpaNode.getLocation()) &&
                 Objects.equals(this.getHPARegion(), this.getHPARegion());
+    }
+
+    public HPANode setType(int type) {
+        this.type = type;
+        return this;
     }
 
     @Override

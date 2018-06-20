@@ -2,10 +2,12 @@ package com.acuitybotting.path_finding.rs.utils;
 
 import com.acuitybotting.db.arango.path_finding.domain.SceneEntity;
 import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -17,6 +19,7 @@ public class RsEnvironment {
     public static final int CACHE_AREA = 15;
 
     public static final String[] DOOR_NAMES = new String[]{"Door", "Gate", "Large door", "Castle door", "Gate of War", "Rickety door", "Oozing barrier", "Portal of Death", "Magic guild door", "Prison door", "Barbarian door"};
+    public static final String[] STAIR_NAMES = new String[]{"Stairs", "Ladder"};
 
     private static RsMapService rsMapService;
 
@@ -31,63 +34,74 @@ public class RsEnvironment {
         Integer flag = flagCache.get(location);
         if (flag != null) return flag;
 
-        synchronized (flagCache.lock){
-            flag = flagCache.get(location);
-            if (flag != null) return flag;
+        Iterable<TileFlag> flags = rsMapService.getTileFlagRepository().findAllByXBetweenAndYBetweenAndPlane(
+                location.getX() - CACHE_AREA,
+                location.getX() + CACHE_AREA,
+                location.getY() - CACHE_AREA,
+                location.getY() + CACHE_AREA,
+                location.getPlane()
+        );
 
-            Iterable<TileFlag> flags = rsMapService.getTileFlagRepository().findAllByXBetweenAndYBetweenAndPlane(
-                    location.getX() - CACHE_AREA,
-                    location.getX() + CACHE_AREA,
-                    location.getY() - CACHE_AREA,
-                    location.getY() + CACHE_AREA,
-                    location.getPlane()
-            );
+        flag = flagCache.get(location);
+        if (flag != null) return flag;
 
-            flagCache.fill(  location.getX() - CACHE_AREA,
-                    location.getX() + CACHE_AREA,
-                    location.getY() - CACHE_AREA,
-                    location.getY() + CACHE_AREA,
-                    location.getPlane(),
-                    CollisionFlags.BLOCKED);
+        flagCache.fill(location.getX() - CACHE_AREA,
+                location.getX() + CACHE_AREA,
+                location.getY() - CACHE_AREA,
+                location.getY() + CACHE_AREA,
+                location.getPlane(),
+                CollisionFlags.BLOCKED);
 
-            for (TileFlag tileFlag : flags) {
-                flagCache.put(tileFlag.getLocation(), tileFlag.getFlag());
-            }
-
-            return flagCache.getOrDefault(location, CollisionFlags.BLOCKED);
+        for (TileFlag tileFlag : flags) {
+            flagCache.put(tileFlag.getLocation(), tileFlag.getFlag());
         }
+
+        return flagCache.getOrDefault(location, CollisionFlags.BLOCKED);
+
+    }
+
+    public static Iterable<SceneEntity> getStairsWithin(HPARegion region) {
+        return rsMapService.getSceneEntityRepository().findAllByXBetweenAndYBetweenAndPlaneAndNameIn(
+                region.getRoot().getX(),
+                region.getRoot().getX() + region.getWidth(),
+                region.getRoot().getY(),
+                region.getRoot().getY() + region.getHeight(),
+                region.getRoot().getPlane(),
+                STAIR_NAMES
+        );
     }
 
     public static List<SceneEntity> getDoorsAt(Location location) {
-        List<SceneEntity> sceneEntities = doorCache.get(location);
+        return getSceneElementAt(location, DOOR_NAMES, doorCache);
+    }
+
+    public static List<SceneEntity> getSceneElementAt(Location location, String[] names, LocationBasedCache<List<SceneEntity>> cache) {
+        List<SceneEntity> sceneEntities = cache.get(location);
         if (sceneEntities != null) return sceneEntities;
 
-        synchronized (doorCache.lock){
-            sceneEntities = doorCache.get(location);
-            if (sceneEntities != null) return sceneEntities;
+        Iterable<SceneEntity> entities = rsMapService.getSceneEntityRepository().findAllByXBetweenAndYBetweenAndPlaneAndNameIn(
+                location.getX() - CACHE_AREA,
+                location.getX() + CACHE_AREA,
+                location.getY() - CACHE_AREA,
+                location.getY() + CACHE_AREA,
+                location.getPlane(),
+                names
+        );
 
-            Iterable<SceneEntity> doors = rsMapService.getSceneEntityRepository().findAllByXBetweenAndYBetweenAndPlaneAndNameIn(
-                    location.getX() - CACHE_AREA,
-                    location.getX() + CACHE_AREA,
-                    location.getY() - CACHE_AREA,
-                    location.getY() + CACHE_AREA,
-                    location.getPlane(),
-                    DOOR_NAMES
-            );
+        sceneEntities = cache.get(location);
+        if (sceneEntities != null) return sceneEntities;
 
-            doorCache.fill(  location.getX() - CACHE_AREA,
-                    location.getX() + CACHE_AREA,
-                    location.getY() - CACHE_AREA,
-                    location.getY() + CACHE_AREA,
-                    location.getPlane(),
-                    Collections.emptyList());
+        doorCache.fill(location.getX() - CACHE_AREA,
+                location.getX() + CACHE_AREA,
+                location.getY() - CACHE_AREA,
+                location.getY() + CACHE_AREA,
+                location.getPlane(),
+                Collections.emptyList());
 
-            for (SceneEntity door : doors) {
-                doorCache.put(location, Collections.singletonList(door));
-            }
+        Iterator<SceneEntity> iterator = entities.iterator();
+        if (iterator.hasNext()) cache.put(location, Collections.singletonList(iterator.next()));
 
-            return doorCache.getOrDefault(location, Collections.emptyList());
-        }
+        return cache.getOrDefault(location, Collections.emptyList());
     }
 
     public static RsMapService getRsMapService() {

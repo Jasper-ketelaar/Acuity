@@ -39,6 +39,9 @@ public class HpaPlugin extends Plugin{
 
         for (HPARegion HPARegion : graph.values()) {
             for (HPANode hpaNode : HPARegion.getNodes()) {
+                if (hpaNode.getType() == HPANode.STAIR){
+                    getPaintUtil().markLocation(graphics, hpaNode.getLocation(), Color.RED);
+                }
                 for (Edge edge : hpaNode.getNeighbors()) {
                     Color color = ((HPAEdge) edge).isInternal() ? Color.BLUE : Color.ORANGE;
                     getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), color);

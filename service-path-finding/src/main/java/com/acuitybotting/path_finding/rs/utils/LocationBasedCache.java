@@ -4,13 +4,14 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Zachary Herridge on 6/11/2018.
  */
 public class LocationBasedCache<T> {
 
-    private Map<Location, T> cache = new HashMap<>();
+    private Map<Location, T> cache = new ConcurrentHashMap<>();
 
     public final Object lock = new Object();
 
