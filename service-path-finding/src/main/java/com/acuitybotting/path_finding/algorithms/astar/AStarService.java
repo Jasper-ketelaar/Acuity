@@ -27,10 +27,11 @@ public class AStarService {
 
     public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Predicate<Edge> edgePredicate) {
         AStarImplementation aStarImplementation = new AStarImplementation();
-        if (isDebugMode()) currentSearches.add(aStarImplementation);
-        Optional<List<Edge>> path = aStarImplementation.findPath(heuristicSupplier, start, end, edgePredicate);
-        if (isDebugMode()) currentSearches.remove(aStarImplementation);
-        return path;
+        return aStarImplementation.findPath(heuristicSupplier, start, end, edgePredicate);
+    }
+
+    public AStarImplementation build(){
+        return new AStarImplementation();
     }
 
     public static List<AStarImplementation> getCurrentSearches() {

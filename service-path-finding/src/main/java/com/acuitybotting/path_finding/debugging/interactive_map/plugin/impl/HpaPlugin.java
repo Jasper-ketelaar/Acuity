@@ -38,7 +38,7 @@ public class HpaPlugin extends Plugin{
         }
 
         for (HPARegion HPARegion : graph.values()) {
-            for (HPANode hpaNode : HPARegion.getNodes()) {
+            for (HPANode hpaNode : HPARegion.getNodes().values()) {
                 if (hpaNode.getType() == HPANode.STAIR){
                     getPaintUtil().markLocation(graphics, hpaNode.getLocation(), Color.RED);
                 }

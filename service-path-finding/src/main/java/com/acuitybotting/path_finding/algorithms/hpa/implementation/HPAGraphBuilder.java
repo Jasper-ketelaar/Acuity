@@ -54,14 +54,11 @@ public class HPAGraphBuilder {
                 for (LocationPair externalConnection : externalConnections) {
                     HPARegion externalHPARegion = getRegionContaining(externalConnection.getEnd()); //Check this is actually always the external region, and isn't null
 
-                    HPANode internalNode = new HPANode(internalHPARegion, externalConnection.getStart());
-                    HPANode externalNode = new HPANode(externalHPARegion, externalConnection.getEnd());
+                    HPANode internalNode = internalHPARegion.getOrCreateNode(externalConnection.getStart());
+                    HPANode externalNode = externalHPARegion.getOrCreateNode(externalConnection.getEnd());
 
                     internalNode.addConnection(externalNode, 1);
                     externalNode.addConnection(internalNode, 1);
-
-                    internalHPARegion.getNodes().add(internalNode);
-                    externalHPARegion.getNodes().add(externalNode);
 
                     externalConnectionsCount++;
                 }
@@ -112,9 +109,7 @@ public class HPAGraphBuilder {
             boolean down = Arrays.stream(sceneEntity.getActions()).anyMatch(s -> s.toLowerCase().contains("down"));
 
             if (up || down){
-                HPANode stairNode = new HPANode(region, new Location(sceneEntity.getX(), sceneEntity.getY(), sceneEntity.getPlane())).setType(HPANode.STAIR);
-                region.getNodes().add(stairNode);
-
+                HPANode stairNode = region.getOrCreateNode(new Location(sceneEntity.getX(), sceneEntity.getY(), sceneEntity.getPlane()), HPANode.STAIR);
                 stairNodesAddedCount++;
             }
         }
@@ -130,16 +125,20 @@ public class HPAGraphBuilder {
     }
 
     private void findInternalConnections(HPARegion region, PathFindingSupplier pathFindingSupplier) {
-        for (HPANode startNode : region.getNodes()) {
-            List<HPANode> endNodes = region.getNodes().stream()
+        for (HPANode startNode : region.getNodes().values()) {
+            List<HPANode> endNodes = region.getNodes().values().stream()
                     .filter(hpaNode -> !hpaNode.equals(startNode))
-                    .filter(hpaNode -> startNode.getEdges().stream().noneMatch(edge -> edge.getEnd().equals(hpaNode)))
-                    .sorted((o1, o2) -> (int) o1.getLocation().getTraversalCost(o2.getLocation()))
+                    .sorted(Comparator.comparingDouble(o -> o.getLocation().getTraversalCost(startNode.getLocation())))
                     .collect(Collectors.toList());
 
             int found = 0;
             for (HPANode endNode : endNodes) {
                 if (found >= 3) break;
+
+                if (startNode.getEdges().stream().anyMatch(edge -> edge.getEnd().equals(endNode))){
+                    found++;
+                    continue;
+                }
 
                 int pathSize = pathFindingSupplier.findPath(
                         startNode.getLocation(),
@@ -180,7 +179,7 @@ public class HPAGraphBuilder {
     private List<LocationPair> filterEdgeConnections(HPARegion region, List<LocationPair> connections, PathFindingSupplier pathFindingSupplier) {
         boolean lastPairConnected = false;
         for (LocationPair connection : new ArrayList<>(connections)) {
-            if (getRegionContaining(connection.getEnd()) == null) { // Evaluate this.
+            if (getRegionContaining(connection.getEnd()) == null) {
                 connections.remove(connection);
                 continue;
             }
@@ -189,17 +188,6 @@ public class HPAGraphBuilder {
             if (lastPairConnected || !directlyConnected) connections.remove(connection);
             lastPairConnected = directlyConnected;
         }
-
- /*       if (connections.size() > 1) { //Evaluate this.
-            HPARegion HPARegion = getRegionContaining(connections.get(0).getEnd());
-            for (LocationPair connection : new ArrayList<>(connections)) {
-                boolean duplicate = connections.stream()
-                        .filter(locationPair -> !locationPair.equals(connection))
-                        .anyMatch(locationPair -> pathFindingSupplier.isReachableFrom(connection.getEnd(), locationPair.getEnd(), edge -> limitToRegion(HPARegion, edge)));
-                if (duplicate) connections.remove(connection);
-            }
-        }*/
-
         return connections;
     }
 

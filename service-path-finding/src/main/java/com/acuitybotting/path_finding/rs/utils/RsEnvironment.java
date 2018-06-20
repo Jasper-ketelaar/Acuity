@@ -19,7 +19,7 @@ public class RsEnvironment {
     public static final int CACHE_AREA = 15;
 
     public static final String[] DOOR_NAMES = new String[]{"Door", "Gate", "Large door", "Castle door", "Gate of War", "Rickety door", "Oozing barrier", "Portal of Death", "Magic guild door", "Prison door", "Barbarian door"};
-    public static final String[] STAIR_NAMES = new String[]{"Stairs", "Ladder"};
+    public static final String[] STAIR_NAMES = new String[]{"Stairs", "Ladder", "Stair"};
 
     private static RsMapService rsMapService;
 

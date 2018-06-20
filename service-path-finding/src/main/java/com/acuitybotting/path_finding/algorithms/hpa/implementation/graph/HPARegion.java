@@ -5,10 +5,8 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class HPARegion {
@@ -16,7 +14,8 @@ public class HPARegion {
     private final Location root;
     private final int width, height;
 
-    private final Set<HPANode> nodes = new HashSet<>();
+    private Map<Location, HPANode> nodes = new ConcurrentHashMap<>();
+
 
     public HPARegion(Location root, int width, int height) {
         this.root = root;
@@ -73,6 +72,14 @@ public class HPARegion {
             }
         }
         return locations;
+    }
+
+    public HPANode getOrCreateNode(Location location){
+        return getOrCreateNode(location, HPANode.GROUND);
+    }
+
+    public HPANode getOrCreateNode(Location location, int type){
+        return nodes.computeIfAbsent(location, location1 -> new HPANode(this, location1)).setType(type);
     }
 
     public String getKey(){

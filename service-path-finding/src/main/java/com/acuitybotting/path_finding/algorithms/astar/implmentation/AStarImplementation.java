@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Slf4j
@@ -24,22 +25,26 @@ public class AStarImplementation {
     }
 
     public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Predicate<Edge> edgePredicate) {
+        return findPath(heuristicSupplier, start, end, edgePredicate, node -> node.equals(end));
+    }
+
+    public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Predicate<Edge> edgePredicate, Function<Node, Boolean> successEvaluator) {
         clear();
 
         open.add(new AStarStore(start, 0));
         costCache.put(start, 0d);
 
         int attempts = 0;
-        while (!open.isEmpty()){
+        while (!open.isEmpty()) {
             attempts++;
             AStarStore current = open.poll();
 
-            if (attempts >= maxAttempts){
+            if (attempts >= maxAttempts) {
                 log.warn("Failed to find path form {} to {} after {} attempts.", start, end, attempts);
                 break;
             }
 
-            if (current.getNode().equals(end)){
+            if (successEvaluator.apply(current.getNode())) {
                 log.info("Found path from {} to {} in {} attempts.", start, end, attempts);
                 List<Edge> path = collectPath(end, start);
                 if (!debugMode) clear();
@@ -54,7 +59,7 @@ public class AStarImplementation {
                 double newCost = costCache.getOrDefault(current.getNode(), 0d) + heuristicSupplier.getHeuristic(start, current.getNode(), next, edge);
 
                 Double oldCost = costCache.get(next);
-                if (oldCost == null || newCost < oldCost){
+                if (oldCost == null || newCost < oldCost) {
                     costCache.put(next, newCost);
                     double priority = newCost + heuristicSupplier.getHeuristic(start, next, end, edge);
                     open.add(new AStarStore(next, priority));
@@ -67,10 +72,10 @@ public class AStarImplementation {
         return Optional.empty();
     }
 
-    private List<Edge> collectPath(Node end, Node start){
+    private List<Edge> collectPath(Node end, Node start) {
         List<Edge> path = new ArrayList<>();
         Edge edge = pathCache.get(end);
-        while (edge != null){
+        while (edge != null) {
             path.add(edge);
             if (edge.getStart().equals(start)) break;
             edge = pathCache.get(edge.getStart());
@@ -79,7 +84,7 @@ public class AStarImplementation {
         return path;
     }
 
-    private void clear(){
+    private void clear() {
         open.clear();
         costCache.clear();
         pathCache.clear();

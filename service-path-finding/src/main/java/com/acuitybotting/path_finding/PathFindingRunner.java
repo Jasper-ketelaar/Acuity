@@ -9,6 +9,7 @@ import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.HpaP
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PathPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapFrame;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
+import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
