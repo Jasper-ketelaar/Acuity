@@ -9,7 +9,7 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Zachary Herridge on 6/18/2018.
@@ -39,12 +39,15 @@ public class HpaPlugin extends Plugin{
 
         for (HPARegion HPARegion : graph.values()) {
             for (HPANode hpaNode : HPARegion.getNodes().values()) {
-                if (hpaNode.getType() == HPANode.STAIR){
-                    getPaintUtil().markLocation(graphics, hpaNode.getLocation(), Color.RED);
-                }
+                getPaintUtil().markLocation(graphics, hpaNode.getLocation(), hpaNode.getType() == HPANode.STAIR ? Color.RED : Color.BLUE);
+
                 for (Edge edge : hpaNode.getNeighbors()) {
-                    Color color = ((HPAEdge) edge).isInternal() ? Color.BLUE : Color.ORANGE;
-                    getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), color);
+                    if (edge instanceof HPAEdge){
+                        java.util.List<Edge> path = ((HPAEdge) edge).getPath();
+                        for (Edge edge1 : path) {
+                            getPaintUtil().connectLocations(graphics, edge1.getStart(), edge1.getEnd(), Color.BLUE);
+                        }
+                    }
                 }
             }
         }

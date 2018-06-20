@@ -52,13 +52,13 @@ public class HPAGraphBuilder {
                 List<LocationPair> externalConnections = findExternalConnections(internalHPARegion, pathFindingSupplier);
                 log.info("Found {} external connections from {}.", externalConnections.size(), internalHPARegion);
                 for (LocationPair externalConnection : externalConnections) {
-                    HPARegion externalHPARegion = getRegionContaining(externalConnection.getEnd()); //Check this is actually always the external region, and isn't null
+                    HPARegion externalHPARegion = getRegionContaining(externalConnection.getEnd());
 
                     HPANode internalNode = internalHPARegion.getOrCreateNode(externalConnection.getStart());
                     HPANode externalNode = externalHPARegion.getOrCreateNode(externalConnection.getEnd());
 
-                    internalNode.addConnection(externalNode, 1);
-                    externalNode.addConnection(internalNode, 1);
+                    internalNode.addConnection(externalNode);
+                    externalNode.addConnection(internalNode);
 
                     externalConnectionsCount++;
                 }
@@ -100,9 +100,7 @@ public class HPAGraphBuilder {
         return regions;
     }
 
-
-
-    public void addStairConnections(HPARegion region){
+    private void addStairConnections(HPARegion region){
         for (SceneEntity sceneEntity : RsEnvironment.getStairsWithin(region)) {
             if (sceneEntity.getActions() == null) continue;
             boolean up = Arrays.stream(sceneEntity.getActions()).anyMatch(s -> s.toLowerCase().contains("up"));
@@ -133,24 +131,24 @@ public class HPAGraphBuilder {
 
             int found = 0;
             for (HPANode endNode : endNodes) {
-                if (found >= 3) break;
+                if (found >= 4) break;
 
                 if (startNode.getEdges().stream().anyMatch(edge -> edge.getEnd().equals(endNode))){
                     found++;
                     continue;
                 }
 
-                int pathSize = pathFindingSupplier.findPath(
+                List<Edge> path = pathFindingSupplier.findPath(
                         startNode.getLocation(),
                         endNode.getLocation(),
                         edge -> limitToRegion(region, edge)
-                );
+                ).orElse(null);
 
-                if (pathSize > 0) {
+                if (path != null) {
                     found++;
                     internalConnectionCount++;
-                    startNode.addConnection(endNode, pathSize);
-                    endNode.addConnection(startNode, pathSize);
+                    startNode.addConnection(endNode, path);
+                    endNode.addConnection(startNode, path);
                 }
             }
         }

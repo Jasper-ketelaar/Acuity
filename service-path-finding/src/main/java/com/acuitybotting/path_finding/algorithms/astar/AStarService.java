@@ -26,8 +26,7 @@ public class AStarService {
     }
 
     public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Predicate<Edge> edgePredicate) {
-        AStarImplementation aStarImplementation = new AStarImplementation();
-        return aStarImplementation.findPath(heuristicSupplier, start, end, edgePredicate);
+        return build().setEdgePredicate(edgePredicate).findPath(heuristicSupplier, start, end);
     }
 
     public AStarImplementation build(){

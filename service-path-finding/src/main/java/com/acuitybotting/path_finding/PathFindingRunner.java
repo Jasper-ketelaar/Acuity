@@ -9,7 +9,6 @@ import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.HpaP
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PathPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapFrame;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
-import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
@@ -25,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 @Component
@@ -59,7 +59,7 @@ public class PathFindingRunner implements CommandLineRunner {
     }
 
     private void buildHpa() {
-        hpaService.setDimensions(50, 50);
+        hpaService.setDimensions(65, 65);
 
         Map<String, HPARegion> graph = hpaService.getHPAGraphBuilder().init(
                 new Location(3138, 3384, 0),
@@ -71,13 +71,13 @@ public class PathFindingRunner implements CommandLineRunner {
         hpaService.getHPAGraphBuilder().build(
                 new PathFindingSupplier() {
                     @Override
-                    public int findPath(Location start, Location end, Predicate<Edge> predicate) {
+                    public Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate) {
                         return aStarService.findPath(
                                 new LocateableHeuristic(),
                                 RsEnvironment.getNode(start),
                                 RsEnvironment.getNode(end),
                                 predicate
-                        ).map(List::size).orElse(0);
+                        );
                     }
 
                     @Override
@@ -98,7 +98,7 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
             MapFrame mapFrame = new MapFrame();
             mapFrame.getMapPanel().addPlugin(hpaPlugin);
-            mapFrame.getMapPanel().addPlugin(pathPlugin);
+            //mapFrame.getMapPanel().addPlugin(pathPlugin);
             mapFrame.show();
         } catch (Exception e) {
             e.printStackTrace();

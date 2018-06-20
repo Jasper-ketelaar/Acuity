@@ -25,6 +25,7 @@ import static com.acuitybotting.path_finding.rs.utils.Direction.*;
 @Getter
 public class TileNode implements Node, Locateable {
 
+    private Set<Edge> edgeCache;
     private Location location;
     private int type;
 
@@ -46,8 +47,9 @@ public class TileNode implements Node, Locateable {
 
     @Override
     public Collection<Edge> getNeighbors() {
-        Set<Edge> edges = new HashSet<>(8);
+        if (edgeCache != null) return edgeCache;
 
+        Set<Edge> edges = new HashSet<>(8);
         boolean north = addEdge(edges, getX(), getY() + 1, getPlane(), NORTH);
         boolean east = addEdge(edges, getX() + 1, getY(), getPlane(), EAST);
         boolean west = addEdge(edges, getX() - 1, getY(), getPlane(), WEST);
@@ -63,6 +65,7 @@ public class TileNode implements Node, Locateable {
             if (west) addEdge(edges, getX() - 1, getY() - 1, getPlane(), SOUTH_WEST);
         }
 
+        edgeCache = edges;
         return edges;
     }
 

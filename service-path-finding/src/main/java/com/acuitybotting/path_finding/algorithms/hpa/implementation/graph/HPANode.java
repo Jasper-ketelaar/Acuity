@@ -9,6 +9,7 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,9 +34,19 @@ public class HPANode implements Node, Locateable {
         return edges;
     }
 
-    public HPAEdge addConnection(HPANode other, double cost){
+    public HPAEdge addConnection(HPANode other){
         HPAEdge hpaEdge = new HPAEdge(this, other);
-        hpaEdge.setCost(cost);
+        List<Edge> path = Collections.singletonList(hpaEdge);
+        hpaEdge.setCost(path.size());
+        hpaEdge.setPath(path);
+        edges.add(hpaEdge);
+        return hpaEdge;
+    }
+
+    public HPAEdge addConnection(HPANode other, List<Edge> path){
+        HPAEdge hpaEdge = new HPAEdge(this, other);
+        hpaEdge.setCost(path.size());
+        hpaEdge.setPath(path);
         edges.add(hpaEdge);
         return hpaEdge;
     }

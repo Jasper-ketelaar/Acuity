@@ -16,19 +16,24 @@ public class AStarImplementation {
     private boolean debugMode = false;
     private int maxAttempts = 1000000;
 
+    private Node start, end;
+
+    private AStarHeuristicSupplier heuristicSupplier;
+    private Function<Node, Boolean> successEvaluator = node -> node.equals(end);
+    private Predicate<Edge> edgePredicate = null;
+
     private Map<Node, Edge> pathCache = new HashMap<>();
     private Map<Node, Double> costCache = new HashMap<>();
     private PriorityQueue<AStarStore> open = new PriorityQueue<>();
 
     public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end) {
-        return findPath(heuristicSupplier, start, end, null);
+        this.heuristicSupplier = heuristicSupplier;
+        this.start = start;
+        this.end = end;
+        return execute();
     }
 
-    public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Predicate<Edge> edgePredicate) {
-        return findPath(heuristicSupplier, start, end, edgePredicate, node -> node.equals(end));
-    }
-
-    public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Predicate<Edge> edgePredicate, Function<Node, Boolean> successEvaluator) {
+    private Optional<List<Edge>> execute() {
         clear();
 
         open.add(new AStarStore(start, 0));
@@ -97,6 +102,16 @@ public class AStarImplementation {
 
     public AStarImplementation setDebugMode(boolean debugMode) {
         this.debugMode = debugMode;
+        return this;
+    }
+
+    public AStarImplementation setEdgePredicate(Predicate<Edge> edgePredicate) {
+        this.edgePredicate = edgePredicate;
+        return this;
+    }
+
+    public AStarImplementation setSuccessEvaluator(Function<Node, Boolean> successEvaluator) {
+        this.successEvaluator = successEvaluator;
         return this;
     }
 }
