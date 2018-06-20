@@ -85,7 +85,7 @@ public class MessagingClientService {
             attributeIndex++;
         }
 
-        HttpUtil.get(accessKey, accessSecret, queueUrl, params);
+        HttpUtil.get(null, queueUrl, params);
 
         return future;
     }
@@ -94,7 +94,7 @@ public class MessagingClientService {
         String request = queueUrl + "?Action=DeleteMessage" +
                 "&Version=" + "2012-11-05" +
                 "&ReceiptHandle=" + message.getReceiptHandle();
-        HttpUtil.get(accessKey, accessSecret, request, null);
+        HttpUtil.get(null, request, null);
     }
 
     public CompletableFuture<Boolean> consumeQueue(String queueUrl) {
@@ -152,7 +152,7 @@ public class MessagingClientService {
 
 
 
-        return Optional.ofNullable(MessageParser.parse(HttpUtil.get(accessKey, accessSecret, request, null)));
+        return Optional.ofNullable(MessageParser.parse(HttpUtil.get(null, request, null)));
     }
 
     public int getMaxMessages() {

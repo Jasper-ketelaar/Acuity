@@ -18,12 +18,18 @@ public class HttpUtil {
 
     private static final String USER_AGENT = "Mozilla/5.0";
 
-    public static String get(String accessKey, String accessSecret, String url, TreeMap<String, String> queryParams) throws Exception {
-        url += "?" + queryParams.entrySet().stream().map(entry -> entry.getKey() + "=" + encode(entry.getValue())).collect(Collectors.joining("&"));
+    public static String get(Map<String, String> headers, String url, TreeMap<String, String> queryParams) throws Exception {
+        if (queryParams != null) url += "?" + queryParams.entrySet().stream().map(entry -> entry.getKey() + "=" + encode(entry.getValue())).collect(Collectors.joining("&"));
 
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");
+
+        if (headers != null){
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                con.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+        }
 
         StringBuilder response = new StringBuilder();
         try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))){

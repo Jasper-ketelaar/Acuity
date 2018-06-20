@@ -1,5 +1,8 @@
 package com.acuitybotting.data.flow.messaging.services.client.util;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
@@ -30,7 +33,7 @@ public class AWSSigning {
             "{DATE_S}/us-east-1/sqs/aws4_request\n" +
             "{HASH}";
 
-    private static String header = "AWS4-HMAC-SHA256 Credential=AKIAIHYKVNPDUZPLRDNQ/20180620/us-east-1/sqs/aws4_request,SignedHeaders=host;x-amz-date,Signature={SIG}";
+    private static String header = "AWS4-HMAC-SHA256 Credential=AKIAIHYKVNPDUZPLRDNQ/{DATE_S}/us-east-1/sqs/aws4_request,SignedHeaders=host;x-amz-date,Signature={SIG}";
 
     private static final SimpleDateFormat awsFlavouredISO8601DateParser = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
     private static final SimpleDateFormat awsFlavouredISO8601DateParserSmaller = new SimpleDateFormat("yyyyMMdd");
@@ -132,19 +135,6 @@ public class AWSSigning {
         String s = buildQString(qParams);
         cr = cr.replace("{QSTRING}", s).replace("{DATE}", lDate).replace("{DATE_S}", sDate);
 
-        try {
-            System.out.println(bytesToHex(hash("GET\n" +
-                    "/604080725100/test.fifo\n" +
-                    "Action=SendMessage&amp;MessageBody=Hello&amp;MessageDeduplicationId=123&amp;MessageGroupId=channel1&amp;Version=2012-11-05\n" +
-                    "host:sqs.us-east-1.amazonaws.com\n" +
-                    "x-amz-date:20180620T142912Z\n" +
-                    "\n" +
-                    "host;x-amz-date\n" +
-                    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-
         System.out.println("Canonical String");
         System.out.println("============================");
         System.out.println(cr);
@@ -165,17 +155,40 @@ public class AWSSigning {
         try {
             byte[] signatureKey = getSignatureKey("", "20180620", "us-east-1", "sqs");
 
-            String s1 = bytesToHex(HmacSHA256(sts, signatureKey));
+            String sig = bytesToHex(HmacSHA256(sts, signatureKey));
 
             System.out.println("\nAuthorization");
             System.out.println("============================");
-            System.out.println(s1);
+            System.out.println(sig);
             System.out.println("============================");
+
+
+            Map<String, String> headers = new HashMap();
+            headers.put("Authorization", header.replace("(SIG)", sig).replace("{DATE_S}", sDate));
+            headers.put("User-Agent", "Mozilla/5.0");
+            headers.put("host", "sqs.us-east-1.amazonaws.com");
+            headers.put("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+            headers.put("x-amz-date", lDate);
 
             System.out.println("\nHeaders");
             System.out.println("============================");
-            System.out.println("Authorization=" + header.replace("{SIG}", s1));
-            System.out.println("x-amz-date=" + lDate);
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                System.out.println(entry.getKey() + "=" + entry.getValue());
+            }
+            System.out.println("============================");
+
+
+
+
+            HttpResponse<String> stringHttpResponse =
+                    Unirest.get("https://sqs.us-east-1.amazonaws.com/604080725100/test.fifo?Action=SendMessage&MessageBody=Hello&MessageDeduplicationId=123&MessageGroupId=channel1&Version=2012-11-05")
+                    .headers(headers)
+                    .asString();
+
+            System.out.println("\nResponse");
+            System.out.println("============================");
+            System.out.println(stringHttpResponse.getStatusText());
+            System.out.println(stringHttpResponse.getBody());
             System.out.println("============================");
 
         } catch (Exception e) {
