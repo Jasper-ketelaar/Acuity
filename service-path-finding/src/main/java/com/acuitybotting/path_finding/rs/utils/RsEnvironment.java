@@ -31,7 +31,7 @@ public class RsEnvironment {
         Integer flag = flagCache.get(location);
         if (flag != null) return flag;
 
-
+        synchronized (flagCache.lock){
             flag = flagCache.get(location);
             if (flag != null) return flag;
 
@@ -55,13 +55,14 @@ public class RsEnvironment {
             }
 
             return flagCache.getOrDefault(location, CollisionFlags.BLOCKED);
-
+        }
     }
 
     public static List<SceneEntity> getDoorsAt(Location location) {
         List<SceneEntity> sceneEntities = doorCache.get(location);
         if (sceneEntities != null) return sceneEntities;
 
+        synchronized (doorCache.lock){
             sceneEntities = doorCache.get(location);
             if (sceneEntities != null) return sceneEntities;
 
@@ -86,7 +87,7 @@ public class RsEnvironment {
             }
 
             return doorCache.getOrDefault(location, Collections.emptyList());
-
+        }
     }
 
     public static RsMapService getRsMapService() {
