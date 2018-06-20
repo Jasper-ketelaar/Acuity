@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
  */
 public class AWSSigning {
 
+    private static final SimpleDateFormat awsFlavouredISO8601DateParser = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
+    private static final SimpleDateFormat awsFlavouredISO8601DateParserSmaller = new SimpleDateFormat("yyyyMMdd");
     private static String cr = "GET\n" +
             "/604080725100/test.fifo\n" +
             "{QSTRING}\n" +
@@ -27,16 +29,11 @@ public class AWSSigning {
             "\n" +
             "host;x-amz-date\n" +
             "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-
     private static String sts = "AWS4-HMAC-SHA256\n" +
-             "{DATE}" + "\n" +
+            "{DATE}" + "\n" +
             "{DATE_S}/us-east-1/sqs/aws4_request\n" +
             "{HASH}";
-
     private static String header = "AWS4-HMAC-SHA256 Credential=AKIAIHYKVNPDUZPLRDNQ/{DATE_S}/us-east-1/sqs/aws4_request,SignedHeaders=host;x-amz-date,Signature={SIG}";
-
-    private static final SimpleDateFormat awsFlavouredISO8601DateParser = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
-    private static final SimpleDateFormat awsFlavouredISO8601DateParserSmaller = new SimpleDateFormat("yyyyMMdd");
 
     static {
         awsFlavouredISO8601DateParser.setTimeZone(new SimpleTimeZone(0, "GMT"));
@@ -53,8 +50,7 @@ public class AWSSigning {
                     || ch == '_'
                     || ch == '-'
                     || ch == '~'
-                    || ch == '.')
-            {
+                    || ch == '.') {
                 result.append(ch);
             } else if (ch == '/') {
                 result.append(encodeSlash ? "%2F" : ch);
@@ -70,8 +66,7 @@ public class AWSSigning {
         String encodedPath = null;
         try {
             encodedPath = URLEncoder.encode(path, "UTF-8");
-        }
-        catch(UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
         // Web browsers do not always handle '+' characters well, use the well-supported '%20' instead.
@@ -85,7 +80,7 @@ public class AWSSigning {
         StringBuffer hexString = new StringBuffer();
         for (int i = 0; i < hash.length; i++) {
             String hex = Integer.toHexString(0xff & hash[i]);
-            if(hex.length() == 1) hexString.append('0');
+            if (hex.length() == 1) hexString.append('0');
             hexString.append(hex);
         }
         return hexString.toString();
@@ -96,15 +91,15 @@ public class AWSSigning {
         return digest.digest(value.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static String buildQString(Map<String, String> params){
+    public static String buildQString(Map<String, Object> params) {
         return params.entrySet().stream()
                 .sorted(Comparator.comparing(Map.Entry::getKey))
-                .map(entry -> awsV4EncodeURI(entry.getKey(), false) + "=" + awsV4EncodeURI(entry.getValue(), false))
+                .map(entry -> awsV4EncodeURI(entry.getKey(), false) + "=" + awsV4EncodeURI(String.valueOf(entry.getValue()), false))
                 .collect(Collectors.joining("&amp;"));
     }
 
     static byte[] HmacSHA256(String data, byte[] key) throws Exception {
-        String algorithm="HmacSHA256";
+        String algorithm = "HmacSHA256";
         Mac mac = Mac.getInstance(algorithm);
         mac.init(new SecretKeySpec(key, algorithm));
         return mac.doFinal(data.getBytes("UTF8"));
@@ -125,7 +120,7 @@ public class AWSSigning {
         String lDate = awsFlavouredISO8601DateParser.format(date);
         String sDate = awsFlavouredISO8601DateParserSmaller.format(date);
 
-        Map<String, String> qParams = new HashMap<>();
+        Map<String, Object> qParams = new HashMap<>();
         qParams.put("Action", "SendMessage");
         qParams.put("MessageBody", "Hello");
         qParams.put("MessageDeduplicationId", "123");
@@ -178,10 +173,8 @@ public class AWSSigning {
             System.out.println("============================");
 
 
-
-
-            HttpResponse<String> stringHttpResponse =
-                    Unirest.get("https://sqs.us-east-1.amazonaws.com/604080725100/test.fifo?Action=SendMessage&MessageBody=Hello&MessageDeduplicationId=123&MessageGroupId=channel1&Version=2012-11-05")
+            HttpResponse<String> stringHttpResponse = Unirest.get("https://sqs.us-east-1.amazonaws.com/604080725100/test.fifo")
+                    .queryString(qParams)
                     .headers(headers)
                     .asString();
 
