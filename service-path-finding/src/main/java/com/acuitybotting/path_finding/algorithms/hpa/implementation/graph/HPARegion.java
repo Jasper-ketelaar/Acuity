@@ -1,6 +1,7 @@
 package com.acuitybotting.path_finding.algorithms.hpa.implementation.graph;
 
 
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
 import lombok.Getter;
@@ -11,13 +12,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 public class HPARegion {
 
+    private HPAGraph hpaGraph;
     private final Location root;
     private final int width, height;
 
     private Map<Location, HPANode> nodes = new ConcurrentHashMap<>();
 
-
-    public HPARegion(Location root, int width, int height) {
+    public HPARegion(HPAGraph hpaGraph, Location root, int width, int height) {
+        this.hpaGraph = hpaGraph;
         this.root = root;
         this.width = width;
         this.height = height;

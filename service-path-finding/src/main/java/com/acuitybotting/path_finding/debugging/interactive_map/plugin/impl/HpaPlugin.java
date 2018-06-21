@@ -3,11 +3,11 @@ package com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl;
 import com.acuitybotting.path_finding.algorithms.astar.implmentation.AStarImplementation;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
-import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraphBuilder;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
-import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.TerminatingNode;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.TemporaryNode;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
  */
 public class HpaPlugin extends Plugin {
 
-    private HPAGraphBuilder graph;
+    private HPAGraph graph;
 
     private Location start, end;
 
@@ -36,7 +36,9 @@ public class HpaPlugin extends Plugin {
 
     private AStarImplementation aStarImplementation;
 
-    public void setGraph(HPAGraphBuilder graph) {
+    private Color[] nodeColorings = new Color[]{Color.BLUE, Color.RED, Color.CYAN};
+
+    public void setGraph(HPAGraph graph) {
         this.graph = graph;
     }
 
@@ -47,7 +49,7 @@ public class HpaPlugin extends Plugin {
 
         for (HPARegion HPARegion : graph.getRegions().values()) {
             for (HPANode hpaNode : HPARegion.getNodes().values()) {
-                getPaintUtil().markLocation(graphics, hpaNode.getLocation(), hpaNode.getType() == HPANode.STAIR ? Color.RED : Color.BLUE);
+                getPaintUtil().markLocation(graphics, hpaNode.getLocation(), nodeColorings[hpaNode.getType()]);
 
                 for (Edge edge : hpaNode.getNeighbors()) {
                     if (edge instanceof HPAEdge) {
@@ -87,7 +89,7 @@ public class HpaPlugin extends Plugin {
                 endRegion = graph.getRegionContaining(end);
                 if (endRegion != null) {
                     if (endNode != null) endNode.unlink();
-                    endNode = new TerminatingNode(endRegion, end);
+                    endNode = new TemporaryNode(endRegion, end);
                     graph.findInternalConnections(endRegion, endNode, 8);
                 }
                 getMapPanel().repaint();
@@ -96,7 +98,7 @@ public class HpaPlugin extends Plugin {
                 startRegion = graph.getRegionContaining(start);
                 if (startRegion != null) {
                     if (startNode != null) startNode.unlink();
-                    startNode = new TerminatingNode(startRegion, start);
+                    startNode = new TemporaryNode(startRegion, start).addStartEdges();
                     graph.findInternalConnections(startRegion, startNode, 8);
                 }
 
@@ -108,7 +110,7 @@ public class HpaPlugin extends Plugin {
                     aStarImplementation = new AStarImplementation()
                             .setEdgePredicate(edge -> {
                                 Node end = edge.getEnd();
-                                return !(edge instanceof TerminatingNode) || end.equals(endNode);
+                                return !(edge instanceof TemporaryNode) || end.equals(endNode);
                             })
                             .setDebugMode(true);
                     path = aStarImplementation.findPath(new LocateableHeuristic(), startNode, endNode).orElse(null);

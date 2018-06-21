@@ -18,6 +18,7 @@ public class HPANode implements Node, Locateable {
 
     public static final int GROUND = 0;
     public static final int STAIR = 1;
+    public static final int CUSTOM = 2;
 
     private List<Edge> edges = new ArrayList<>();
     private Location location;

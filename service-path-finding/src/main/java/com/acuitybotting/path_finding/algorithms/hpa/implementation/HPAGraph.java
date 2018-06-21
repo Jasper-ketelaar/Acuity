@@ -6,6 +6,9 @@ import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
+import com.acuitybotting.path_finding.rs.custom_edges.CustomEdge;
+import com.acuitybotting.path_finding.rs.custom_edges.edges.LocationTiedEdges;
+import com.acuitybotting.path_finding.rs.custom_edges.edges.PlayerTiedEdges;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -20,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class HPAGraphBuilder {
+public class HPAGraph {
 
     private Location lower, upper;
     private int regionWidth, regionHeight;
@@ -29,6 +32,7 @@ public class HPAGraphBuilder {
 
     private int internalNodeConnectionLimit = 4;
 
+    private int customNodesAddedCount = 0;
     private int externalConnectionsCount = 0;
     private int internalConnectionCount = 0;
     private int stairNodesAddedCount = 0;
@@ -71,6 +75,10 @@ public class HPAGraphBuilder {
                 }
             });
         }
+
+        addCustomNodes();
+
+        log.info("Added {} custom nodes.", customNodesAddedCount);
 
         executorService.shutdown();
         try {
@@ -119,6 +127,24 @@ public class HPAGraphBuilder {
         log.info("Finished creating HPA graph in {} seconds.", (System.currentTimeMillis() - startTimestamp) / 1000);
 
         return regions;
+    }
+
+    private void addCustomNodes(){
+        for (CustomEdge customEdge : PlayerTiedEdges.getEdges()) {
+            HPARegion endRegion = getRegionContaining(customEdge.getEnd());
+            if (endRegion == null) continue;
+            endRegion.getOrCreateNode(customEdge.getEnd(), HPANode.CUSTOM);
+            customNodesAddedCount++;
+        }
+
+        for (CustomEdge customEdge : LocationTiedEdges.getEdges()) {
+            HPARegion startRegion = getRegionContaining(customEdge.getStart());
+            HPARegion endRegion = getRegionContaining(customEdge.getEnd());
+            if (startRegion == null || endRegion == null) continue;
+            startRegion.getOrCreateNode(customEdge.getStart(), HPANode.CUSTOM);
+            endRegion.getOrCreateNode(customEdge.getEnd(), HPANode.CUSTOM);
+            customNodesAddedCount += 2;
+        }
     }
 
     public void findInternalConnections(HPARegion region, HPANode startNode) {
@@ -248,7 +274,7 @@ public class HPAGraphBuilder {
         for (int z = lower.getPlane(); z <= upper.getPlane(); z++) {
             for (int x = lower.getX(); x <= upper.getX(); x += regionWidth) {
                 for (int y = lower.getY(); y <= upper.getY(); y += regionHeight) {
-                    HPARegion region = new HPARegion(new Location(x, y, z), regionWidth, regionHeight);
+                    HPARegion region = new HPARegion(this, new Location(x, y, z), regionWidth, regionHeight);
                     regions.put(region.getKey(), region);
                 }
             }
@@ -256,12 +282,12 @@ public class HPAGraphBuilder {
         return regions;
     }
 
-    public HPAGraphBuilder setRegionHeight(int regionHeight) {
+    public HPAGraph setRegionHeight(int regionHeight) {
         this.regionHeight = regionHeight;
         return this;
     }
 
-    public HPAGraphBuilder setRegionWidth(int regionWidth) {
+    public HPAGraph setRegionWidth(int regionWidth) {
         this.regionWidth = regionWidth;
         return this;
     }

@@ -17,14 +17,15 @@ public class PlayerTiedEdges {
     private static Collection<CustomEdge> customEdges = new HashSet<>();
 
     static {
-        customEdges.add(new CustomEdge()
-                .setEnd(new Location(3000, 3000, 0))
-                .setInteraction(new Interaction(Interaction.SPELL).setSpellName("HOME_TELEPORT"))
-                .withRequirement((PlayerGeneralPredicate) PlayerGeneralInfo::isModernSpellbook)
+        customEdges.add(
+                new CustomEdge()
+                        .setEnd(new Location(3154, 3505, 0))
+                        .setInteraction(new Interaction(Interaction.SPELL).setSpellName("HOME_TELEPORT"))
+                        .withRequirement((PlayerGeneralPredicate) PlayerGeneralInfo::isModernSpellbook)
         );
     }
-    
-    public static Collection<CustomEdge> getEdges(){
+
+    public static Collection<CustomEdge> getEdges() {
         return customEdges;
     }
 }

@@ -61,14 +61,14 @@ public class PathFindingRunner implements CommandLineRunner {
     private void buildHpa() {
         hpaService.setDimensions(30, 30);
 
-        hpaService.getHPAGraphBuilder().init(
+        hpaService.getHPAGraph().init(
                 new Location(3138 - 700, 3384 - 700, 0),
                 new Location(3138 + 300, 3384 + 300, 1)
         );
 
-        hpaPlugin.setGraph(hpaService.getHPAGraphBuilder());
+        hpaPlugin.setGraph(hpaService.getHPAGraph());
 
-        hpaService.getHPAGraphBuilder().build(
+        hpaService.getHPAGraph().build(
                 new PathFindingSupplier() {
                     @Override
                     public Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate) {

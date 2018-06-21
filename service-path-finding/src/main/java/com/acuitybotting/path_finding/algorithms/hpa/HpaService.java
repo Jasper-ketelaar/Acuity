@@ -1,6 +1,6 @@
 package com.acuitybotting.path_finding.algorithms.hpa;
 
-import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraphBuilder;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class HpaService {
 
-    private HPAGraphBuilder HPAGraphBuilder = new HPAGraphBuilder();
+    private HPAGraph HPAGraph = new HPAGraph();
 
     public HpaService setDimensions(int width, int height){
-        HPAGraphBuilder.setRegionWidth(width).setRegionHeight(height);
+        HPAGraph.setRegionWidth(width).setRegionHeight(height);
         return this;
     }
 }
