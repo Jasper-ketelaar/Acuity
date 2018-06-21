@@ -3,11 +3,13 @@ package com.acuitybotting.path_finding.rs.domain.location;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class Location implements Locateable{
 
     private int x, y, plane;

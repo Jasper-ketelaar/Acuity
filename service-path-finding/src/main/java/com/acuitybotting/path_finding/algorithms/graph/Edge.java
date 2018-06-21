@@ -9,4 +9,8 @@ public interface Edge {
     default double getCostPenalty(){
         return 0;
     }
+
+    default boolean evaluate(){
+        return true;
+    }
 }

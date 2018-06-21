@@ -1,6 +1,7 @@
 package com.acuitybotting.path_finding.rs.custom_edges;
 
 import com.acuitybotting.path_finding.rs.custom_edges.interaction.Interaction;
+import com.acuitybotting.path_finding.rs.custom_edges.requirements.PlayerPredicate;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 import java.util.Collection;
@@ -13,7 +14,7 @@ import java.util.function.Predicate;
 public class CustomEdge {
 
     private Location start, end;
-    private Collection<Predicate<?>> requirement = new HashSet<>();
+    private Collection<PlayerPredicate> requirement = new HashSet<>();
     private Interaction interaction;
 
     public Location getStart() {
@@ -34,16 +35,16 @@ public class CustomEdge {
         return this;
     }
 
-    public CustomEdge withRequirement(Predicate<?> predicate){
+    public CustomEdge withRequirement(PlayerPredicate predicate){
         requirement.add(predicate);
         return this;
     }
 
-    public Collection<Predicate<?>> getRequirement() {
+    public Collection<PlayerPredicate> getRequirement() {
         return requirement;
     }
 
-    public CustomEdge setRequirement(Collection<Predicate<?>> requirement) {
+    public CustomEdge setRequirement(Collection<PlayerPredicate> requirement) {
         this.requirement = requirement;
         return this;
     }

@@ -63,6 +63,7 @@ public class PaintUtil {
     }
 
     public void connectLocations(Graphics2D graphics, Collection<Edge> neighbors, Color color) {
+        if (neighbors == null) return;
         for (Edge neighbor : neighbors) {
             connectLocations(graphics, neighbor.getStart(), neighbor.getEnd(), color);
         }

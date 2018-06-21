@@ -27,8 +27,7 @@ public class ArangoDBConfigPathFinding extends AbstractArangoConfiguration{
         return new ArangoDB.Builder()
                 .host(credentials.getArangoHost(), Integer.parseInt(credentials.getArangoPort()))
                 .user(credentials.getArangoUsername())
-                .password(credentials.getArangoPassword())
-                .maxConnections(20);
+                .password(credentials.getArangoPassword());
     }
 
     @Override
