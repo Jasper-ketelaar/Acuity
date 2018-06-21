@@ -32,8 +32,8 @@ public class CollisionFlags {
         return blocked(flag, OCCUPIED | SOLID | BLOCKED | UNINITIALIZED);
     }
 
-    public static boolean checkWalkable(Direction dir, int locationFlag, int goalFlag) {
-        if (isBlocked(goalFlag) || isBlocked(locationFlag)) {
+    public static boolean checkWalkable(Direction dir, int locationFlag, int goalFlag, boolean ignoreSelf) {
+        if (isBlocked(goalFlag) || (!ignoreSelf && isBlocked(locationFlag))) {
             return false;
         }
         switch (dir) {

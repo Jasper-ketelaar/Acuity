@@ -50,7 +50,7 @@ public class AStarImplementation {
             }
 
             if (successEvaluator.apply(current.getNode())) {
-                log.info("Found path from {} to {} in {} attempts.", start, end, attempts);
+                log.debug("Found path from {} to {} in {} attempts.", start, end, attempts);
                 List<Edge> path = collectPath(end, start);
                 if (!debugMode) clear();
                 return Optional.ofNullable(path);

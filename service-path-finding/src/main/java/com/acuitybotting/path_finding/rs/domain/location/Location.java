@@ -64,6 +64,12 @@ public class Location implements Locateable{
         return clone().transform(xOff, yOff);
     }
 
+    public Location clone(int xOff, int yOff, int plane) {
+        Location clone = clone(xOff, yOff);
+        clone.setPlane(clone.getPlane() + plane);
+        return clone;
+    }
+
     public Location subtract(Location other) {
         return clone(-other.getX(), -other.getY());
     }

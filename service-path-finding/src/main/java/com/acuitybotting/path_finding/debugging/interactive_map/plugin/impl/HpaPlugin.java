@@ -9,6 +9,7 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANod
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.TerminatingNode;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
+import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 
@@ -71,7 +72,10 @@ public class HpaPlugin extends Plugin {
             }
         }
 
-        if (start != null) getPaintUtil().markLocation(graphics, start, Color.RED);
+        if (start != null) {
+            getPaintUtil().markLocation(graphics, start, Color.RED);
+            getPaintUtil().connectLocations(graphics, new TileNode(start).getNeighbors(true), Color.RED);
+        }
         if (end != null) getPaintUtil().markLocation(graphics, end, Color.GREEN);
     }
 

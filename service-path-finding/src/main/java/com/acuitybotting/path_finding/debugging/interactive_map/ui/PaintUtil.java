@@ -68,7 +68,7 @@ public class PaintUtil {
         throw new RuntimeException(object + " must be instance of Location or Locateable.");
     }
 
-    public void connectLocations(Graphics2D graphics, List<Edge> neighbors, Color color) {
+    public void connectLocations(Graphics2D graphics, Collection<Edge> neighbors, Color color) {
         for (Edge neighbor : neighbors) {
             connectLocations(graphics, neighbor.getStart(), neighbor.getEnd(), color);
         }

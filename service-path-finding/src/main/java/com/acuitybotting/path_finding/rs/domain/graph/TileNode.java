@@ -25,7 +25,7 @@ import static com.acuitybotting.path_finding.rs.utils.Direction.*;
 @Getter
 public class TileNode implements Node, Locateable {
 
-    private Set<Edge> edgeCache;
+    private Collection<Edge> edgeCache;
     private Location location;
     private int type;
 
@@ -45,26 +45,29 @@ public class TileNode implements Node, Locateable {
         return getLocation().getPlane();
     }
 
-    @Override
-    public Collection<Edge> getNeighbors() {
-        if (edgeCache != null) return edgeCache;
-
+    public Collection<Edge> getNeighbors(boolean ignoreSelf) {
         Set<Edge> edges = new HashSet<>(8);
-        boolean north = addEdge(edges, getX(), getY() + 1, getPlane(), NORTH);
-        boolean east = addEdge(edges, getX() + 1, getY(), getPlane(), EAST);
-        boolean west = addEdge(edges, getX() - 1, getY(), getPlane(), WEST);
-        boolean south = addEdge(edges, getX(), getY() - 1, getPlane(), SOUTH);
+        boolean north = addEdge(edges, getX(), getY() + 1, getPlane(), NORTH, ignoreSelf);
+        boolean east = addEdge(edges, getX() + 1, getY(), getPlane(), EAST, ignoreSelf);
+        boolean west = addEdge(edges, getX() - 1, getY(), getPlane(), WEST, ignoreSelf);
+        boolean south = addEdge(edges, getX(), getY() - 1, getPlane(), SOUTH, ignoreSelf);
 
         if (north) {
-            if (east) addEdge(edges,getX() + 1, getY() + 1, getPlane(), NORTH_EAST);
-            if (west) addEdge(edges,getX() - 1, getY() + 1, getPlane(), NORTH_WEST);
+            if (east) addEdge(edges,getX() + 1, getY() + 1, getPlane(), NORTH_EAST, ignoreSelf);
+            if (west) addEdge(edges,getX() - 1, getY() + 1, getPlane(), NORTH_WEST, ignoreSelf);
         }
 
         if (south) {
-            if (east) addEdge(edges, getX() + 1, getY() - 1, getPlane(), SOUTH_EAST);
-            if (west) addEdge(edges, getX() - 1, getY() - 1, getPlane(), SOUTH_WEST);
+            if (east) addEdge(edges, getX() + 1, getY() - 1, getPlane(), SOUTH_EAST, ignoreSelf);
+            if (west) addEdge(edges, getX() - 1, getY() - 1, getPlane(), SOUTH_WEST, ignoreSelf);
         }
+        return edges;
+    }
 
+    @Override
+    public Collection<Edge> getNeighbors() {
+        if (edgeCache != null) return edgeCache;
+        Collection<Edge> edges = getNeighbors(false);
         edgeCache = edges;
         return edges;
     }
@@ -73,12 +76,12 @@ public class TileNode implements Node, Locateable {
         return RsEnvironment.getDoorsAt(location).size() > 0;
     }
 
-    private boolean addEdge(Set<Edge> edges, int x, int y, int z, Direction dir) {
+    private boolean addEdge(Set<Edge> edges, int x, int y, int z, Direction dir, boolean ignoreSelf) {
         Location location = new Location(x, y, z);
         Integer localFlag = RsEnvironment.getFlagAt(new Location(getX(), getY(), getPlane()));
         Integer flag = RsEnvironment.getFlagAt(location);
 
-        if (CollisionFlags.checkWalkable(dir, localFlag, flag)) {
+        if (CollisionFlags.checkWalkable(dir, localFlag, flag, ignoreSelf)) {
             edges.add(new TileEdge(this, RsEnvironment.getNode(new Location(x, y, z))));
             return true;
         }
