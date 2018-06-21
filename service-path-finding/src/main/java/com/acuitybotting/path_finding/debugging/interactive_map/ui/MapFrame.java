@@ -17,8 +17,8 @@ public class MapFrame {
         this.mapFrame.setLayout(new BorderLayout(0, 0));
         this.mapFrame.setSize(800, 600);
 
-        GameMap gameMap = new GameMap("C:\\Users\\S3108772\\IdeaProjects\\Acuity\\service-path-finding\\src\\main\\resources\\world_map_new.png", new Location(1143, 4104, 0), 3);
-        GameMap gameMap2 = new GameMap("C:\\Users\\S3108772\\IdeaProjects\\Acuity\\service-path-finding\\src\\main\\resources\\saved3.png", new Location(3138, 3384 + 2000, 0), 3);
+        GameMap gameMap = new GameMap("./service-path-finding/map_images/world_map_new.png", new Location(1143, 4104, 0), 3);
+        GameMap gameMap2 = new GameMap("./service-path-finding/map_images/saved3.png", new Location(3138, 3384 + 2000, 0), 3);
 
         this.mapPanel = new MapPanel(gameMap2);
         this.mapFrame.add(this.mapPanel, BorderLayout.CENTER);
