@@ -43,10 +43,12 @@ public class HpaWebService {
         this.edgeRepository = edgeRepository;
     }
 
-    public void clearRepos() {
-        regionRepository.deleteAll();
-        nodeRepository.deleteAll();
-        edgeRepository.deleteAll();
+    public void deleteVersion(int version) {
+        regionRepository.deleteAllByWebVersion(version);
+        nodeRepository.deleteAllByWebVersion(version);
+        edgeRepository.deleteAllByWebVersion(version);
+
+        log.info("Finished repo deletes, new sizes {}, {}, {}.", regionRepository.count(), nodeRepository.count(), edgeRepository.count());
     }
 
 

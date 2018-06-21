@@ -10,4 +10,6 @@ public interface RegionRepository extends ArangoRepository<SavedRegion> {
 
     Iterable<SavedRegion> findAllByWebVersion(int version);
 
+    void deleteAllByWebVersion(int version);
+
 }

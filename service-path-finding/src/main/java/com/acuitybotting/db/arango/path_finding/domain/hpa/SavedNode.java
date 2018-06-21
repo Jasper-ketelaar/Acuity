@@ -23,11 +23,11 @@ public class SavedNode {
     @Key
     private String key;
 
-    private int webVersion;
+    private Integer webVersion;
 
     private String regionKey;
     private List<String> edgeKeys;
     private Location location;
-    private int type;
+    private Integer type;
 
 }

@@ -32,7 +32,6 @@ public class PathFindingRunner implements CommandLineRunner {
 
     private final WebImageProcessingService webImageProcessingService;
     private final RsMapService rsMapService;
-    private final HpaService hpaService;
     private final AStarService aStarService;
 
     private final PathPlugin pathPlugin;
@@ -41,10 +40,9 @@ public class PathFindingRunner implements CommandLineRunner {
     private final HpaWebService hpaWebService;
 
     @Autowired
-    public PathFindingRunner(WebImageProcessingService webImageProcessingService, RsMapService rsMapService, HpaService hpaService, AStarService aStarService, PathPlugin pathPlugin, HpaWebService hpaWebService) {
+    public PathFindingRunner(WebImageProcessingService webImageProcessingService, RsMapService rsMapService, AStarService aStarService, PathPlugin pathPlugin, HpaWebService hpaWebService) {
         this.webImageProcessingService = webImageProcessingService;
         this.rsMapService = rsMapService;
-        this.hpaService = hpaService;
         this.aStarService = aStarService;
         this.pathPlugin = pathPlugin;
         this.hpaWebService = hpaWebService;
@@ -82,36 +80,34 @@ public class PathFindingRunner implements CommandLineRunner {
         };
     }
 
-    private void loadHpa() {
+    private HPAGraph initGraph(){
         HPAGraph graph = new HPAGraph();
         graph.init(
-                new Location(3138, 3384, 0),
-                new Location(3138 + 100, 3384 + 100, 0),
+                new Location(3138 - 100, 3384 - 100, 0),
+                new Location(3138 + 100, 3384 + 100, 1),
                 30,
                 30
         );
         graph.setPathFindingSupplier(getPathfindingSupplier());
-        hpaWebService.loadInto(graph, 1);
+        return graph;
+    }
+
+    private void loadHpa(int version) {
+        HPAGraph graph = initGraph();
+        hpaWebService.loadInto(graph, version);
         graph.addCustomNodes();
         hpaPlugin.setGraph(graph);
     }
 
-    private void buildHpa() {
-        hpaService.getGraph().init(
-                new Location(3138, 3384, 0),
-                new Location(3138 + 100, 3384 + 100, 0),
-                30,
-                30
-        );
+    private void buildHpa(int version) {
+        HPAGraph graph = initGraph();
 
-        hpaService.getGraph().setPathFindingSupplier(getPathfindingSupplier());
+        graph.build();
 
-        hpaPlugin.setGraph(hpaService.getGraph());
+        hpaPlugin.setGraph(graph);
 
-        hpaService.getGraph().build();
-
-        hpaWebService.clearRepos();
-        hpaWebService.save(hpaService.getGraph(), 1);
+        hpaWebService.deleteVersion(version);
+        hpaWebService.save(graph, version);
     }
 
     @Override
@@ -125,7 +121,7 @@ public class PathFindingRunner implements CommandLineRunner {
             //mapFrame.getMapPanel().addPlugin(pathPlugin);
             mapFrame.show();
 
-            loadHpa();
+            loadHpa(1);
         } catch (Exception e) {
             e.printStackTrace();
         }

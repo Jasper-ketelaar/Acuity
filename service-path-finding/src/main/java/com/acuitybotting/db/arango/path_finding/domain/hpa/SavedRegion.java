@@ -24,10 +24,10 @@ public class SavedRegion {
     @Key
     private String key;
 
-    private int webVersion;
+    private Integer webVersion;
 
     private Location root;
-    private int width, height;
+    private Integer width, height;
 
     private Map<String, String> nodes = new HashMap<>();
 

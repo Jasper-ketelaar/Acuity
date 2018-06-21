@@ -10,4 +10,6 @@ public interface NodeRepository extends ArangoRepository<SavedNode>{
 
     Iterable<SavedNode> findAllByWebVersion(int version);
 
+    void deleteAllByWebVersion(int version);
+
 }

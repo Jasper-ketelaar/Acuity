@@ -11,4 +11,6 @@ public interface EdgeRepository extends ArangoRepository<SavedEdge> {
 
     Iterable<SavedEdge> findAllByWebVersion(int version);
 
+    void deleteAllByWebVersion(int version);
+
 }
