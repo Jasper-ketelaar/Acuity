@@ -64,8 +64,8 @@ public class PathFindingRunner implements CommandLineRunner {
         hpaService.setDimensions(30, 30);
 
         hpaService.getHPAGraph().init(
-                new Location(3138 - 700, 3384 - 700, 0),
-                new Location(3138 + 300, 3384 + 300, 1)
+                new Location(3138, 3384, 0),
+                new Location(3138 + 100, 3384 + 100, 0)
         );
 
         hpaPlugin.setGraph(hpaService.getHPAGraph());
@@ -97,18 +97,18 @@ public class PathFindingRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        RsEnvironment.setRsMapService(rsMapService);
-        aStarService.setDebugMode(true);
-
         try {
+            RsEnvironment.setRsMapService(rsMapService);
+            aStarService.setDebugMode(true);
+
             MapFrame mapFrame = new MapFrame();
             mapFrame.getMapPanel().addPlugin(hpaPlugin);
             //mapFrame.getMapPanel().addPlugin(pathPlugin);
             mapFrame.show();
+
+            buildHpa();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        buildHpa();
     }
 }

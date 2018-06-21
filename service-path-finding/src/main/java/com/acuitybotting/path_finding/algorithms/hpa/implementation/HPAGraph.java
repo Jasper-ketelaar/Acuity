@@ -103,7 +103,6 @@ public class HPAGraph {
             e.printStackTrace();
         }
 
-
         log.info("Found {} stair nodes with {} connections.", stairNodesAddedCount, stairNodeConnectionsAddedCount);
 
         executorService = Executors.newFixedThreadPool(10);
@@ -294,5 +293,16 @@ public class HPAGraph {
 
     public Map<String, HPARegion> getRegions() {
         return regions;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("HPAGraph{");
+        sb.append("lower=").append(lower);
+        sb.append(", upper=").append(upper);
+        sb.append(", regionWidth=").append(regionWidth);
+        sb.append(", regionHeight=").append(regionHeight);
+        sb.append('}');
+        return sb.toString();
     }
 }

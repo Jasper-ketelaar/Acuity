@@ -22,12 +22,12 @@ public class HPANode implements Node, Locateable {
 
     private List<Edge> edges = new ArrayList<>();
     private Location location;
-    private HPARegion HPARegion;
+    private HPARegion hpaRegion;
     private int type = GROUND;
 
-    public HPANode(HPARegion HPARegion, Location location) {
+    public HPANode(HPARegion region, Location location) {
         this.location = location;
-        this.HPARegion = HPARegion;
+        this.hpaRegion = region;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class HPANode implements Node, Locateable {
         if (!(object instanceof HPANode)) return false;
         HPANode hpaNode = (HPANode) object;
         return Objects.equals(getLocation(), hpaNode.getLocation()) &&
-                Objects.equals(this.getHPARegion(), this.getHPARegion());
+                Objects.equals(this.getHpaRegion(), this.getHpaRegion());
     }
 
     public HPANode setType(int type) {
@@ -75,6 +75,6 @@ public class HPANode implements Node, Locateable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getLocation(), this.getHPARegion());
+        return Objects.hash(getLocation(), this.getHpaRegion());
     }
 }

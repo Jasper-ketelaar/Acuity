@@ -17,7 +17,7 @@ public class TemporaryNode extends HPANode{
 
     public TemporaryNode addStartEdges(){
         for (CustomEdge customEdge : PlayerTiedEdges.getEdges()) {
-            HPARegion endRegion = getHPARegion().getHpaGraph().getRegionContaining(customEdge.getEnd());
+            HPARegion endRegion = getHpaRegion().getHpaGraph().getRegionContaining(customEdge.getEnd());
             if (endRegion == null) continue;
             HPANode endNode = endRegion.getNodes().get(customEdge.getEnd());
             if (endNode == null) continue;

@@ -1,6 +1,8 @@
 package com.acuitybotting.db.arango.path_finding.domain.hpa;
 
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
+import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.Key;
 import lombok.Getter;
@@ -27,5 +29,5 @@ public class SavedEdge {
     private String startKey, endKey;
     private double cost;
 
-    private List<Edge> path;
+    private List<Location> path;
 }

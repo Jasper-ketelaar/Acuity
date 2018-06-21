@@ -29,7 +29,7 @@ public class SavedRegion {
     private Location root;
     private int width, height;
 
-    private Map<Location, String> nodes = new HashMap<>();
+    private Map<String, String> nodes = new HashMap<>();
 
     @Override
     public boolean equals(Object object) {

@@ -20,7 +20,7 @@ public class HPAEdge implements Edge {
     }
 
     public boolean isInternal(){
-        return Objects.equals(start.getHPARegion(), end.getHPARegion());
+        return Objects.equals(start.getHpaRegion(), end.getHpaRegion());
     }
 
     @Override

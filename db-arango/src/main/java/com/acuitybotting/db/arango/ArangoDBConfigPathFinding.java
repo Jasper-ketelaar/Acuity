@@ -26,6 +26,7 @@ public class ArangoDBConfigPathFinding extends AbstractArangoConfiguration{
         Credentials credentials = secretService.getSecret("secretsmanager.us-east-1.amazonaws.com", "us-east-1", "DbCredentials", Credentials.class).orElseThrow(() -> new RuntimeException("Failed to access Arango secret."));
         return new ArangoDB.Builder()
                 .host(credentials.getArangoHost(), Integer.parseInt(credentials.getArangoPort()))
+                .maxConnections(20)
                 .user(credentials.getArangoUsername())
                 .password(credentials.getArangoPassword());
     }

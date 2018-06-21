@@ -10,6 +10,9 @@ public class LocationPair {
         this.end = end;
     }
 
+    public LocationPair() {
+    }
+
     public Location getStart() {
         return start;
     }
