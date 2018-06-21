@@ -46,6 +46,7 @@ public class HpaPlugin extends Plugin {
     public void onPaint(Graphics2D graphics, Graphics2D scaledGraphics) {
         if (graph == null) return;
 
+        if (startNode != null) getPaintUtil().connectLocations(graphics, startNode.getEdges(), Color.BLUE);
 
         for (HPARegion HPARegion : graph.getRegions().values()) {
             for (HPANode hpaNode : HPARegion.getNodes().values()) {
@@ -74,10 +75,7 @@ public class HpaPlugin extends Plugin {
             }
         }
 
-        if (start != null) {
-            getPaintUtil().markLocation(graphics, start, Color.RED);
-            getPaintUtil().connectLocations(graphics, new TileNode(start).getNeighbors(true), Color.RED);
-        }
+        if (start != null) getPaintUtil().markLocation(graphics, start, Color.RED);
         if (end != null) getPaintUtil().markLocation(graphics, end, Color.GREEN);
     }
 

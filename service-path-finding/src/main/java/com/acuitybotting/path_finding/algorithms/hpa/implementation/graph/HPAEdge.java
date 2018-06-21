@@ -23,6 +23,11 @@ public class HPAEdge implements Edge {
         return Objects.equals(start.getHPARegion(), end.getHPARegion());
     }
 
+    @Override
+    public double getCostPenalty() {
+        return cost;
+    }
+
     public HPAEdge setCost(double cost) {
         this.cost = cost;
         return this;
