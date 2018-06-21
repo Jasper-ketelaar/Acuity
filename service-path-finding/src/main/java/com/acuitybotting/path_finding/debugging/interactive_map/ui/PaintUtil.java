@@ -23,16 +23,9 @@ public class PaintUtil {
         this.mapPanel = mapPanel;
     }
 
-    private int offSet(int in){
-        return round(in - (mapPanel.getPerspective().getTileSize() / 2));
-    }
-
-    private Point offset(Point in){
-        return new Point(offSet(in.x), offSet(in.y));
-    }
-
     public void markLocation(Graphics2D graphics2D, Object location, Color color){
         ScreenLocation screenLocation = mapPanel.getPerspective().locationToScreen(convertToLocation(location));
+        if (screenLocation == null) return;
         graphics2D.setColor(color);
         graphics2D.fillOval(round(screenLocation.getX()), round(screenLocation.getY()), round(mapPanel.getPerspective().getTileSize()), round(mapPanel.getPerspective().getTileSize()));
     }
@@ -42,6 +35,8 @@ public class PaintUtil {
 
         ScreenLocation startPoint = mapPanel.getPerspective().locationToScreen(convertToLocation(start));
         ScreenLocation endPoint = mapPanel.getPerspective().locationToScreen(convertToLocation(end));
+
+        if (startPoint == null || endPoint == null) return;
 
         graphics2D.setColor(color);
         graphics2D.drawLine(
@@ -53,9 +48,8 @@ public class PaintUtil {
     }
 
     public void fillArea(Graphics2D graphics2D, Object base, int tileWidth, int tileHeight, Color color) {
-        double tileOffset = mapPanel.getPerspective().getTileSize() / 2;
-
         ScreenLocation point = mapPanel.getPerspective().locationToScreen(convertToLocation(base));
+        if (point == null) return;
         double tileSize = mapPanel.getPerspective().getTileSize();
         graphics2D.setColor(color);
         graphics2D.drawRect(round(point.getX()), round(point.getY()), round((tileSize * tileWidth)), round((tileHeight * tileSize)));

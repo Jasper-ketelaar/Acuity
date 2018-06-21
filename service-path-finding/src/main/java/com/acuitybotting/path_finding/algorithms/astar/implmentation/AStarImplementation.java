@@ -27,6 +27,10 @@ public class AStarImplementation {
     private PriorityQueue<AStarStore> open = new PriorityQueue<>();
 
     public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end) {
+        Objects.requireNonNull(heuristicSupplier);
+        Objects.requireNonNull(start);
+        Objects.requireNonNull(end);
+
         this.heuristicSupplier = heuristicSupplier;
         this.start = start;
         this.end = end;

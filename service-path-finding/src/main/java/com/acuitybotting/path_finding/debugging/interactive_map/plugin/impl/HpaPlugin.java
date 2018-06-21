@@ -103,7 +103,7 @@ public class HpaPlugin extends Plugin {
                 getMapPanel().repaint();
             }
 
-            if (startNode != null && startNode != null) {
+            if (startNode != null && endNode != null) {
                 executor.execute(() -> {
                     aStarImplementation = new AStarImplementation()
                             .setEdgePredicate(edge -> {

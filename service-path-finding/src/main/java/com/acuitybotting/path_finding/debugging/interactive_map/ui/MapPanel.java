@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Getter
-public class MapPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener {
+public class MapPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, KeyListener {
 
     private GameMap gameMap;
     private Perspective perspective;
@@ -107,6 +107,11 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
     }
 
     @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
     public void mouseClicked(MouseEvent e) {
 
     }
@@ -118,6 +123,21 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
 
     @Override
     public void mouseExited(MouseEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_EQUALS){
+            perspective.getBase().setPlane(perspective.getBase().getPlane() + 1);
+        }
+        if (e.getKeyCode() == KeyEvent.VK_MINUS){
+            perspective.getBase().setPlane(perspective.getBase().getPlane() - 1);
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
 
     }
 }
