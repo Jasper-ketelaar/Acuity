@@ -9,6 +9,7 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANod
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.TerminatingNode;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
+import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 import java.awt.*;
@@ -106,7 +107,7 @@ public class HpaPlugin extends Plugin {
                                 return !(edge instanceof TerminatingNode) || end.equals(endNode);
                             })
                             .setDebugMode(true);
-                    path = aStarImplementation.findPath((start1, current, end1, edge) -> ((HPAEdge) edge).getCost(), startNode, endNode).orElse(null);
+                    path = aStarImplementation.findPath(new LocateableHeuristic(), startNode, endNode).orElse(null);
                     getMapPanel().repaint();
                 });
             }
