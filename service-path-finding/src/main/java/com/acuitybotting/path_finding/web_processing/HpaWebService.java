@@ -49,6 +49,37 @@ public class HpaWebService {
         edgeRepository.deleteAll();
     }
 
+
+    public HPAGraph loadInto(HPAGraph graph, int version){
+        log.info("Starting loadInto HPA graph version {}.", version);
+
+        for (SavedRegion savedRegion : regionRepository.findAllByWebVersion(version)) {
+            HPARegion region = new HPARegion(graph, savedRegion.getRoot(), savedRegion.getWidth(), savedRegion.getHeight());
+            graph.getRegions().put(region.getKey(), region);
+        }
+
+        Map<String, SavedNode> nodeMap = new HashMap<>();
+        for (SavedNode savedNode : nodeRepository.findAllByWebVersion(version)) {
+            nodeMap.put(savedNode.getKey(), savedNode);
+        }
+
+        for (SavedEdge savedEdge : edgeRepository.findAllByWebVersion(version)) {
+            SavedNode startSavedNode = nodeMap.get(savedEdge.getStartKey());
+            SavedNode endSavedNode = nodeMap.get(savedEdge.getEndKey());
+
+            HPARegion startRegion = graph.getRegionContaining(startSavedNode.getLocation());
+            HPARegion endRegion = graph.getRegionContaining(endSavedNode.getLocation());
+
+            HPANode startNode = startRegion.getOrCreateNode(startSavedNode.getLocation(), startSavedNode.getType());
+            HPANode endNode = endRegion.getOrCreateNode(endSavedNode.getLocation(), endSavedNode.getType());
+
+            List<Edge> path = savedEdge.getPath().stream().map(locationPair -> new TileEdge(new TileNode(locationPair.getStart()), new TileNode(locationPair.getEnd()))).collect(Collectors.toList());
+            startNode.addConnection(endNode, HPANode.GROUND, path);
+        }
+
+        return graph;
+    }
+
     public void save(HPAGraph graph, int version) {
         log.info("Starting save of {} as version {}.", graph, version);
 
@@ -66,6 +97,7 @@ public class HpaWebService {
 
             for (HPANode hpaNode : hpaRegion.getNodes().values()) {
                 if (hpaNode.getType() == HPANode.CUSTOM) continue;
+
                 SavedNode savedNode = createSavedNode(keySupplier.get(), savedRegion, hpaNode);
                 savedNode.setWebVersion(version);
                 nodeMap.put(hpaNode, savedNode);
@@ -77,6 +109,9 @@ public class HpaWebService {
         for (Map.Entry<HPANode, SavedNode> entry : nodeMap.entrySet()) {
             for (Edge edge : entry.getKey().getEdges()) {
                 HPAEdge hpaEdge = (HPAEdge) edge;
+
+                if (hpaEdge.getType() == HPANode.CUSTOM) continue;
+                if (hpaEdge.getStart().getType() == HPANode.CUSTOM || hpaEdge.getEnd().getType() == HPANode.CUSTOM) continue;
 
                 SavedNode startNode = nodeMap.get(hpaEdge.getStart());
                 SavedNode endNode = nodeMap.get(hpaEdge.getEnd());
@@ -112,10 +147,12 @@ public class HpaWebService {
         savedEdge.setCost(hpaEdge.getCost());
 
         if (hpaEdge.getPath() != null){
-            List<Location> path = new ArrayList<>();
-            for (Edge edge : hpaEdge.getPath()) {
-                path.add(((Locateable) edge.getEnd()).getLocation());
-            }
+            List<LocationPair> path = hpaEdge.getPath().stream().map(edge -> {
+                LocationPair locationPair = new LocationPair();
+                locationPair.setStart(((Locateable) edge.getStart()).getLocation());
+                locationPair.setEnd(((Locateable) edge.getEnd()).getLocation());
+                return locationPair;
+            }).collect(Collectors.toList());
             savedEdge.setPath(path);
         }
 

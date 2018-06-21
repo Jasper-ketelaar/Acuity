@@ -29,5 +29,5 @@ public class SavedEdge {
     private String startKey, endKey;
     private double cost;
 
-    private List<Location> path;
+    private List<LocationPair> path;
 }

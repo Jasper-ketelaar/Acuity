@@ -4,6 +4,7 @@ package com.acuitybotting.path_finding.algorithms.hpa.implementation;
 import com.acuitybotting.db.arango.path_finding.domain.SceneEntity;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
 import com.acuitybotting.path_finding.rs.custom_edges.CustomEdge;
@@ -25,10 +26,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class HPAGraph {
 
-    private Location lower, upper;
-    private int regionWidth, regionHeight;
+    private Location lower;
+    private Location upper;
+    private int regionWidth;
+    private int regionHeight;
 
-    private Map<String, HPARegion> regions;
+    private Map<String, HPARegion> regions = new HashMap<>();
 
     private int internalNodeConnectionLimit = 4;
 
@@ -40,21 +43,25 @@ public class HPAGraph {
 
     private PathFindingSupplier pathFindingSupplier;
 
-    public Map<String, HPARegion> init(Location lower, Location upper) {
+    public Map<String, HPARegion> init(Location lower, Location upper, int regionWidth, int regionHeight) {
         this.lower = lower;
         this.upper = upper;
-
-        regions = findRegions();
-        log.info("Initiated with {} regions.", regions.size());
-
+        this.regionWidth = regionWidth;
+        this.regionHeight = regionHeight;
         return regions;
     }
 
-    public Map<String, HPARegion> build(PathFindingSupplier pathFindingSupplier) {
+    public HPAGraph setPathFindingSupplier(PathFindingSupplier pathFindingSupplier) {
         this.pathFindingSupplier = pathFindingSupplier;
-        log.info("Started building HPA graph between {} and {} with width {} and height {}.", lower, upper, regionWidth, regionHeight);
+        return this;
+    }
 
+    public Map<String, HPARegion> build() {
+        log.info("Started building HPA graph between {} and {} with width {} and height {}.", lower, upper, regionWidth, regionHeight);
         long startTimestamp = System.currentTimeMillis();
+
+        regions = findRegions();
+        log.info("Initiated with {} regions.", regions.size());
 
         ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -68,17 +75,13 @@ public class HPAGraph {
                     HPANode internalNode = internalHPARegion.getOrCreateNode(externalConnection.getStart());
                     HPANode externalNode = externalHPARegion.getOrCreateNode(externalConnection.getEnd());
 
-                    internalNode.addConnection(externalNode);
-                    externalNode.addConnection(internalNode);
+                    internalNode.addConnection(externalNode, HPANode.GROUND);
+                    externalNode.addConnection(internalNode, HPANode.GROUND);
 
                     externalConnectionsCount++;
                 }
             });
         }
-
-        addCustomNodes();
-
-        log.info("Added {} custom nodes.", customNodesAddedCount);
 
         executorService.shutdown();
         try {
@@ -128,11 +131,11 @@ public class HPAGraph {
         return regions;
     }
 
-    private void addCustomNodes(){
+    public HPAGraph addCustomNodes(){
         for (CustomEdge customEdge : PlayerTiedEdges.getEdges()) {
             HPARegion endRegion = getRegionContaining(customEdge.getEnd());
             if (endRegion == null) continue;
-            endRegion.getOrCreateNode(customEdge.getEnd(), HPANode.CUSTOM);
+            findInternalConnections(endRegion, endRegion.getOrCreateNode(customEdge.getEnd(), HPANode.CUSTOM));
             customNodesAddedCount++;
         }
 
@@ -140,10 +143,20 @@ public class HPAGraph {
             HPARegion startRegion = getRegionContaining(customEdge.getStart());
             HPARegion endRegion = getRegionContaining(customEdge.getEnd());
             if (startRegion == null || endRegion == null) continue;
-            startRegion.getOrCreateNode(customEdge.getStart(), HPANode.CUSTOM);
-            endRegion.getOrCreateNode(customEdge.getEnd(), HPANode.CUSTOM);
+            HPANode startNode = startRegion.getOrCreateNode(customEdge.getStart(), HPANode.CUSTOM);
+            HPANode endNode = endRegion.getOrCreateNode(customEdge.getEnd(), HPANode.CUSTOM);
+
+            findInternalConnections(startRegion, startNode);
+            findInternalConnections(endRegion, endNode);
+
+            startNode.addConnection(endNode, HPANode.CUSTOM);
+
             customNodesAddedCount += 2;
         }
+
+        log.info("Added {} custom nodes.", customNodesAddedCount);
+
+        return this;
     }
 
     public void findInternalConnections(HPARegion region, HPANode startNode) {
@@ -174,8 +187,8 @@ public class HPAGraph {
             if (path != null) {
                 found++;
                 internalConnectionCount++;
-                startNode.addConnection(endNode, path);
-                endNode.addConnection(startNode, path);
+                startNode.addConnection(endNode, HPANode.GROUND, path);
+                endNode.addConnection(startNode, HPANode.GROUND, path);
             }
         }
     }
@@ -196,7 +209,7 @@ public class HPAGraph {
                 if (up){
                     HPANode stairNodeUpper = createStairNode(stairLocation.clone(0, 0, 1));
                     if (stairNodeUpper != null){
-                        stairNodeBase.addConnection(stairNodeUpper);
+                        stairNodeBase.addConnection(stairNodeUpper, HPANode.STAIR);
                         stairNodesAddedCount++;
                         stairNodeConnectionsAddedCount++;
                     }
@@ -205,7 +218,7 @@ public class HPAGraph {
                 if (down){
                     HPANode stairNodeUpper = createStairNode(stairLocation.clone(0, 0, -1));
                     if (stairNodeUpper != null){
-                        stairNodeBase.addConnection(stairNodeUpper);
+                        stairNodeBase.addConnection(stairNodeUpper, HPANode.STAIR);
                         stairNodesAddedCount++;
                         stairNodeConnectionsAddedCount++;
                     }
@@ -279,16 +292,6 @@ public class HPAGraph {
             }
         }
         return regions;
-    }
-
-    public HPAGraph setRegionHeight(int regionHeight) {
-        this.regionHeight = regionHeight;
-        return this;
-    }
-
-    public HPAGraph setRegionWidth(int regionWidth) {
-        this.regionWidth = regionWidth;
-        return this;
     }
 
     public Map<String, HPARegion> getRegions() {

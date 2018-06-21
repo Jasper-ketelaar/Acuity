@@ -42,19 +42,21 @@ public class HPANode implements Node, Locateable {
         edges.clear();
     }
 
-    public HPAEdge addConnection(HPANode other){
+    public HPAEdge addConnection(HPANode other, int edgeType){
         HPAEdge hpaEdge = new HPAEdge(this, other);
         List<Edge> path = Collections.singletonList(hpaEdge);
+        hpaEdge.setType(edgeType);
         hpaEdge.setCost(path.size());
         hpaEdge.setPath(path);
         edges.add(hpaEdge);
         return hpaEdge;
     }
 
-    public HPAEdge addConnection(HPANode other, List<Edge> path){
+    public HPAEdge addConnection(HPANode other, int edgeType, List<Edge> path){
         HPAEdge hpaEdge = new HPAEdge(this, other);
         hpaEdge.setCost(path.size());
         hpaEdge.setPath(path);
+        hpaEdge.setType(edgeType);
         edges.add(hpaEdge);
         return hpaEdge;
     }

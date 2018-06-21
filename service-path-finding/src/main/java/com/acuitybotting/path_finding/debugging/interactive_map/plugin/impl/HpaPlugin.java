@@ -46,13 +46,21 @@ public class HpaPlugin extends Plugin {
     public void onPaint(Graphics2D graphics, Graphics2D scaledGraphics) {
         if (graph == null) return;
 
-        if (startNode != null) getPaintUtil().connectLocations(graphics, startNode.getEdges(), Color.BLUE);
+        if (startNode != null){
+            for (Edge edge : startNode.getEdges()) {
+                if (edge instanceof HPAEdge){
+                    if (((HPAEdge) edge).getType() == HPANode.CUSTOM){
+                        getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), Color.BLACK);
+                    }
+                }
+            }
+        }
 
         for (HPARegion HPARegion : graph.getRegions().values()) {
             for (HPANode hpaNode : HPARegion.getNodes().values()) {
                 getPaintUtil().markLocation(graphics, hpaNode.getLocation(), nodeColorings[hpaNode.getType()]);
 
-                for (Edge edge : hpaNode.getNeighbors()) {
+                for (Edge edge : hpaNode.getEdges()) {
                     if (edge instanceof HPAEdge) {
                         getPaintUtil().connectLocations(graphics, ((HPAEdge) edge).getPath(), Color.BLUE);
                     }
@@ -75,8 +83,8 @@ public class HpaPlugin extends Plugin {
             }
         }
 
-        if (start != null) getPaintUtil().markLocation(graphics, start, Color.RED);
-        if (end != null) getPaintUtil().markLocation(graphics, end, Color.GREEN);
+        if (startNode != null) getPaintUtil().markLocation(graphics, startNode, Color.RED);
+        if (endNode != null) getPaintUtil().markLocation(graphics, endNode, Color.GREEN);
     }
 
     @Override

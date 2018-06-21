@@ -7,4 +7,7 @@ import com.arangodb.springframework.repository.ArangoRepository;
  * Created by Zachary Herridge on 6/21/2018.
  */
 public interface RegionRepository extends ArangoRepository<SavedRegion> {
+
+    Iterable<SavedRegion> findAllByWebVersion(int version);
+
 }

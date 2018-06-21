@@ -7,4 +7,7 @@ import com.arangodb.springframework.repository.ArangoRepository;
  * Created by Zachary Herridge on 6/21/2018.
  */
 public interface NodeRepository extends ArangoRepository<SavedNode>{
+
+    Iterable<SavedNode> findAllByWebVersion(int version);
+
 }

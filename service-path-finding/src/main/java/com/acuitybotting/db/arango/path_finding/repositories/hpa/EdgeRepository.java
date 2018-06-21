@@ -8,4 +8,7 @@ import com.arangodb.springframework.repository.ArangoRepository;
  * Created by Zachary Herridge on 6/21/2018.
  */
 public interface EdgeRepository extends ArangoRepository<SavedEdge> {
+
+    Iterable<SavedEdge> findAllByWebVersion(int version);
+
 }

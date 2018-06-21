@@ -3,6 +3,7 @@ package com.acuitybotting.path_finding;
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.HpaService;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.PathFindingSupplier;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.HpaPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PathPlugin;
@@ -60,39 +61,57 @@ public class PathFindingRunner implements CommandLineRunner {
         }
     }
 
-    private void buildHpa() {
-        hpaService.setDimensions(30, 30);
+    private PathFindingSupplier getPathfindingSupplier() {
+        return new PathFindingSupplier() {
+            @Override
+            public Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate) {
+                return aStarService.findPath(
+                        new LocateableHeuristic(),
+                        RsEnvironment.getNode(start),
+                        RsEnvironment.getNode(end),
+                        predicate
+                );
+            }
 
-        hpaService.getHPAGraph().init(
+            @Override
+            public boolean isDirectlyConnected(Location start, Location end) {
+                TileNode sNode = RsEnvironment.getNode(start);
+                TileNode endNode = RsEnvironment.getNode(end);
+                return sNode.getNeighbors().stream().anyMatch(edge -> edge.getEnd().equals(endNode));
+            }
+        };
+    }
+
+    private void loadHpa() {
+        HPAGraph graph = new HPAGraph();
+        graph.init(
                 new Location(3138, 3384, 0),
-                new Location(3138 + 100, 3384 + 100, 0)
+                new Location(3138 + 100, 3384 + 100, 0),
+                30,
+                30
+        );
+        graph.setPathFindingSupplier(getPathfindingSupplier());
+        hpaWebService.loadInto(graph, 1);
+        graph.addCustomNodes();
+        hpaPlugin.setGraph(graph);
+    }
+
+    private void buildHpa() {
+        hpaService.getGraph().init(
+                new Location(3138, 3384, 0),
+                new Location(3138 + 100, 3384 + 100, 0),
+                30,
+                30
         );
 
-        hpaPlugin.setGraph(hpaService.getHPAGraph());
+        hpaService.getGraph().setPathFindingSupplier(getPathfindingSupplier());
 
-        hpaService.getHPAGraph().build(
-                new PathFindingSupplier() {
-                    @Override
-                    public Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate) {
-                        return aStarService.findPath(
-                                new LocateableHeuristic(),
-                                RsEnvironment.getNode(start),
-                                RsEnvironment.getNode(end),
-                                predicate
-                        );
-                    }
+        hpaPlugin.setGraph(hpaService.getGraph());
 
-                    @Override
-                    public boolean isDirectlyConnected(Location start, Location end) {
-                        TileNode sNode = RsEnvironment.getNode(start);
-                        TileNode endNode = RsEnvironment.getNode(end);
-                        return sNode.getNeighbors().stream().anyMatch(edge -> edge.getEnd().equals(endNode));
-                    }
-                }
-        );
+        hpaService.getGraph().build();
 
         hpaWebService.clearRepos();
-        hpaWebService.save(hpaService.getHPAGraph(), 1);
+        hpaWebService.save(hpaService.getGraph(), 1);
     }
 
     @Override
@@ -106,7 +125,7 @@ public class PathFindingRunner implements CommandLineRunner {
             //mapFrame.getMapPanel().addPlugin(pathPlugin);
             mapFrame.show();
 
-            buildHpa();
+            loadHpa();
         } catch (Exception e) {
             e.printStackTrace();
         }

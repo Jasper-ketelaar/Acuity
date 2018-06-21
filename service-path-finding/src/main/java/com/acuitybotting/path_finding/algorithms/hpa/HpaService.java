@@ -11,10 +11,5 @@ import org.springframework.stereotype.Service;
 @Service
 public class HpaService {
 
-    private HPAGraph HPAGraph = new HPAGraph();
-
-    public HpaService setDimensions(int width, int height){
-        HPAGraph.setRegionWidth(width).setRegionHeight(height);
-        return this;
-    }
+    private HPAGraph graph = new HPAGraph();
 }

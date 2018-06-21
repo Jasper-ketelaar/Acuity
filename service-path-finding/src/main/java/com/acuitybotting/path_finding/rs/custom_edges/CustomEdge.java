@@ -6,7 +6,6 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.function.Predicate;
 
 /**
  * Created by Zachary Herridge on 6/21/2018.
@@ -14,7 +13,7 @@ import java.util.function.Predicate;
 public class CustomEdge {
 
     private Location start, end;
-    private Collection<PlayerPredicate> requirement = new HashSet<>();
+    private Collection<PlayerPredicate> playerPredicates = new HashSet<>();
     private Interaction interaction;
 
     public Location getStart() {
@@ -36,16 +35,16 @@ public class CustomEdge {
     }
 
     public CustomEdge withRequirement(PlayerPredicate predicate){
-        requirement.add(predicate);
+        playerPredicates.add(predicate);
         return this;
     }
 
-    public Collection<PlayerPredicate> getRequirement() {
-        return requirement;
+    public Collection<PlayerPredicate> getPlayerPredicates() {
+        return playerPredicates;
     }
 
-    public CustomEdge setRequirement(Collection<PlayerPredicate> requirement) {
-        this.requirement = requirement;
+    public CustomEdge setPlayerPredicates(Collection<PlayerPredicate> playerPredicates) {
+        this.playerPredicates = playerPredicates;
         return this;
     }
 
