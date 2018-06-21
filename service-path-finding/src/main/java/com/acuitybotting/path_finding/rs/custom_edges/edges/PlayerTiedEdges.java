@@ -19,8 +19,22 @@ public class PlayerTiedEdges {
     static {
         customEdges.add(
                 new CustomEdge()
-                        .setEnd(new Location(3154, 3505, 0))
+                        .setEnd(new Location(3221, 3218, 0))
                         .setInteraction(new Interaction(Interaction.SPELL).setSpellName("HOME_TELEPORT"))
+                        .withRequirement((PlayerGeneralPredicate) PlayerGeneralInfo::isModernSpellbook)
+        );
+
+        customEdges.add(
+                new CustomEdge()
+                        .setEnd(new Location(3212, 3424, 0))
+                        .setInteraction(new Interaction(Interaction.SPELL).setSpellName("VARROCK_TELEPORT"))
+                        .withRequirement((PlayerGeneralPredicate) PlayerGeneralInfo::isModernSpellbook)
+        );
+
+        customEdges.add(
+                new CustomEdge()
+                        .setEnd(new Location(2757, 3480, 0))
+                        .setInteraction(new Interaction(Interaction.SPELL).setSpellName("CAMELOT_TELEPORT"))
                         .withRequirement((PlayerGeneralPredicate) PlayerGeneralInfo::isModernSpellbook)
         );
     }

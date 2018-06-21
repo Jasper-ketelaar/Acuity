@@ -61,7 +61,7 @@ public class HPAGraph {
         for (HPARegion internalHPARegion : regions.values()) {
             executorService.submit(() -> {
                 List<LocationPair> externalConnections = findExternalConnections(internalHPARegion, pathFindingSupplier);
-                log.info("Found {} external connections from {}.", externalConnections.size(), internalHPARegion);
+                log.debug("Found {} external connections from {}.", externalConnections.size(), internalHPARegion);
                 for (LocationPair externalConnection : externalConnections) {
                     HPARegion externalHPARegion = getRegionContaining(externalConnection.getEnd());
 
