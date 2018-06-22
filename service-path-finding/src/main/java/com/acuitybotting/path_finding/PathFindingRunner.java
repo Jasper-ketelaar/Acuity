@@ -50,7 +50,11 @@ public class PathFindingRunner implements CommandLineRunner {
 
     private void dumpImage() {
         try {
-            BufferedImage image = webImageProcessingService.createDoorImage(0, 3138, 3384, 2000, 2000, 3);
+            System.out.println("Started image dump.");
+            BufferedImage image = webImageProcessingService.createDoorImage(
+                    0, 3138 - 1000, 3384 - 1000,
+                    2000, 2000,
+                    4);
             ImageIO.write(image, "png", new File("saved3.png"));
             image = null;
             System.out.println("Image dump complete.");
@@ -104,8 +108,6 @@ public class PathFindingRunner implements CommandLineRunner {
 
         graph.build();
 
-        hpaPlugin.setGraph(graph);
-
         hpaWebService.deleteVersion(version);
         hpaWebService.save(graph, version);
     }
@@ -114,12 +116,7 @@ public class PathFindingRunner implements CommandLineRunner {
     public void run(String... args) {
         try {
             RsEnvironment.setRsMapService(rsMapService);
-
-            MapFrame mapFrame = new MapFrame();
-            mapFrame.getMapPanel().addPlugin(hpaPlugin);
-            mapFrame.show();
-
-            loadHpa(1);
+            buildHpa(1);
         } catch (Exception e) {
             e.printStackTrace();
         }

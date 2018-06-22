@@ -6,6 +6,7 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAReg
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +20,9 @@ public class RsEnvironment {
     public static final int CACHE_AREA = 15;
 
     public static final String[] DOOR_NAMES = new String[]{"Door", "Gate", "Large door", "Castle door", "Gate of War", "Rickety door", "Oozing barrier", "Portal of Death", "Magic guild door", "Prison door", "Barbarian door"};
+    public static final String[] DOOR_ACTIONS = new String[]{"OPEN"};
+
+
     public static final String[] STAIR_NAMES = new String[]{"Stairs", "Ladder", "Stair"};
 
     private static RsMapService rsMapService;
@@ -72,10 +76,10 @@ public class RsEnvironment {
     }
 
     public static List<SceneEntity> getDoorsAt(Location location) {
-        return getSceneElementAt(location, DOOR_NAMES, doorCache);
+        return getSceneElementAt(location, DOOR_NAMES, DOOR_ACTIONS, doorCache);
     }
 
-    public static List<SceneEntity> getSceneElementAt(Location location, String[] names, LocationBasedCache<List<SceneEntity>> cache) {
+    public static List<SceneEntity> getSceneElementAt(Location location, String[] names, String[] actions, LocationBasedCache<List<SceneEntity>> cache) {
         List<SceneEntity> sceneEntities = cache.get(location);
         if (sceneEntities != null) return sceneEntities;
 
@@ -99,7 +103,12 @@ public class RsEnvironment {
                 Collections.emptyList());
 
         Iterator<SceneEntity> iterator = entities.iterator();
-        if (iterator.hasNext()) cache.put(location, Collections.singletonList(iterator.next()));
+        if (iterator.hasNext()) {
+            SceneEntity next = iterator.next();
+            if (actions == null || (next.getActions() != null && Arrays.stream(next.getActions()).anyMatch(s -> Arrays.stream(actions).anyMatch(s1 -> s1.equalsIgnoreCase(s))))) {
+                cache.put(location, Collections.singletonList(iterator.next()));
+            }
+        }
 
         return cache.getOrDefault(location, Collections.emptyList());
     }

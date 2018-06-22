@@ -14,8 +14,8 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAReg
 import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
-import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
+import com.arangodb.springframework.repository.ArangoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,11 +44,13 @@ public class HpaWebService {
     }
 
     public void deleteVersion(int version) {
+        log.info("Starting to delete graph {}, initial sizes {}, {}, {}.", version, regionRepository.count(), nodeRepository.count(), edgeRepository.count());
+
         regionRepository.deleteAllByWebVersion(version);
         nodeRepository.deleteAllByWebVersion(version);
         edgeRepository.deleteAllByWebVersion(version);
 
-        log.info("Finished repo deletes, new sizes {}, {}, {}.", regionRepository.count(), nodeRepository.count(), edgeRepository.count());
+        log.info("Finished deleting graph {}, new sizes {}, {}, {}.", version, regionRepository.count(), nodeRepository.count(), edgeRepository.count());
     }
 
 
@@ -128,17 +130,27 @@ public class HpaWebService {
 
         log.info("Finished processing {}, starting write to db.", graph);
 
+        int chunkSize = 300;
 
-        regionRepository.saveAll(savedRegions);
-        log.info("Finished saving regions.", graph);
+        long saveStartTime = System.currentTimeMillis();
 
-        nodeRepository.saveAll(nodeMap.values());
-        log.info("Finished saving nodes.", graph);
+        log.info("Saving {} regions.", savedRegions.size());
+        save(regionRepository, chunkSize, savedRegions);
 
-        edgeRepository.saveAll(savedEdges);
-        log.info("Finished saving edges.", graph);
+        log.info("Saving {} nodes.", nodeMap.values().size());
+        save(nodeRepository, chunkSize, nodeMap.values());
 
-        log.info("Finished saving of {} as version {} with {} regions, {} edges, and {} nodes.", graph, version, savedRegions.size(), savedEdges.size(), nodeMap.size());
+        log.info("Saving {} edges.", savedEdges.size());
+        save(edgeRepository, chunkSize, savedEdges);
+
+        log.info("Finished saving of {} as version {} with {} regions, {} edges, and {} nodes in {} seconds.", graph, version, savedRegions.size(), savedEdges.size(), nodeMap.size(), (System.currentTimeMillis() - saveStartTime) / 1000);
+    }
+
+    private void save(ArangoRepository repository, int size, Collection<?> collection){
+        final AtomicInteger counter = new AtomicInteger(0);
+        collection.stream().collect(Collectors.groupingBy(it -> counter.getAndIncrement() / size)).values().parallelStream().forEach(set -> {
+            repository.saveAll(set);
+        });
     }
 
     private SavedEdge createSavedEdge(String key, HPAEdge hpaEdge, SavedNode startNode, SavedNode endNode) {

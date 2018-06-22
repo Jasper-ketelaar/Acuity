@@ -2,6 +2,8 @@ package com.acuitybotting.path_finding.rs.domain.graph;
 
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.CollisionFlags;
@@ -25,7 +27,6 @@ import static com.acuitybotting.path_finding.rs.utils.Direction.*;
 @Getter
 public class TileNode implements Node, Locateable {
 
-    private Collection<Edge> edgeCache;
     private Location location;
     private int type;
 
@@ -66,10 +67,7 @@ public class TileNode implements Node, Locateable {
 
     @Override
     public Collection<Edge> getNeighbors() {
-        if (edgeCache != null) return edgeCache;
-        Collection<Edge> edges = getNeighbors(false);
-        edgeCache = edges;
-        return edges;
+        return getNeighbors(false);
     }
 
     private boolean containsDoor(Location location){
@@ -86,7 +84,10 @@ public class TileNode implements Node, Locateable {
             return true;
         }
         else if (containsDoor(location)){
-            edges.add(new TileEdge(this, RsEnvironment.getNode(new Location(x, y, z)), 1));
+            TileEdge tileEdge = new TileEdge(this, RsEnvironment.getNode(new Location(x, y, z)), 1);
+            tileEdge.setType(HPANode.DOOR);
+            edges.add(tileEdge);
+
             //Possibly return false when contains door to replicate previous performance.
             return true;
         }

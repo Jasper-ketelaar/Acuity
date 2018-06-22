@@ -5,6 +5,7 @@ import com.acuitybotting.path_finding.algorithms.astar.implmentation.AStarImplem
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
+import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -28,23 +29,33 @@ public class PathPlugin extends Plugin {
 
     private Location l1, l2;
     private List<Edge> path;
+    private AStarImplementation currentSearch;
 
     private Executor executor = Executors.newSingleThreadExecutor();
 
     public PathPlugin(AStarService aStarService) {
         this.aStarService = aStarService;
+        aStarService.setMaxAttempts(20000);
         aStarService.setDebugMode(true);
     }
 
     @Override
     public void onPaint(Graphics2D graphics, Graphics2D scaledGraphics) {
+        if (currentSearch != null){
+            for (Node node : new HashSet<>(currentSearch.getCostCache().keySet())) {
+                getPaintUtil().connectLocations(graphics, node.getNeighbors(), Color.GRAY);
+            }
+        }
+
         if (path != null){
             for (Edge edge : path) {
                 getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), Color.CYAN);
             }
         }
 
-        if (l1 != null) getPaintUtil().markLocation(graphics, l1, Color.RED);
+        if (l1 != null) {
+            getPaintUtil().markLocation(graphics, l1, Color.RED);
+        }
         if (l2 != null) getPaintUtil().markLocation(graphics, l2, Color.GREEN);
     }
 
@@ -70,7 +81,8 @@ public class PathPlugin extends Plugin {
     }
 
     private Optional<java.util.List<Edge>> findPath(Locateable start, Locateable end){
-        return aStarService.findPath(
+        currentSearch = aStarService.build();
+        return currentSearch.findPath(
                 new LocateableHeuristic(),
                 RsEnvironment.getNode(start.getLocation()),
                 RsEnvironment.getNode(end.getLocation())

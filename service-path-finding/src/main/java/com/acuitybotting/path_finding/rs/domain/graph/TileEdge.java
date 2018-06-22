@@ -16,6 +16,7 @@ public class TileEdge implements Edge {
 
     private TileNode start, end;
     private double costPenalty = 0;
+    private int type;
 
     public TileEdge(TileNode start, TileNode end) {
         this.start = start;

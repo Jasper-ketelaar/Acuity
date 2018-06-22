@@ -15,6 +15,7 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -83,7 +84,10 @@ public class HpaPlugin extends Plugin {
             }
         }
 
-        if (startNode != null) getPaintUtil().markLocation(graphics, startNode, Color.RED);
+        if (startNode != null) {
+            getPaintUtil().markLocation(graphics, startNode, Color.RED);
+            getPaintUtil().connectLocations(graphics, new TileNode(startNode.getLocation()).getNeighbors(), Color.RED);
+        }
         if (endNode != null) getPaintUtil().markLocation(graphics, endNode, Color.GREEN);
     }
 

@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 public class AStarService {
 
     private boolean debugMode;
-    private static List<AStarImplementation> currentSearches = new ArrayList<>();
+    private int maxAttempts = 50000;
 
     public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end) {
         return findPath(heuristicSupplier, start, end, null);
@@ -30,10 +30,10 @@ public class AStarService {
     }
 
     public AStarImplementation build(){
-        return new AStarImplementation();
+        return new AStarImplementation().setMaxAttempts(maxAttempts).setDebugMode(debugMode);
     }
 
-    public static List<AStarImplementation> getCurrentSearches() {
-        return currentSearches;
+    public void setMaxAttempts(int maxAttempts) {
+        this.maxAttempts = maxAttempts;
     }
 }
