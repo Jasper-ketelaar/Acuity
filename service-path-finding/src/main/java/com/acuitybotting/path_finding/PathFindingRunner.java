@@ -83,8 +83,8 @@ public class PathFindingRunner implements CommandLineRunner {
     private HPAGraph initGraph(){
         HPAGraph graph = new HPAGraph();
         graph.init(
-                new Location(3138 - 100, 3384 - 100, 0),
-                new Location(3138 + 100, 3384 + 100, 1),
+                new Location(3138 - 1000, 3384 - 1000, 0),
+                new Location(3138 + 1000, 3384 + 1000, 1),
                 30,
                 30
         );
@@ -114,11 +114,9 @@ public class PathFindingRunner implements CommandLineRunner {
     public void run(String... args) {
         try {
             RsEnvironment.setRsMapService(rsMapService);
-            aStarService.setDebugMode(true);
 
             MapFrame mapFrame = new MapFrame();
             mapFrame.getMapPanel().addPlugin(hpaPlugin);
-            //mapFrame.getMapPanel().addPlugin(pathPlugin);
             mapFrame.show();
 
             loadHpa(1);

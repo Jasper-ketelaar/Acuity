@@ -20,7 +20,7 @@ public class MapFrame {
         GameMap gameMap = new GameMap("./service-path-finding/map_images/world_map_new.png", new Location(1143, 4104, 0), 3);
         GameMap gameMap2 = new GameMap("./service-path-finding/map_images/saved3.png", new Location(3138, 3384 + 2000, 0), 3);
 
-        this.mapPanel = new MapPanel(gameMap2);
+        this.mapPanel = new MapPanel(gameMap);
         mapFrame.addKeyListener(mapPanel);
         this.mapFrame.add(this.mapPanel, BorderLayout.CENTER);
         this.centerFrame();

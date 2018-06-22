@@ -223,6 +223,8 @@ public class HPAGraph {
                         stairNodeConnectionsAddedCount++;
                     }
                 }
+
+                System.out.println("Adding stairs. make this better.");
             }
         }
     }
