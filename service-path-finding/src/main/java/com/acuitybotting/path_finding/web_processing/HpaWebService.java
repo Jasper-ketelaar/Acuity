@@ -55,7 +55,7 @@ public class HpaWebService {
 
 
     public HPAGraph loadInto(HPAGraph graph, int version){
-        log.info("Starting loadInto HPA graph version {}.", version);
+        log.info("Starting load of HPA graph version {} into {}.", version, graph);
 
         for (SavedRegion savedRegion : regionRepository.findAllByWebVersion(version)) {
             HPARegion region = new HPARegion(graph, savedRegion.getRoot(), savedRegion.getWidth(), savedRegion.getHeight());
@@ -80,6 +80,8 @@ public class HpaWebService {
             List<Edge> path = savedEdge.getPath().stream().map(locationPair -> new TileEdge(new TileNode(locationPair.getStart()), new TileNode(locationPair.getEnd()))).collect(Collectors.toList());
             startNode.addConnection(endNode, HPANode.GROUND, path);
         }
+
+        log.info("Finished loading HPA graph version {} into {}.", version, graph);
 
         return graph;
     }
