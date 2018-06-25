@@ -1,5 +1,6 @@
 package com.acuitybotting.path_finding;
 
+import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionInfo;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
@@ -16,7 +17,9 @@ import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import com.acuitybotting.path_finding.web_processing.HpaWebService;
 import com.acuitybotting.path_finding.web_processing.WebImageProcessingService;
 import com.acuitybotting.path_finding.xtea.XteaService;
+import com.acuitybotting.path_finding.xtea.domain.Region;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -26,10 +29,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.function.Predicate;
 
 @Component
@@ -120,6 +121,19 @@ public class PathFindingRunner implements CommandLineRunner {
         hpaWebService.save(graph, version);
     }
 
+    public void printXteas(){
+        Map<String, int[]> results = new HashMap<>();
+        for (Set<Xtea> xteas : xteaService.findUnique(171).values()) {
+            Xtea xtea = xteas.stream().findAny().orElse(null);
+            if(xtea == null || xtea.getKeys() == null) continue;
+            results.put(String.valueOf(xtea.getRegion()), xtea.getKeys());
+        }
+
+        for (Map.Entry<String, int[]> stringEntry : results.entrySet()) {
+            System.out.println(stringEntry.getKey() + " " + Arrays.toString(stringEntry.getValue()).replaceAll("\\[", "").replaceAll("]", "").replaceAll(",", ""));
+        }
+    }
+
     @Override
     public void run(String... args) {
         try {
@@ -129,9 +143,16 @@ public class PathFindingRunner implements CommandLineRunner {
             mapFrame.show();
             loadHpa(1);*/
 
-            Map<Integer, Set<Xtea>> unique = xteaService.findUnique(171);
 
-            System.out.println(new Gson().toJson(new MapInfo(unique)));
+            xteaService.setInfoBase(new File("C:\\Users\\S3108772\\Desktop\\Map Info"));
+            for (String regionId : xteaService.findUnique(171).keySet()) {
+                Region region = xteaService.getRegion(Integer.parseInt(regionId)).orElse(null);
+                if (region != null){
+                    RegionInfo save = xteaService.save(region);
+                    System.out.println(save);
+                }
+            }
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -140,6 +161,6 @@ public class PathFindingRunner implements CommandLineRunner {
 
     @AllArgsConstructor
     private static class MapInfo{
-        private Map<Integer, Set<Xtea>> info;
+        private Map<String, Set<Xtea>> info;
     }
 }
