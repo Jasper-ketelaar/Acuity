@@ -4,11 +4,13 @@ import com.acuitybotting.data.flow.messaging.services.client.MessagingClientServ
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionInfo;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.RegionInfoRepository;
+import com.acuitybotting.db.arango.path_finding.repositories.xtea.SceneEntityDefinitionRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
 import com.acuitybotting.path_finding.xtea.domain.Region;
 import com.acuitybotting.path_finding.xtea.domain.SceneEntity;
 import com.acuitybotting.path_finding.xtea.domain.SceneEntityDefinition;
 import com.google.gson.Gson;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,11 +28,15 @@ import java.util.stream.Collectors;
  * Created by Zachary Herridge on 6/22/2018.
  */
 @Service
+@Getter
 @Slf4j
 public class XteaService {
 
     private static final String QUEUE_URL = "https://sqs.us-east-1.amazonaws.com/604080725100/acuitybotting-xtea-dump.fifo";
+
+    private final SceneEntityDefinitionRepository definitionRepository;
     private final XteaRepository xteaRepository;
+
     private final RegionInfoRepository regionInfoRepository;
     private final MessagingClientService clientService;
     private Gson gson = new Gson();
@@ -38,7 +44,8 @@ public class XteaService {
     private File infoBase;
 
     @Autowired
-    public XteaService(XteaRepository xteaRepository, RegionInfoRepository regionInfoRepository, MessagingClientService clientService) {
+    public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionInfoRepository regionInfoRepository, MessagingClientService clientService) {
+        this.definitionRepository = definitionRepository;
         this.xteaRepository = xteaRepository;
         this.regionInfoRepository = regionInfoRepository;
         this.clientService = clientService;

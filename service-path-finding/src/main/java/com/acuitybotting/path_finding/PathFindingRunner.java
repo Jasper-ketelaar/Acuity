@@ -1,6 +1,7 @@
 package com.acuitybotting.path_finding;
 
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionInfo;
+import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
@@ -18,6 +19,7 @@ import com.acuitybotting.path_finding.web_processing.HpaWebService;
 import com.acuitybotting.path_finding.web_processing.WebImageProcessingService;
 import com.acuitybotting.path_finding.xtea.XteaService;
 import com.acuitybotting.path_finding.xtea.domain.Region;
+import com.arangodb.springframework.repository.ArangoRepository;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.AllArgsConstructor;
@@ -30,8 +32,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Component
 public class PathFindingRunner implements CommandLineRunner {
@@ -134,6 +139,14 @@ public class PathFindingRunner implements CommandLineRunner {
         }
     }
 
+
+    private void save(ArangoRepository repository, int size, Collection<?> collection){
+        final AtomicInteger counter = new AtomicInteger(0);
+        collection.stream().collect(Collectors.groupingBy(it -> counter.getAndIncrement() / size)).values().parallelStream().forEach(set -> {
+            repository.saveAll(set);
+        });
+    }
+
     @Override
     public void run(String... args) {
         try {
@@ -144,14 +157,31 @@ public class PathFindingRunner implements CommandLineRunner {
             loadHpa(1);*/
 
 
-            xteaService.setInfoBase(new File("C:\\Users\\S3108772\\Desktop\\Map Info"));
+            Gson gson = new Gson();
+            File[] files = new File("C:\\Users\\zgher\\Desktop\\Map Info").listFiles();
+            Set<SceneEntityDefinition> sceneEntityDefinitions = new HashSet<>();
+            for (File child : files) {
+                SceneEntityDefinition def = gson.fromJson(Files.readAllLines(child.toPath()).stream().collect(Collectors.joining("\n")), SceneEntityDefinition.class);
+                for (int i = 0; i < def.getActions().length; i++) {
+                    if (def.getActions()[i] == null){
+                        def.getActions()[i] = "null";
+                    }
+                }
+                sceneEntityDefinitions.add(def);
+            }
+
+            save(xteaService.getDefinitionRepository(), 400, sceneEntityDefinitions);
+
+            System.out.println("Done");
+
+   /*         xteaService.setInfoBase(new File("C:\\Users\\S3108772\\Desktop\\Map Info"));
             for (String regionId : xteaService.findUnique(171).keySet()) {
                 Region region = xteaService.getRegion(Integer.parseInt(regionId)).orElse(null);
                 if (region != null){
                     RegionInfo save = xteaService.save(region);
                     System.out.println(save);
                 }
-            }
+            }*/
 
 
         } catch (Exception e) {
