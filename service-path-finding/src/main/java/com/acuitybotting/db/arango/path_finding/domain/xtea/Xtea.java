@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
+import java.util.Arrays;
+
 /**
  * Created by Zachary Herridge on 6/22/2018.
  */
@@ -23,4 +25,15 @@ public class Xtea {
     private int revision;
     private int region;
     private int[] keys;
+
+    @Override
+    public String toString() {
+        return "Xtea{" +
+                "id='" + id + '\'' +
+                ", key='" + key + '\'' +
+                ", revision=" + revision +
+                ", region=" + region +
+                ", keys=" + Arrays.toString(keys) +
+                '}';
+    }
 }

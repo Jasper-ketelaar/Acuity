@@ -27,6 +27,7 @@ public class MessagingClientService {
     private String accessKey;
     private String accessSecret;
 
+    private boolean deleteMessageOnConsume = true;
     private int maxMessages = 3;
     private int messageTimeout = 20;
     private int visibilityTimeout = 20;
@@ -93,7 +94,7 @@ public class MessagingClientService {
     public void deleteMessage(String queueUrl, Message message) throws Exception {
         String request = queueUrl + "?Action=DeleteMessage" +
                 "&Version=" + "2012-11-05" +
-                "&ReceiptHandle=" + message.getReceiptHandle();
+                "&ReceiptHandle=" + HttpUtil.encode(message.getReceiptHandle());
         HttpUtil.get(null, request, null);
     }
 
@@ -120,9 +121,9 @@ public class MessagingClientService {
                                     if (completableFuture != null) {
                                         completableFuture.complete(message);
                                     }
-                                    if (callback != null) callback.accept(message);
-                                    deleteMessage(queueUrl, message);
                                 }
+                                if (callback != null) callback.accept(message);
+                                if (deleteMessageOnConsume) deleteMessage(queueUrl, message);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -189,6 +190,11 @@ public class MessagingClientService {
 
     public MessagingClientService setAccessSecret(String accessSecret) {
         this.accessSecret = accessSecret;
+        return this;
+    }
+
+    public MessagingClientService setDeleteMessageOnConsume(boolean deleteMessageOnConsume) {
+        this.deleteMessageOnConsume = deleteMessageOnConsume;
         return this;
     }
 

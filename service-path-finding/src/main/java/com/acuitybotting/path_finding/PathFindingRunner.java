@@ -2,7 +2,6 @@ package com.acuitybotting.path_finding;
 
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
-import com.acuitybotting.path_finding.algorithms.hpa.HpaService;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.PathFindingSupplier;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.HpaPlugin;
@@ -15,6 +14,7 @@ import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import com.acuitybotting.path_finding.web_processing.HpaWebService;
 import com.acuitybotting.path_finding.web_processing.WebImageProcessingService;
+import com.acuitybotting.path_finding.xtea.XteaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -37,14 +37,17 @@ public class PathFindingRunner implements CommandLineRunner {
     private final PathPlugin pathPlugin;
     private final HpaPlugin hpaPlugin = new HpaPlugin();
 
+    private final XteaService xteaService;
+
     private final HpaWebService hpaWebService;
 
     @Autowired
-    public PathFindingRunner(WebImageProcessingService webImageProcessingService, RsMapService rsMapService, AStarService aStarService, PathPlugin pathPlugin, HpaWebService hpaWebService) {
+    public PathFindingRunner(WebImageProcessingService webImageProcessingService, RsMapService rsMapService, AStarService aStarService, PathPlugin pathPlugin, XteaService xteaService, HpaWebService hpaWebService) {
         this.webImageProcessingService = webImageProcessingService;
         this.rsMapService = rsMapService;
         this.aStarService = aStarService;
         this.pathPlugin = pathPlugin;
+        this.xteaService = xteaService;
         this.hpaWebService = hpaWebService;
     }
 
@@ -115,11 +118,13 @@ public class PathFindingRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            RsEnvironment.setRsMapService(rsMapService);
+     /*       RsEnvironment.setRsMapService(rsMapService);
             MapFrame mapFrame = new MapFrame();
             mapFrame.getMapPanel().addPlugin(hpaPlugin);
             mapFrame.show();
-            loadHpa(1);
+            loadHpa(1);*/
+
+     xteaService.consumeQueue();
         } catch (Exception e) {
             e.printStackTrace();
         }
