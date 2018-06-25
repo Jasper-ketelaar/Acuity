@@ -2,13 +2,13 @@ package com.acuitybotting.path_finding.xtea;
 
 import com.acuitybotting.data.flow.messaging.services.client.MessagingClientService;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionInfo;
+import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.RegionInfoRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.SceneEntityDefinitionRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
 import com.acuitybotting.path_finding.xtea.domain.Region;
-import com.acuitybotting.path_finding.xtea.domain.SceneEntity;
-import com.acuitybotting.path_finding.xtea.domain.SceneEntityDefinition;
+import com.acuitybotting.path_finding.xtea.domain.SceneEntityInstance;
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +18,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -51,12 +48,6 @@ public class XteaService {
         this.clientService = clientService;
     }
 
-    public int worldToRegionId(int worldX, int worldY) {
-        worldX >>>= 6;
-        worldY >>>= 6;
-        return (worldX << 8) | worldY;
-    }
-
     public XteaService setInfoBase(File infoBase) {
         this.infoBase = infoBase;
         return this;
@@ -66,13 +57,9 @@ public class XteaService {
         return xteaRepository.findAllByRevision(rev).stream().collect(Collectors.groupingBy(object -> String.valueOf(object.getRegion()), Collectors.toSet()));
     }
 
+    private Map<Integer, SceneEntityDefinition> cache = new HashMap<>();
     public Optional<SceneEntityDefinition> getSceneEntityDefinition(int id) {
-        try {
-            return Optional.of(gson.fromJson(new FileReader(new File(infoBase, "\\json\\objects\\" + id + ".json")), SceneEntityDefinition.class));
-        } catch (FileNotFoundException e) {
-            log.warn("Error loading object info.", e);
-        }
-        return Optional.empty();
+        return Optional.ofNullable(cache.computeIfAbsent(id, integer -> definitionRepository.findById(String.valueOf(id)).orElse(null)));
     }
 
     public Optional<Region> getRegion(int id) {
@@ -87,58 +74,74 @@ public class XteaService {
     public RegionInfo save(Region region) {
         RegionInfo regionInfo = new RegionInfo();
         regionInfo.setKey(String.valueOf(region.getRegionID()));
+        regionInfo.init();
 
         int[][][] map = new int[4][104][104];
-        byte[][][] renderFlags = region.getTileSettings();
+        CollisionBuilder.padMap(map);
 
-        for (SceneEntity sceneEntity : region.getLocations()) {
-            SceneEntityDefinition definition = getSceneEntityDefinition(sceneEntity.getId()).orElse(null);
+        int[][][] doors = new int[4][104][104];
+        int[][][] renderFlags = region.getTileSettings();
+
+        for (SceneEntityInstance entityInstance : region.getLocations()) {
+            int type = entityInstance.getType();
+            if (type >= 4 && type <= 8) {
+                continue;
+            }
+
+            SceneEntityDefinition definition = getSceneEntityDefinition(entityInstance.getId()).orElse(null);
             if (definition == null) continue;
 
-            int type = sceneEntity.getType();
-            int localX = sceneEntity.getPosition().getX() - region.getBaseX();
-            int localY = sceneEntity.getPosition().getY() - region.getBaseY();
-            int plane = sceneEntity.getPosition().getZ();
+            int localX = entityInstance.getPosition().getX() - region.getBaseX();
+            int localY = entityInstance.getPosition().getY() - region.getBaseY();
+            int plane = entityInstance.getPosition().getZ();
 
-            if (type >= 0 && type <= 3) {
-                int hash = (localY << 7) + localX + (sceneEntity.getId() << 14) + 0x4000_0000;
-                if (definition.getAnInt2088() == 0) {
-                    hash -= Integer.MIN_VALUE;
-                }
-
-                if (plane < 4) {
-                    if (renderFlags != null && (renderFlags[1][localX][localY] & 2) == 2) {
-                        plane--;
-                    }
-
-                    if (plane >= 0) {
-                        if (type >= 0 && type <= 3) {
-                            if (definition.getAnInt2088() != 0) {
-                                CollisionBuilder.method16860(map, plane, localX, localY, type, sceneEntity.getOrientation(), !definition.isSolid(), !definition.isBlocksProjectile());
-                            }
-                            continue;
-                        }
-                        if (type == 22) {
-                            if (definition.getAnInt2088() == 1) {
-                                CollisionBuilder.method16851(map, plane, localX, localY);
-                            }
-                        } else if (type >= 9) {
-                            if (definition.getAnInt2088() != 0) {
-                                int direction = sceneEntity.getOrientation();
-                                if (direction != 1 && direction != 3) {
-                                    CollisionBuilder.method16856(map, plane, localX, localY, definition.getModelSizeX(), definition.getModelSizeY(), !definition.isSolid(), !definition.isBlocksProjectile());
-                                } else {
-                                    CollisionBuilder.method16856(map, plane, localX, localY, definition.getModelSizeY(), definition.getModelSizeX(), !definition.isSolid(), !definition.isBlocksProjectile());
-                                }
-                            }
-                        }
-                    }
-                }
+            int hash = (localY << 7) + localX + (entityInstance.getId() << 14) + 0x4000_0000;
+            if (definition.getClipType() == 0) {
+                hash -= Integer.MIN_VALUE;
             }
+
+            if (hash > 0) {
+                doors[plane][localX][localY] = entityInstance.getOrientation() + 1;
+            }
+
+            if (plane < 4) {
+                if (renderFlags != null && (renderFlags[1][localX][localY] & 2) == 2) {
+                    plane--;
+                }
+
+                if (plane >= 0) {
+                    if (type >= 0 && type <= 3) {
+                        if (definition.getClipType() != 0) {
+                            CollisionBuilder.method16860(map, plane, localX, localY, type, entityInstance.getOrientation(), !definition.isSolid(), !definition.isImpenetrable());
+                        }
+                        continue;
+                    }
+                    if (type == 22) {
+                        if (definition.getClipType() == 1) {
+                            CollisionBuilder.method16851(map, plane, localX, localY);
+                        }
+                    } else if (type >= 9) {
+                        if (definition.getClipType() != 0) {
+                            int direction = entityInstance.getOrientation();
+                            if (direction != 1 && direction != 3) {
+                                CollisionBuilder.method16856(map, plane, localX, localY, definition.getSizeX(), definition.getSizeY(), !definition.isSolid(), !definition.isImpenetrable());
+                            } else {
+                                CollisionBuilder.method16856(map, plane, localX, localY, definition.getSizeY(), definition.getSizeX(), !definition.isSolid(), !definition.isImpenetrable());
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        if (renderFlags != null) {
+            CollisionBuilder.method16862(renderFlags, map);
         }
 
         regionInfo.setRenderSettings(renderFlags);
         regionInfo.setFlags(map);
+        regionInfo.setDoors(doors);
 
         return regionInfoRepository.save(regionInfo);
     }

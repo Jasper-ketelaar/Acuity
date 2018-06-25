@@ -4,6 +4,7 @@ import com.acuitybotting.db.arango.path_finding.domain.SceneEntity;
 import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
 import com.acuitybotting.db.arango.path_finding.repositories.SceneEntityRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
+import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,30 +56,37 @@ public class WebImageProcessingService {
         mapImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
         mapImageGraphics.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
 
-        for (TileFlag tileFlag : flagRepository.findAllByXBetweenAndYBetweenAndPlane(baseX, baseX + regionWidth, baseY, baseY + regionHeight, plane)) {
-            int localX = (tileFlag.getX() - baseX)* tilePixelSize;
-            int localY = (tileFlag.getY() - baseY) * tilePixelSize;
+        for (int x = baseX; x < baseX + regionWidth; x++) {
+            for (int y = baseY; y < baseY + regionHeight; y++) {
+                int localX = (x - baseX)* tilePixelSize;
+                int localY = (y - baseY) * tilePixelSize;
 
-            mapImageGraphics.setColor(new Color(3, 1, 3, 47));
-            mapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize);
+                Integer flagAt = RsEnvironment.getFlagAt(new Location(x, y, plane));
+                if (flagAt == null) continue;
+                TileFlag tileFlag = new TileFlag();
+                tileFlag.setFlag(flagAt);
 
-            if (!tileFlag.isWalkable()) {
-                mapImageGraphics.setColor(new Color(50, 109, 255, 223));
+                mapImageGraphics.setColor(new Color(3, 1, 3, 47));
                 mapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize);
-            }
 
-            mapImageGraphics.setColor(new Color(249, 122, 39, 223));
-            if (tileFlag.blockedNorth()) {
-                mapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize / 4);
-            }
-            if (tileFlag.blockedEast()) {
-                mapImageGraphics.fillRect(localX + tilePixelSize - tilePixelSize / 4, localY, tilePixelSize / 4, tilePixelSize);
-            }
-            if (tileFlag.blockedSouth()) {
-                mapImageGraphics.fillRect(localX, localY + tilePixelSize - tilePixelSize / 4, tilePixelSize, tilePixelSize / 4);
-            }
-            if (tileFlag.blockedWest()) {
-                mapImageGraphics.fillRect(localX, localY, tilePixelSize / 4, tilePixelSize);
+                if (!tileFlag.isWalkable()) {
+                    mapImageGraphics.setColor(new Color(50, 109, 255, 223));
+                    mapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize);
+                }
+
+                mapImageGraphics.setColor(new Color(249, 122, 39, 223));
+                if (tileFlag.blockedNorth()) {
+                    mapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize / 4);
+                }
+                if (tileFlag.blockedEast()) {
+                    mapImageGraphics.fillRect(localX + tilePixelSize - tilePixelSize / 4, localY, tilePixelSize / 4, tilePixelSize);
+                }
+                if (tileFlag.blockedSouth()) {
+                    mapImageGraphics.fillRect(localX, localY + tilePixelSize - tilePixelSize / 4, tilePixelSize, tilePixelSize / 4);
+                }
+                if (tileFlag.blockedWest()) {
+                    mapImageGraphics.fillRect(localX, localY, tilePixelSize / 4, tilePixelSize);
+                }
             }
         }
 

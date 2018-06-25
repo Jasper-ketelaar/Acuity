@@ -20,7 +20,14 @@ public class RegionInfo {
     @Key
     private String key;
 
-    private byte[][][] renderSettings;
-    private int[][][] flags;
+    private Integer baseX, baseY;
 
+    private int[][][] renderSettings;
+    private int[][][] flags;
+    private int[][][] doors;
+
+    public void init(){
+        baseX = ((Integer.parseInt(key) >> 8) & 0xFF) << 6;
+        baseY = (Integer.parseInt(key) & 0xFF) << 6;
+    }
 }

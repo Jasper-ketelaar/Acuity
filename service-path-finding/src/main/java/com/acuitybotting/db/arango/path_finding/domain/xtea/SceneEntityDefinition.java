@@ -3,11 +3,13 @@ package com.acuitybotting.db.arango.path_finding.domain.xtea;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.Key;
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 
 import java.util.Arrays;
 
 @Getter
+@ToString
 @Document("SceneEntityDefinition")
 public class SceneEntityDefinition {
 
@@ -47,42 +49,4 @@ public class SceneEntityDefinition {
     private short[] newColors;
     private short[] newTextures;
     private short[] textures;
-
-    @Override
-    public String toString() {
-        return "SceneEntityDefinition{" +
-                "id='" + id + '\'' +
-                ", key='" + key + '\'' +
-                ", ambient=" + ambient +
-                ", ambientSoundId=" + ambientSoundId +
-                ", animation=" + animation +
-                ", clipType=" + clipType +
-                ", contrast=" + contrast +
-                ", itemSupport=" + itemSupport +
-                ", mapFunction=" + mapFunction +
-                ", mapSceneId=" + mapSceneId +
-                ", scaleX=" + scaleX +
-                ", scaleY=" + scaleY +
-                ", scaleZ=" + scaleZ +
-                ", sizeX=" + sizeX +
-                ", sizeY=" + sizeY +
-                ", translateX=" + translateX +
-                ", translateY=" + translateY +
-                ", translateZ=" + translateZ +
-                ", varpIndex=" + varpIndex +
-                ", varpbitIndex=" + varpbitIndex +
-                ", name='" + name + '\'' +
-                ", clipped=" + clipped +
-                ", impenetrable=" + impenetrable +
-                ", projectileClipped=" + projectileClipped +
-                ", rotated=" + rotated +
-                ", solid=" + solid +
-                ", transformIds=" + Arrays.toString(transformIds) +
-                ", actions=" + Arrays.toString(actions) +
-                ", colors=" + Arrays.toString(colors) +
-                ", newColors=" + Arrays.toString(newColors) +
-                ", newTextures=" + Arrays.toString(newTextures) +
-                ", textures=" + Arrays.toString(textures) +
-                '}';
-    }
 }

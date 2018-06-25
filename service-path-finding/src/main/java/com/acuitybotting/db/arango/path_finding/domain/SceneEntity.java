@@ -10,7 +10,7 @@ import org.springframework.data.annotation.Id;
 /**
  * Created by Zachary Herridge on 5/30/2018.
  */
-@Document("SceneEntity")
+@Document("SceneEntityInstance")
 @Data
 public class SceneEntity {
 

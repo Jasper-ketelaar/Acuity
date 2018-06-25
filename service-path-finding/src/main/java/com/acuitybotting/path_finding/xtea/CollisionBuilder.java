@@ -5,7 +5,7 @@ package com.acuitybotting.path_finding.xtea;
  */
 public class CollisionBuilder {
 
-    private static void padMap(int[][][] map) {
+    public static void padMap(int[][][] map) {
         int var1;
         for (int var10000 = var1 = 0; var10000 < 4; var10000 = var1) {
             int var2;
@@ -26,13 +26,13 @@ public class CollisionBuilder {
         }
     }
 
-    private static void method16862(byte[][][] var0, int[][][] var1) {
+    public static void method16862(int[][][] var0, int[][][] var1) {
         int var3;
         for (int var10000 = var3 = 0; var10000 < 4; var10000 = var3) {
             int var4;
-            for (var10000 = var4 = 0; var10000 < 104; var10000 = var4) {
+            for (var10000 = var4 = 0; var10000 < 64; var10000 = var4) {
                 int var5;
-                for (var10000 = var5 = 0; var10000 < 104; var10000 = var5) {
+                for (var10000 = var5 = 0; var10000 < 64; var10000 = var5) {
                     if ((var0[var3][var4][var5] & 1) == 1) {
                         int var6 = var3;
                         if ((var0[1][var4][var5] & 2) == 2) {

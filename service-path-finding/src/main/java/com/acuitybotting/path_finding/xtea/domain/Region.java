@@ -21,13 +21,13 @@ public class Region {
     private int baseY;
 
     private int[][][] tileHeights = new int[Z][X][Y];
-    private byte[][][] tileSettings = new byte[Z][X][Y];
-    private byte[][][] overlayIds = new byte[Z][X][Y];
-    private byte[][][] overlayPaths = new byte[Z][X][Y];
-    private byte[][][] overlayRotations = new byte[Z][X][Y];
-    private byte[][][] underlayIds = new byte[Z][X][Y];
+    private int[][][] tileSettings = new int[Z][X][Y];
+    private int[][][] overlayIds = new int[Z][X][Y];
+    private int[][][] overlayPaths = new int[Z][X][Y];
+    private int[][][] overlayRotations = new int[Z][X][Y];
+    private int[][][] underlayIds = new int[Z][X][Y];
 
-    private List<SceneEntity> locations = new ArrayList<>();
+    private List<SceneEntityInstance> locations = new ArrayList<>();
     private int[] keys;
 
 }

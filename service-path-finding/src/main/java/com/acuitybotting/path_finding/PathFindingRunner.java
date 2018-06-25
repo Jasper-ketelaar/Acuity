@@ -65,7 +65,7 @@ public class PathFindingRunner implements CommandLineRunner {
     private void dumpImage() {
         try {
             System.out.println("Started image dump.");
-            BufferedImage image = webImageProcessingService.createDoorImage(
+            BufferedImage image = webImageProcessingService.createTileFlagImage(
                     0, 3138 - 1000, 3384 - 1000,
                     2000, 2000,
                     4);
@@ -139,6 +139,24 @@ public class PathFindingRunner implements CommandLineRunner {
         }
     }
 
+    private void saveDefs() throws IOException {
+        Gson gson = new Gson();
+        File[] files = new File("C:\\Users\\zgher\\Desktop\\Map Info").listFiles();
+        Set<SceneEntityDefinition> sceneEntityDefinitions = new HashSet<>();
+        for (File child : files) {
+            SceneEntityDefinition def = gson.fromJson(Files.readAllLines(child.toPath()).stream().collect(Collectors.joining("\n")), SceneEntityDefinition.class);
+            for (int i = 0; i < def.getActions().length; i++) {
+                if (def.getActions()[i] == null){
+                    def.getActions()[i] = "null";
+                }
+            }
+            sceneEntityDefinitions.add(def);
+        }
+
+        save(xteaService.getDefinitionRepository(), 400, sceneEntityDefinitions);
+
+        System.out.println("Done");
+    }
 
     private void save(ArangoRepository repository, int size, Collection<?> collection){
         final AtomicInteger counter = new AtomicInteger(0);
@@ -147,42 +165,33 @@ public class PathFindingRunner implements CommandLineRunner {
         });
     }
 
+    private void dumpoRegions(){
+        xteaService.setInfoBase(new File("C:\\Users\\S3108772\\Desktop\\Map Info"));
+        xteaService.findUnique(171).keySet().parallelStream().forEach(s -> {
+            Region region = xteaService.getRegion(Integer.parseInt(s)).orElse(null);
+            if (region != null){
+                RegionInfo save = xteaService.save(region);
+                System.out.println(save);
+            }
+        });
+
+        System.out.println("Finished dyu");
+
+    }
+
     @Override
     public void run(String... args) {
         try {
-     /*       RsEnvironment.setRsMapService(rsMapService);
+            RsEnvironment.setRsMapService(rsMapService);
+            RsEnvironment.loadRegions();
+
+            dumpImage();
+
+     /*
             MapFrame mapFrame = new MapFrame();
             mapFrame.getMapPanel().addPlugin(hpaPlugin);
             mapFrame.show();
             loadHpa(1);*/
-
-
-            Gson gson = new Gson();
-            File[] files = new File("C:\\Users\\zgher\\Desktop\\Map Info").listFiles();
-            Set<SceneEntityDefinition> sceneEntityDefinitions = new HashSet<>();
-            for (File child : files) {
-                SceneEntityDefinition def = gson.fromJson(Files.readAllLines(child.toPath()).stream().collect(Collectors.joining("\n")), SceneEntityDefinition.class);
-                for (int i = 0; i < def.getActions().length; i++) {
-                    if (def.getActions()[i] == null){
-                        def.getActions()[i] = "null";
-                    }
-                }
-                sceneEntityDefinitions.add(def);
-            }
-
-            save(xteaService.getDefinitionRepository(), 400, sceneEntityDefinitions);
-
-            System.out.println("Done");
-
-   /*         xteaService.setInfoBase(new File("C:\\Users\\S3108772\\Desktop\\Map Info"));
-            for (String regionId : xteaService.findUnique(171).keySet()) {
-                Region region = xteaService.getRegion(Integer.parseInt(regionId)).orElse(null);
-                if (region != null){
-                    RegionInfo save = xteaService.save(region);
-                    System.out.println(save);
-                }
-            }*/
-
 
         } catch (Exception e) {
             e.printStackTrace();
