@@ -1,5 +1,6 @@
 package com.acuitybotting.path_finding;
 
+import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
@@ -15,6 +16,8 @@ import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import com.acuitybotting.path_finding.web_processing.HpaWebService;
 import com.acuitybotting.path_finding.web_processing.WebImageProcessingService;
 import com.acuitybotting.path_finding.xtea.XteaService;
+import com.google.gson.Gson;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -24,7 +27,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 @Component
@@ -124,9 +129,17 @@ public class PathFindingRunner implements CommandLineRunner {
             mapFrame.show();
             loadHpa(1);*/
 
-     xteaService.consumeQueue();
+            Map<Integer, Set<Xtea>> unique = xteaService.findUnique(171);
+
+            System.out.println(new Gson().toJson(new MapInfo(unique)));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @AllArgsConstructor
+    private static class MapInfo{
+        private Map<Integer, Set<Xtea>> info;
     }
 }

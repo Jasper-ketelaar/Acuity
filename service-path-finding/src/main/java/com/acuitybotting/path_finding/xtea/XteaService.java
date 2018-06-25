@@ -1,7 +1,6 @@
 package com.acuitybotting.path_finding.xtea;
 
 import com.acuitybotting.data.flow.messaging.services.client.MessagingClientService;
-import com.acuitybotting.data.flow.messaging.services.client.message.Message;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
 import com.google.gson.Gson;
@@ -9,9 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zachary Herridge on 6/22/2018.
@@ -36,6 +34,10 @@ public class XteaService {
         worldX >>>= 6;
         worldY >>>= 6;
         return (worldX << 8) | worldY;
+    }
+
+    public Map<Integer, Set<Xtea>> findUnique(int rev){
+        return xteaRepository.findAllByRevision(rev).stream().collect(Collectors.groupingBy(Xtea::getRegion, Collectors.toSet()));
     }
 
     public void consumeQueue(){

@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Created by Zachary Herridge on 6/22/2018.
@@ -35,5 +36,25 @@ public class Xtea {
                 ", region=" + region +
                 ", keys=" + Arrays.toString(keys) +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Xtea)) return false;
+
+        Xtea xtea = (Xtea) object;
+
+        if (getRevision() != xtea.getRevision()) return false;
+        if (getRegion() != xtea.getRegion()) return false;
+        return Arrays.equals(getKeys(), xtea.getKeys());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getRevision();
+        result = 31 * result + getRegion();
+        result = 31 * result + Arrays.hashCode(getKeys());
+        return result;
     }
 }
