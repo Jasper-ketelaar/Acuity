@@ -81,7 +81,7 @@ public class RsEnvironment {
     public static BufferedImage getRegionImage(int regionId, int plane) {
         return regionImageMap.computeIfAbsent(String.valueOf(regionId + "_" + plane), s -> {
             try {
-                File file = new File("C:\\Users\\S3108772\\Desktop\\Map Info\\img\\regions\\" + regionId + "_" + plane + ".png");
+                File file = new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\regions\\" + regionId + "_" + plane + ".png");
                 return file.exists() ? ImageIO.read(file) : null;
             } catch (IOException e) {
                 e.printStackTrace();

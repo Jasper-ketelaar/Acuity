@@ -35,6 +35,7 @@ public class RsMapService {
     }
 
     public static Location locationToRegionBase(Location location){
+        if (location == null) return null;
         int regionId = worldToRegionId(location.getX(), location.getY());
         return regionIdToBase(regionId);
     }

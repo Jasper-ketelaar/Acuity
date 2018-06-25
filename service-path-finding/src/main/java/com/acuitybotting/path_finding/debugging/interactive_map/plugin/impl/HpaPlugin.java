@@ -15,7 +15,6 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -44,7 +43,7 @@ public class HpaPlugin extends Plugin {
     }
 
     @Override
-    public void onPaint(Graphics2D graphics, Graphics2D scaledGraphics) {
+    public void onPaint(Graphics2D graphics) {
         if (graph == null) return;
 
         if (startNode != null){

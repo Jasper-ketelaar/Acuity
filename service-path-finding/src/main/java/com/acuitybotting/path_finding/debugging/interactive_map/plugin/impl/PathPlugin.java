@@ -5,7 +5,6 @@ import com.acuitybotting.path_finding.algorithms.astar.implmentation.AStarImplem
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
-import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -17,7 +16,6 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Zachary Herridge on 6/18/2018.
@@ -40,7 +38,7 @@ public class PathPlugin extends Plugin {
     }
 
     @Override
-    public void onPaint(Graphics2D graphics, Graphics2D scaledGraphics) {
+    public void onPaint(Graphics2D graphics) {
         if (currentSearch != null){
             for (Node node : new HashSet<>(currentSearch.getCostCache().keySet())) {
                 getPaintUtil().connectLocations(graphics, node.getNeighbors(), Color.GRAY);

@@ -13,12 +13,18 @@ public class Perspective {
     private MapPanel mapPanel;
     private Location base;
 
-    private int tilePixelSize = 4;
-    private double scale = 1;
-
+    private int mapTileSize = 4;
+    private double graphicsTileSize = 4;
+    
     public Perspective(GameMap gameMap, MapPanel mapPanel) {
         this.base = new Location(3138, 3384 + (600 / 3), 0);
         this.mapPanel = mapPanel;
+    }
+
+    public Location screenToLocation(Point point){
+        if (point == null) return null;
+        Location offset = new Location((int) (point.x / getGraphicsTileSize()) , (int) (point.y / getGraphicsTileSize()), base.getPlane());
+        return base.clone(offset.getX(), -offset.getY());
     }
 
     public ScreenLocation locationToScreen(Location location){
@@ -26,26 +32,28 @@ public class Perspective {
         return new ScreenLocation(locationXToScreen(location.getX()), locationYToScreen(location.getY()));
     }
 
-    public Location screenToLocation(Point point){
-        if (point == null) return null;
-        Location offset = new Location((int) (point.x / getTileSize()) , (int) (point.y / getTileSize()), base.getPlane());
-        return base.clone(offset.getX(), -offset.getY());
-    }
-
     private double locationXToScreen(int x){
-        return (x - base.getX()) * getTileSize();
+        return (x - base.getX()) * getGraphicsTileSize();
     }
 
     private double locationYToScreen(int y){
-        return (base.getY() - y) * getTileSize();
+        return (base.getY() - y) * getGraphicsTileSize();
+    }
+
+    public ScreenLocation locationToMap(Location location){
+        return new ScreenLocation(locationXToMap(location.getX()), locationYToMap(location.getY()));
+    }
+
+    private double locationXToMap(int x){
+        return (x - base.getX()) * getMapTileSize();
+    }
+
+    private double locationYToMap(int y){
+        return (base.getY() - y) * getMapTileSize();
     }
 
     public void incScale(double value){
-        scale = Math.max(0.2, scale + value);
-    }
-
-    public double getTileSize(){
-        return getTilePixelSize() * scale;
+        graphicsTileSize = Math.max(0.2, graphicsTileSize + value);
     }
 
     public Location getCenterLocation(){
@@ -57,14 +65,18 @@ public class Perspective {
     }
 
     public double getTileWidth(){
-        return mapPanel.getWidth() / getTileSize();
+        return mapPanel.getWidth() / getGraphicsTileSize();
     }
 
     public double getTileHeight(){
-        return mapPanel.getHeight() / getTileSize();
+        return mapPanel.getHeight() / getGraphicsTileSize();
     }
 
     public static int round(double value){
         return (int) Math.round(value);
+    }
+
+    public double getScale() {
+        return getGraphicsTileSize() / getMapTileSize();
     }
 }

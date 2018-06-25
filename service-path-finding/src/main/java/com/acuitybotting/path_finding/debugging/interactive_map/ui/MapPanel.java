@@ -64,27 +64,29 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
 
         Graphics2D g1 = (Graphics2D) g.create();
         Graphics2D g2 = (Graphics2D) g.create();
-
-        Location location = perspective.screenToLocation(new Point(getWidth() / 2, getHeight() / 2));
-        Location regionBase1 = RsMapService.locationToRegionBase(location);
-        Location regionBase2 = RsMapService.locationToRegionBase(location.clone(64, 0));
-
-        BufferedImage regionImage = RsEnvironment.getRegionImage(regionBase1, perspective.getBase().getPlane());
-        if (regionImage != null) {
-            ScreenLocation point = perspective.locationToScreen(regionBase1.clone(0, 64));
-            g2.drawImage(regionImage, Perspective.round(point.getX()), Perspective.round(point.getY()), null);
-        }
-
         g2.scale(perspective.getScale(), perspective.getScale());
 
-        regionImage = RsEnvironment.getRegionImage(regionBase2, perspective.getBase().getPlane());
-        if (regionImage != null) {
-            ScreenLocation point = perspective.locationToScreen(regionBase2.clone(0, 64));
-            g2.drawImage(regionImage, Perspective.round(point.getX()), Perspective.round(point.getY()), null);
+
+        int xSteps = Perspective.round(perspective.getTileWidth() / 64) + 2;
+        int ySteps = Perspective.round(perspective.getTileHeight() / 64) + 2;
+
+        Location regionBase = RsMapService.locationToRegionBase(perspective.screenToLocation(new Point(0, 0)));
+
+        for (int x = -2; x < xSteps; x++) {
+            for (int y = -2; y < ySteps; y++) {
+                Location clone = regionBase.clone(x * 64, -(y * 64));
+                BufferedImage regionImage = RsEnvironment.getRegionImage(clone, perspective.getBase().getPlane());
+                if (regionImage != null) {
+                    Location off = clone.clone(0, 64);
+                    ScreenLocation point = perspective.locationToMap(off);
+                    g2.drawImage(regionImage, Perspective.round(point.getX()), Perspective.round(point.getY()), null);
+                }
+            }
         }
 
+
         for (Plugin plugin : plugins) {
-            plugin.onPaint(g1, g2);
+            plugin.onPaint(g1);
         }
     }
 
