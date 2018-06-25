@@ -9,14 +9,14 @@ import java.awt.*;
 @Getter
 public class Perspective {
 
-    private GameMap gameMap;
+
     private MapPanel mapPanel;
     private Location base;
 
+    private int tilePixelSize = 4;
     private double scale = 1;
 
     public Perspective(GameMap gameMap, MapPanel mapPanel) {
-        this.gameMap = gameMap;
         this.base = new Location(3138, 3384 + (600 / 3), 0);
         this.mapPanel = mapPanel;
     }
@@ -26,10 +26,6 @@ public class Perspective {
         return new ScreenLocation(locationXToScreen(location.getX()), locationYToScreen(location.getY()));
     }
 
-    public ScreenLocation locationToMap(Location location){
-        return new ScreenLocation(locationXToMap(location.getX()), locationYToMap(location.getY()));
-    }
-
     public Location screenToLocation(Point point){
         if (point == null) return null;
         Location offset = new Location((int) (point.x / getTileSize()) , (int) (point.y / getTileSize()), base.getPlane());
@@ -37,19 +33,11 @@ public class Perspective {
     }
 
     private double locationXToScreen(int x){
-        return (locationXToMap(x) - locationXToMap(base.getX())) * scale;
+        return (x - base.getX()) * getTileSize();
     }
 
     private double locationYToScreen(int y){
-        return ((locationYToMap(y) - locationYToMap(base.getY())) * scale) - (getTileSize() / 2);
-    }
-
-    private double locationXToMap(int x){
-        return (x - gameMap.getBase().getX()) * gameMap.getTilePixelSize();
-    }
-
-    private double locationYToMap(int y){
-        return ((gameMap.getBase().getY() - y) * gameMap.getTilePixelSize()) - gameMap.getTilePixelSize();
+        return (base.getY() - y) * getTileSize();
     }
 
     public void incScale(double value){
@@ -57,7 +45,7 @@ public class Perspective {
     }
 
     public double getTileSize(){
-        return gameMap.getTilePixelSize() * scale;
+        return getTilePixelSize() * scale;
     }
 
     public Location getCenterLocation(){

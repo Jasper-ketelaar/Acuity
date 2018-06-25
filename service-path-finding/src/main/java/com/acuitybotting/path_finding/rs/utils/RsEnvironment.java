@@ -9,6 +9,10 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.xtea.domain.Region;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -29,6 +33,7 @@ public class RsEnvironment {
     private static RsMapService rsMapService;
 
     private static Map<String, RegionInfo> regionMap = new HashMap<>();
+    private static Map<String, BufferedImage> regionImageMap = new HashMap<>();
 
     public static TileNode getNode(Location location) {
         return new TileNode(location);
@@ -71,5 +76,21 @@ public class RsEnvironment {
 
     public static void setRsMapService(RsMapService rsMapService) {
         RsEnvironment.rsMapService = rsMapService;
+    }
+
+    public static BufferedImage getRegionImage(int regionId, int plane) {
+        return regionImageMap.computeIfAbsent(String.valueOf(regionId + "_" + plane), s -> {
+            try {
+                File file = new File("C:\\Users\\S3108772\\Desktop\\Map Info\\img\\regions\\" + regionId + "_" + plane + ".png");
+                return file.exists() ? ImageIO.read(file) : null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
+    }
+
+    public static BufferedImage getRegionImage(Location location, int plane) {
+        return getRegionImage(RsMapService.worldToRegionId(location.getX(), location.getY()), plane);
     }
 }

@@ -12,12 +12,10 @@ import java.io.IOException;
 public class GameMap {
 
     private Location base;
-    private int tilePixelSize;
     private BufferedImage mapImage;
 
-    public GameMap(String imgPath, Location base, int tilePixelSize) throws IOException {
+    public GameMap(String imgPath, Location base) throws IOException {
         this.base = base;
-        this.tilePixelSize = tilePixelSize;
         this.mapImage = ImageIO.read(new File(imgPath));
     }
 }

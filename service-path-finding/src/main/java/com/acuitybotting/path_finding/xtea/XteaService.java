@@ -76,11 +76,10 @@ public class XteaService {
         regionInfo.setKey(String.valueOf(region.getRegionID()));
         regionInfo.init();
 
-        int[][][] map = new int[4][104][104];
-        CollisionBuilder.padMap(map);
+        int[][][] map = new int[4][64][64];
 
-        int[][][] doors = new int[4][104][104];
-        int[][][] renderFlags = region.getTileSettings();
+        int[][][] doors = new int[4][64][64];
+        int[][][] tileSettings = region.getTileSettings();
 
         for (SceneEntityInstance entityInstance : region.getLocations()) {
             int type = entityInstance.getType();
@@ -88,8 +87,7 @@ public class XteaService {
                 continue;
             }
 
-            SceneEntityDefinition definition = getSceneEntityDefinition(entityInstance.getId()).orElse(null);
-            if (definition == null) continue;
+            SceneEntityDefinition definition = getSceneEntityDefinition(entityInstance.getId()).orElseThrow(() -> new RuntimeException("Failed to load entity def " + entityInstance.getId() + ".'"));
 
             int localX = entityInstance.getPosition().getX() - region.getBaseX();
             int localY = entityInstance.getPosition().getY() - region.getBaseY();
@@ -105,7 +103,7 @@ public class XteaService {
             }
 
             if (plane < 4) {
-                if (renderFlags != null && (renderFlags[1][localX][localY] & 2) == 2) {
+                if (tileSettings != null && (tileSettings[1][localX][localY] & 2) == 2) {
                     plane--;
                 }
 
@@ -135,11 +133,11 @@ public class XteaService {
             }
         }
 
-        if (renderFlags != null) {
-            CollisionBuilder.method16862(renderFlags, map);
+        if (tileSettings != null) {
+            CollisionBuilder.method16862(tileSettings, map);
         }
 
-        regionInfo.setRenderSettings(renderFlags);
+        regionInfo.setRenderSettings(tileSettings);
         regionInfo.setFlags(map);
         regionInfo.setDoors(doors);
 

@@ -1,16 +1,19 @@
 package com.acuitybotting.path_finding.debugging.interactive_map.ui;
 
-import com.acuitybotting.path_finding.debugging.interactive_map.util.GameMap;
-import com.acuitybotting.path_finding.debugging.interactive_map.util.Perspective;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PositionPlugin;
+import com.acuitybotting.path_finding.debugging.interactive_map.util.GameMap;
+import com.acuitybotting.path_finding.debugging.interactive_map.util.Perspective;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.ScreenLocation;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
+import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -30,7 +33,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
 
     public MapPanel(GameMap gameMap) {
         this.gameMap = gameMap;
-        this.perspective =  new Perspective(gameMap, this);
+        this.perspective = new Perspective(gameMap, this);
 
         addMouseMotionListener(this);
         addMouseListener(this);
@@ -41,16 +44,16 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::handleDrag, 100, 120, TimeUnit.MILLISECONDS);
     }
 
-    public void addPlugin(Plugin plugin){
+    public void addPlugin(Plugin plugin) {
         plugin.attach(this);
         plugins.add(0, plugin);
     }
 
-    private void handleDrag(){
-        if (mouseStartDragPoint != null && mouseCurrentDragPoint != null){
+    private void handleDrag() {
+        if (mouseStartDragPoint != null && mouseCurrentDragPoint != null) {
             int xDif = mouseCurrentDragPoint.x - mouseStartDragPoint.x;
             int yDif = mouseStartDragPoint.y - mouseCurrentDragPoint.y;
-            perspective.getBase().transform(xDif / 7 , yDif / 7);
+            perspective.getBase().transform(xDif / 7, yDif / 7);
             repaint();
         }
     }
@@ -59,19 +62,33 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
     public void paintComponent(final Graphics g) {
         super.paintComponent(g);
 
-        Graphics2D g1 = (Graphics2D)g.create();
-        Graphics2D g2 = (Graphics2D)g.create();
+        Graphics2D g1 = (Graphics2D) g.create();
+        Graphics2D g2 = (Graphics2D) g.create();
+
+        Location location = perspective.screenToLocation(new Point(getWidth() / 2, getHeight() / 2));
+        Location regionBase1 = RsMapService.locationToRegionBase(location);
+        Location regionBase2 = RsMapService.locationToRegionBase(location.clone(64, 0));
+
+        BufferedImage regionImage = RsEnvironment.getRegionImage(regionBase1, perspective.getBase().getPlane());
+        if (regionImage != null) {
+            ScreenLocation point = perspective.locationToScreen(regionBase1.clone(0, 64));
+            g2.drawImage(regionImage, Perspective.round(point.getX()), Perspective.round(point.getY()), null);
+        }
 
         g2.scale(perspective.getScale(), perspective.getScale());
-        ScreenLocation point = perspective.locationToMap(perspective.getBase());
-        g2.drawImage(this.gameMap.getMapImage(), -Perspective.round(point.getX()), -Perspective.round(point.getY()), this);
+
+        regionImage = RsEnvironment.getRegionImage(regionBase2, perspective.getBase().getPlane());
+        if (regionImage != null) {
+            ScreenLocation point = perspective.locationToScreen(regionBase2.clone(0, 64));
+            g2.drawImage(regionImage, Perspective.round(point.getX()), Perspective.round(point.getY()), null);
+        }
 
         for (Plugin plugin : plugins) {
             plugin.onPaint(g1, g2);
         }
     }
 
-    public Location getMouseLocation(){
+    public Location getMouseLocation() {
         return perspective.screenToLocation(getLastMousePosition());
     }
 
@@ -128,10 +145,10 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_EQUALS){
+        if (e.getKeyCode() == KeyEvent.VK_EQUALS) {
             perspective.getBase().setPlane(perspective.getBase().getPlane() + 1);
         }
-        if (e.getKeyCode() == KeyEvent.VK_MINUS){
+        if (e.getKeyCode() == KeyEvent.VK_MINUS) {
             perspective.getBase().setPlane(perspective.getBase().getPlane() - 1);
         }
     }

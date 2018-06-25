@@ -1,5 +1,7 @@
 package com.acuitybotting.db.arango.path_finding.domain.xtea;
 
+import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.Key;
 import lombok.Getter;
@@ -27,7 +29,8 @@ public class RegionInfo {
     private int[][][] doors;
 
     public void init(){
-        baseX = ((Integer.parseInt(key) >> 8) & 0xFF) << 6;
-        baseY = (Integer.parseInt(key) & 0xFF) << 6;
+        Location location = RsMapService.regionIdToBase(Integer.parseInt(key));
+        baseX = location.getX();
+        baseY = location.getY();
     }
 }

@@ -183,15 +183,13 @@ public class PathFindingRunner implements CommandLineRunner {
     public void run(String... args) {
         try {
             RsEnvironment.setRsMapService(rsMapService);
-            RsEnvironment.loadRegions();
+            //RsEnvironment.loadRegions();
 
-            dumpImage();
 
-     /*
+
             MapFrame mapFrame = new MapFrame();
             mapFrame.getMapPanel().addPlugin(hpaPlugin);
             mapFrame.show();
-            loadHpa(1);*/
 
         } catch (Exception e) {
             e.printStackTrace();
