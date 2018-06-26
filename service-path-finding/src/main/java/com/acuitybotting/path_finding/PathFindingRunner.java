@@ -181,9 +181,9 @@ public class PathFindingRunner implements CommandLineRunner {
             for (int i = 0; i < 4; i++) {
                 int finalI = i;
                 executorService.submit(() -> {
-                    BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage2(finalI, regionInfo);
+                    BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage(finalI, regionInfo);
                     try {
-                        ImageIO.write(tileFlagImage, "png", new File(RsEnvironment.INFO_BASE, "\\img\\a_regions\\" + regionInfo.getKey() + "_" + finalI + ".png"));
+                        ImageIO.write(tileFlagImage, "png", new File(RsEnvironment.INFO_BASE, "\\img\\a2_regions\\" + regionInfo.getKey() + "_" + finalI + ".png"));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -234,9 +234,8 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
             RsEnvironment.setRsMapService(rsMapService);
 
-            //dumpRegionInfo();
+            dumpRegionInfo();
             RsEnvironment.loadRegions();
-
             dumpRegionImages();
 
             MapFrame mapFrame = new MapFrame();

@@ -145,7 +145,7 @@ public class WebImageProcessingService {
         for (SceneEntityInstance location : region.getLocations()) {
             boolean isBridge = (region.getTileSetting(location.getPosition().toLocation()) & 2) != 0;
 
-            int type = location.getType();
+            int locationType = location.getType();
 
             int regionX = location.getPosition().getX() - baseX;
             int regionY = location.getPosition().getY() - baseY;
@@ -203,7 +203,7 @@ public class WebImageProcessingService {
 
                 int rotation = location.getOrientation();
 
-                if (type == 0 || type == 2) {
+                if (locationType == 0 || locationType == 2) {
                     if (rotation == 0) {
                         //West wall
                         image.setRGB(drawX + 0, drawY + 0, rgb);
@@ -231,7 +231,7 @@ public class WebImageProcessingService {
                     }
                 }
 
-                if (type == 3) {
+                if (locationType == 3) {
                     if (rotation == 0) {
                         //Pillar North-West
                         image.setRGB(drawX + 0, drawY + 0, rgb);
@@ -247,7 +247,7 @@ public class WebImageProcessingService {
                     }
                 }
 
-                if (type == 2) {
+                if (locationType == 2) {
                     if (rotation == 3) {
                         //West wall
                         image.setRGB(drawX + 0, drawY + 0, rgb);
@@ -275,21 +275,90 @@ public class WebImageProcessingService {
                     }
                 }
             }
-
-            if (type == 22 || (type >= 9 && type <= 11)) {
+            else {
                 Set<SceneEntityDefinition> allSceneEntityDefinitions = xteaService.getAllSceneEntityDefinitions(location.getId());
-                if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() != 0)) {
-                    boolean solidMatch = allSceneEntityDefinitions.stream().anyMatch(SceneEntityDefinition::getSolid);
-                    boolean impenetrableMatch = allSceneEntityDefinitions.stream().anyMatch(SceneEntityDefinition::getImpenetrable);
-                    if (solidMatch || impenetrableMatch){
-                        fillTile(image, drawX, drawY, tilePixelSize, new Color(249, 45, 45, 153));
+
+                Integer clipType = allSceneEntityDefinitions.stream().map(SceneEntityDefinition::getClipType).findAny().orElse(null);
+
+                if (locationType == 22){
+                    if (clipType == 1){
+                        //block22
+                        fillTile(image, drawX, drawY, tilePixelSize, new Color(20, 189, 153, 198));
                     }
                 }
+                else {
+                    if (locationType != 10 && locationType != 11){
+                        if(locationType >= 12) {
+                            if (clipType != 0){
+                                //addObject
+                                fillTile(image, drawX, drawY, tilePixelSize, new Color(51, 189, 20, 198));
+                            }
+                        }
+                        else if (locationType == 0){
+                            if (clipType != 0){
+                                //removeWall
+                            }
+                        }
+                        else if (locationType == 1){
+                            if (clipType != 0){
+                                //removeWall
+                            }
+                        }
+                        else {
+                            if(locationType == 2) {
+                                if (clipType != 0){
+                                    //removeWall
+                                }
+                            }
+                            else if(locationType == 3) {
+                                if (clipType != 0){
+                                    //removeWall
+                                }
+                            }
+                            else if(locationType == 9) {
+                                if (clipType != 0){
+                                    //addObject
+                                    fillTile(image, drawX, drawY, tilePixelSize, new Color(51, 189, 20, 198));
+                                }
+                            }
+                            else if(locationType == 4) {
+                                //addBoundaryDecoration
+                            }
+                            else {
+                                if(locationType == 5) {
+                                    //addBoundaryDecoration
+                                }
+                                else if (locationType == 6){
+                                    //addBoundaryDecoration
+                                }
+                                else if (locationType == 7){
+                                    //addBoundaryDecoration
+                                }
+                                else if (locationType == 8){
+                                    //addBoundaryDecoration
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        if (clipType != 0){
+                            //addObject
+                            //fillTile(image, drawX, drawY, tilePixelSize, new Color(51, 189, 20, 198));
+                        }
+                    }
+                }
+
             }
         }
 
         return image;
     }
+
+
+    private static void thinking(int locationType, int clipType){
+
+    }
+
 
     private void fillTile(BufferedImage image, int drawX, int drawY, int tilePixelSize, Color color) {
         int rgb = color.getRGB();

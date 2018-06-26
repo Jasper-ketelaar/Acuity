@@ -36,18 +36,17 @@ public class RegionPlugin extends Plugin {
         Location location = getPerspective().screenToLocation(this.getMapPanel().getMousePosition());
         int regionId = RsMapService.worldToRegionId(location);
         Optional<Region> region = xteaService.getRegion(regionId);
-        List<String> locations = region.map(region1 -> region1.getInstancesAt(location)).orElse(Collections.emptyList()).stream()
+        List<String> locations = region
+                .map(region1 -> region1.getInstancesAt(location))
+                .orElse(Collections.emptyList()).stream()
                 .map(sceneEntityInstance -> {
                     SceneEntityDefinition sceneEntityDefinition = xteaService.getSceneEntityDefinition(sceneEntityInstance.getId()).orElse(null);
                     return sceneEntityInstance.getType() + " " +
                             sceneEntityDefinition.getClipType() + " " +
-                            sceneEntityInstance.getOrientation() + " " +
-                            sceneEntityDefinition.getImpenetrable() + " " +
-                            sceneEntityDefinition.getSolid() + " " +
-                            sceneEntityDefinition.getClipped() + " " +
-                            sceneEntityDefinition.getMapFunction() + " " +
-                            sceneEntityDefinition.getMapSceneId();
-                }).collect(Collectors.toList());
+                            sceneEntityDefinition.getSolid();
+
+                })
+                .collect(Collectors.toList());
 
         Integer integer = region.map(region1 -> region1.getTileSetting(location)).orElse(-404);
         getPaintUtil().debug("Setting: " + integer);
