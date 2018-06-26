@@ -3,6 +3,7 @@ package com.acuitybotting.path_finding.web_processing;
 import com.acuitybotting.db.arango.path_finding.domain.SceneEntity;
 import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionInfo;
+import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.repositories.SceneEntityRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -119,10 +120,6 @@ public class WebImageProcessingService {
         Region region = xteaService.getRegion(Integer.parseInt(regionInfo.getKey())).orElse(null);
         if (region == null) return null;
 
-        if (region.getRegionID() == 13362) {
-            System.out.println();
-        }
-
         int tilePixelSize = 4;
 
         BufferedImage mapImage = new BufferedImage(64 * tilePixelSize, 64 * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
@@ -131,6 +128,20 @@ public class WebImageProcessingService {
 
         int baseX = region.getBaseX();
         int baseY = region.getBaseY();
+
+        for (int regionX = 0; regionX < 64; regionX++) {
+            for (int regionY = 0; regionY < 64; regionY++) {
+                int setting = region.getTileSettings()[plane][regionX][regionY];
+
+                int pixelX = regionX * tilePixelSize;
+                int pixelY = regionY * tilePixelSize;
+
+                if (setting == 1){
+                    mapImageGraphics.setColor(new Color(17, 47, 80, 70));
+                    mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
+                }
+            }
+        }
 
         for (SceneEntityInstance location : region.getLocations()) {
             boolean isBridge = (region.getTileSetting(location.getPosition().toLocation()) & 2) != 0;
@@ -155,25 +166,31 @@ public class WebImageProcessingService {
             int pixelY = (location.getPosition().getY() - baseY) * tilePixelSize;
 
             if (location.getType() >= 0 && location.getType() <= 3) {
-                mapImageGraphics.setColor(new Color(249, 66, 39, 70));
+                mapImageGraphics.setColor(new Color(249, 193, 58, 159));
                 mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
             }
 
-            if (location.getType() >= 4 && location.getType() <= 8) {
+            if (location.getType() == 22 || (location.getType() >= 9 && location.getType() <= 11)){
+                SceneEntityDefinition sceneEntityDefinition = xteaService.getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load def for " + location.getId() + ".'"));
+                if (sceneEntityDefinition.getSolid()){
+                    mapImageGraphics.setColor(new Color(27, 249, 27, 159));
+                    mapImageGraphics.fillOval(pixelX, pixelY, tilePixelSize, tilePixelSize);
+                }
+                if (sceneEntityDefinition.getImpenetrable()){
+                    mapImageGraphics.setColor(new Color(249, 107, 240, 50));
+                    mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
+                }
+            }
+
+      /*      if (location.getType() >= 4 && location.getType() <= 8) {
                 mapImageGraphics.setColor(new Color(44, 233, 33, 70));
                 mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
             }
 
             if (location.getType() == 9) {
-                mapImageGraphics.setColor(new Color(22, 22, 244, 70));
+                mapImageGraphics.setColor(new Color(100, 160, 244, 70));
                 mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
-            }
-        }
-
-        for (int regionX = 0; regionX < 64; regionX++) {
-            for (int regionY = 0; regionY < 64; regionY++) {
-
-            }
+            }*/
         }
 
         mapImageGraphics.setTransform(original);

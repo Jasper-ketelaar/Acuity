@@ -7,6 +7,7 @@ import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.RegionInfoRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.SceneEntityDefinitionRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
+import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.xtea.domain.Region;
 import com.acuitybotting.path_finding.xtea.domain.SceneEntityInstance;
 import com.google.gson.Gson;
@@ -38,19 +39,12 @@ public class XteaService {
     private final MessagingClientService clientService;
     private Gson gson = new Gson();
 
-    private File infoBase;
-
     @Autowired
     public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionInfoRepository regionInfoRepository, MessagingClientService clientService) {
         this.definitionRepository = definitionRepository;
         this.xteaRepository = xteaRepository;
         this.regionInfoRepository = regionInfoRepository;
         this.clientService = clientService;
-    }
-
-    public XteaService setInfoBase(File infoBase) {
-        this.infoBase = infoBase;
-        return this;
     }
 
     public Map<String, Set<Xtea>> findUnique(int rev) {
@@ -64,7 +58,7 @@ public class XteaService {
 
     private Map<String, Region> regionCache = new HashMap<>();
     public Optional<Region> getRegion(int id) {
-        File file = new File(infoBase, "\\json\\regions\\" + id + ".json");
+        File file = new File(RsEnvironment.INFO_BASE, "\\json\\regions\\" + id + ".json");
         if (!file.exists()) return Optional.empty();
         return Optional.ofNullable(regionCache.computeIfAbsent(String.valueOf(id), s -> {
             try {
@@ -115,21 +109,21 @@ public class XteaService {
                 if (plane >= 0) {
                     if (type >= 0 && type <= 3) {
                         if (definition.getClipType() != 0) {
-                            CollisionBuilder.method16860(map, plane, localX, localY, type, entityInstance.getOrientation(), !definition.getSolid(), !definition.getImpenetrable());
+                            CollisionBuilder.applyWallFlags(map, plane, localX, localY, type, entityInstance.getOrientation(), !definition.getSolid(), !definition.getImpenetrable());
                         }
                         continue;
                     }
                     if (type == 22) {
                         if (definition.getClipType() == 1) {
-                            CollisionBuilder.method16851(map, plane, localX, localY);
+                            CollisionBuilder.applyObjectFlag(map, plane, localX, localY);
                         }
                     } else if (type >= 9) {
                         if (definition.getClipType() != 0) {
                             int direction = entityInstance.getOrientation();
                             if (direction != 1 && direction != 3) {
-                                CollisionBuilder.method16856(map, plane, localX, localY, definition.getSizeX(), definition.getSizeY(), !definition.getSolid(), !definition.getImpenetrable());
+                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, definition.getSizeX(), definition.getSizeY(), !definition.getSolid(), !definition.getImpenetrable());
                             } else {
-                                CollisionBuilder.method16856(map, plane, localX, localY, definition.getSizeY(), definition.getSizeX(), !definition.getSolid(), !definition.getImpenetrable());
+                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, definition.getSizeY(), definition.getSizeX(), !definition.getSolid(), !definition.getImpenetrable());
                             }
                         }
                     }
@@ -139,7 +133,7 @@ public class XteaService {
         }
 
         if (tileSettings != null) {
-            CollisionBuilder.method16862(tileSettings, map);
+            CollisionBuilder.applyNonLoadedFlags(tileSettings, map);
         }
 
         regionInfo.setRenderSettings(tileSettings);

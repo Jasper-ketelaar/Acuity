@@ -21,15 +21,18 @@ import java.util.*;
 @Slf4j
 public class RsEnvironment {
 
+    public static final File INFO_BASE = new File("C:\\Users\\S3108772\\Desktop\\Map Info");
+
     public static final int PLANE_PENALTY = 25;
     public static final int CACHE_AREA = 15;
 
     public static final String[] DOOR_NAMES = new String[]{"Door", "Gate", "Large door", "Castle door", "Gate of War", "Rickety door", "Oozing barrier", "Portal of Death", "Magic guild door", "Prison door", "Barbarian door"};
     public static final String[] DOOR_ACTIONS = new String[]{"OPEN"};
-
     public static final String[] STAIR_NAMES = new String[]{"Stairs", "Ladder", "Stair"};
 
-    private static File regionImageBase = new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\a_regions\\");
+    private static int regionImageBase = 0;
+    private static File[] regionImageBases = new File[]{new File(INFO_BASE, "\\img\\a2_regions\\"), new File(INFO_BASE, "\\img\\regions\\"), new File(INFO_BASE, "\\img\\a_regions\\")};
+
     private static RsMapService rsMapService;
 
     private static Map<String, RegionInfo> regionMap = new HashMap<>();
@@ -85,7 +88,7 @@ public class RsEnvironment {
     public static BufferedImage getRegionImage(int regionId, int plane) {
         return regionImageMap.computeIfAbsent(String.valueOf(regionId + "_" + plane), s -> {
             try {
-                File file = new File(regionImageBase, + regionId + "_" + plane + ".png");
+                File file = new File(getRegionImageBase(), + regionId + "_" + plane + ".png");
                 return file.exists() ? ImageIO.read(file) : null;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -95,10 +98,14 @@ public class RsEnvironment {
     }
 
     public static File getRegionImageBase() {
+        return regionImageBases[regionImageBase];
+    }
+
+    public static int getRegionImageBaseIndex() {
         return regionImageBase;
     }
 
-    public static void setRegionImageBase(File regionImageBase) {
+    public static void setRegionImageBaseIndex(int regionImageBase) {
         RsEnvironment.regionImageBase = regionImageBase;
         regionImageMap.clear();
     }

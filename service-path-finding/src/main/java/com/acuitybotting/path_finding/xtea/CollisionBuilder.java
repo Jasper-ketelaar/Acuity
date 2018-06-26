@@ -26,21 +26,21 @@ public class CollisionBuilder {
         }
     }
 
-    public static void method16862(int[][][] var0, int[][][] var1) {
+    public static void applyNonLoadedFlags(int[][][] flags, int[][][] tileSettings) {
         int var3;
         for (int var10000 = var3 = 0; var10000 < 4; var10000 = var3) {
             int var4;
             for (var10000 = var4 = 0; var10000 < 64; var10000 = var4) {
                 int var5;
                 for (var10000 = var5 = 0; var10000 < 64; var10000 = var5) {
-                    if ((var0[var3][var4][var5] & 1) == 1) {
+                    if ((flags[var3][var4][var5] & 1) == 1) {
                         int var6 = var3;
-                        if ((var0[1][var4][var5] & 2) == 2) {
+                        if ((flags[1][var4][var5] & 2) == 2) {
                             var6 = var3 - 1;
                         }
 
                         if (var6 >= 0) {
-                            method16858(var1, var6, var4, var5, 2097152);
+                            addFlag(tileSettings, var6, var4, var5, 2097152);
                         }
                     }
 
@@ -55,217 +55,216 @@ public class CollisionBuilder {
 
     }
 
-    public static void method16856(int[][][] var0, int var1, int var2, int var3, int var4, int var5, boolean var6, boolean var7) {
-        int var8 = 256;
-        if (var6) {
-            var8 |= 131072;
+    public static void applyLargeObjectFlags(int[][][] map, int plane, int regionX, int regionY, int width, int height, boolean notSolid, boolean notImpenetrable) {
+        int flag = 256;
+        if (notSolid) {
+            flag |= 131072;
         }
 
-        if (var7) {
-            var8 |= 1073741824;
+        if (notImpenetrable) {
+            flag |= 1073741824;
         }
 
-        int var9;
-        for (int var10000 = var9 = var2; var10000 < var2 + var4; var10000 = var9) {
-            int var10;
-            if (var9 >= 0 && var9 < var0[var1].length) {
-                for (var10000 = var10 = var3; var10000 < var3 + var5; var10000 = var10) {
-                    if (var10 >= 0 && var10 < var0[var1][var9].length) {
-                        method16858(var0, var1, var9, var10, var8);
+        int localRegionX;
+        for (int index = localRegionX = regionX; index < regionX + width; index = localRegionX) {
+            int localRegionY;
+            if (localRegionX >= 0 && localRegionX < map[plane].length) {
+                for (index = localRegionY = regionY; index < regionY + height; index = localRegionY) {
+                    if (localRegionY >= 0 && localRegionY < map[plane][localRegionX].length) {
+                        addFlag(map, plane, localRegionX, localRegionY, flag);
                     }
 
-                    ++var10;
+                    ++localRegionY;
                 }
             }
 
-            ++var9;
+            ++localRegionX;
         }
 
     }
 
-    public static void method16851(int[][][] var0, int var1, int var2, int var3) {
-        method16858(var0, var1, var2, var3, 262144);
+    public static void applyObjectFlag(int[][][] flags, int plane, int regionX, int regionY) {
+        addFlag(flags, plane, regionX, regionY, 262144);
     }
 
-    public static void method16860(int[][][] var0, int var1, int var2, int var3, int var4, int direction, boolean var6, boolean var7) {
-        int var8 = direction;
-        int var9;
-        if (var4 == 0) {
-            var9 = (var8 << 1) - 1 & 7;
-            method16858(var0, var1, var2, var3, method16859(var6, var7) << var9);
-            method16858(var0, var1, var2 + method16855(var9), var3 + method16857(var9), method16859(var6, var7) << method16863(var9));
+    public static void applyWallFlags(int[][][] flags, int plane, int regionX, int regionY, int type, int orientation, boolean notSolid, boolean notImpenetrable) {
+        int orientationByte;
+        if (type == 0) {
+            orientationByte = (orientation << 1) - 1 & 7;
+            addFlag(flags, plane, regionX, regionY, getOne(notSolid, notImpenetrable) << orientationByte);
+            addFlag(flags, plane, regionX + getDirectionX(orientationByte), regionY + getDirectionY(orientationByte), getOne(notSolid, notImpenetrable) << method16863(orientationByte));
         }
 
-        if (var4 == 1 || var4 == 3) {
-            var9 = var8 << 1 & 7;
-            method16858(var0, var1, var2, var3, method16859(var6, var7) << var9);
-            method16858(var0, var1, var2 + method16855(var9), var3 + method16857(var9), method16859(var6, var7) << method16863(var9));
+        if (type == 1 || type == 3) {
+            orientationByte = orientation << 1 & 7;
+            addFlag(flags, plane, regionX, regionY, getOne(notSolid, notImpenetrable) << orientationByte);
+            addFlag(flags, plane, regionX + getDirectionX(orientationByte), regionY + getDirectionY(orientationByte), getOne(notSolid, notImpenetrable) << method16863(orientationByte));
         }
 
-        if (var4 == 2) {
-            var9 = (var8 << 1) + 1 & 7;
-            int var10 = (var8 << 1) - 1 & 7;
-            method16858(var0, var1, var2, var3, method16859(var6, var7) << (var9 | var10));
-            method16858(var0, var1, var2 + method16855(var9), var3 + method16857(var9), method16859(var6, var7) << method16863(var9));
-            method16858(var0, var1, var2 + method16855(var10), var3 + method16857(var10), method16859(var6, var7) << method16863(var10));
+        if (type == 2) {
+            orientationByte = (orientation << 1) + 1 & 7;
+            int orientationByte2 = (orientation << 1) - 1 & 7;
+            addFlag(flags, plane, regionX, regionY, getOne(notSolid, notImpenetrable) << (orientationByte | orientationByte2));
+            addFlag(flags, plane, regionX + getDirectionX(orientationByte), regionY + getDirectionY(orientationByte), getOne(notSolid, notImpenetrable) << method16863(orientationByte));
+            addFlag(flags, plane, regionX + getDirectionX(orientationByte2), regionY + getDirectionY(orientationByte2), getOne(notSolid, notImpenetrable) << method16863(orientationByte2));
         }
 
-        if (var6) {
-            if (var4 == 0) {
-                if (var8 == 0) {
-                    method16858(var0, var1, var2, var3, 65536);
-                    method16858(var0, var1, var2 - 1, var3, 4096);
+        if (notSolid) {
+            if (type == 0) {
+                if (orientation == 0) {
+                    addFlag(flags, plane, regionX, regionY, 65536);
+                    addFlag(flags, plane, regionX - 1, regionY, 4096);
                 }
 
-                if (var8 == 1) {
-                    method16858(var0, var1, var2, var3, 1024);
-                    method16858(var0, var1, var2, var3 + 1, 16384);
+                if (orientation == 1) {
+                    addFlag(flags, plane, regionX, regionY, 1024);
+                    addFlag(flags, plane, regionX, regionY + 1, 16384);
                 }
 
-                if (var8 == 2) {
-                    method16858(var0, var1, var2, var3, 4096);
-                    method16858(var0, var1, var2 + 1, var3, 65536);
+                if (orientation == 2) {
+                    addFlag(flags, plane, regionX, regionY, 4096);
+                    addFlag(flags, plane, regionX + 1, regionY, 65536);
                 }
 
-                if (var8 == 3) {
-                    method16858(var0, var1, var2, var3, 16384);
-                    method16858(var0, var1, var2, var3 - 1, 1024);
-                }
-            }
-
-            if (var4 == 1 || var4 == 3) {
-                if (var8 == 0) {
-                    method16858(var0, var1, var2, var3, 512);
-                    method16858(var0, var1, var2 - 1, var3 + 1, 8192);
-                }
-
-                if (var8 == 1) {
-                    method16858(var0, var1, var2, var3, 2048);
-                    method16858(var0, var1, 1 + var2, 1 + var3, '耀');
-                }
-
-                if (var8 == 2) {
-                    method16858(var0, var1, var2, var3, 8192);
-                    method16858(var0, var1, var2 + 1, var3 - 1, 512);
-                }
-
-                if (var8 == 3) {
-                    method16858(var0, var1, var2, var3, '耀');
-                    method16858(var0, var1, var2 - 1, var3 - 1, 2048);
+                if (orientation == 3) {
+                    addFlag(flags, plane, regionX, regionY, 16384);
+                    addFlag(flags, plane, regionX, regionY - 1, 1024);
                 }
             }
 
-            if (var4 == 2) {
-                if (var8 == 0) {
-                    method16858(var0, var1, var2, var3, 66560);
-                    method16858(var0, var1, var2 - 1, var3, 4096);
-                    method16858(var0, var1, var2, 1 + var3, 16384);
+            if (type == 1 || type == 3) {
+                if (orientation == 0) {
+                    addFlag(flags, plane, regionX, regionY, 512);
+                    addFlag(flags, plane, regionX - 1, regionY + 1, 8192);
                 }
 
-                if (var8 == 1) {
-                    method16858(var0, var1, var2, var3, 5120);
-                    method16858(var0, var1, var2, 1 + var3, 16384);
-                    method16858(var0, var1, 1 + var2, var3, 65536);
+                if (orientation == 1) {
+                    addFlag(flags, plane, regionX, regionY, 2048);
+                    addFlag(flags, plane, 1 + regionX, 1 + regionY, '耀');
                 }
 
-                if (var8 == 2) {
-                    method16858(var0, var1, var2, var3, 20480);
-                    method16858(var0, var1, var2 + 1, var3, 65536);
-                    method16858(var0, var1, var2, var3 - 1, 1024);
+                if (orientation == 2) {
+                    addFlag(flags, plane, regionX, regionY, 8192);
+                    addFlag(flags, plane, regionX + 1, regionY - 1, 512);
                 }
 
-                if (var8 == 3) {
-                    method16858(var0, var1, var2, var3, 81920);
-                    method16858(var0, var1, var2, var3 - 1, 1024);
-                    method16858(var0, var1, var2 - 1, var3, 4096);
-                }
-            }
-        }
-
-        if (var7) {
-            if (var4 == 0) {
-                if (var8 == 0) {
-                    method16858(var0, var1, var2, var3, 536870912);
-                    method16858(var0, var1, var2 - 1, var3, 33554432);
-                }
-
-                if (var8 == 1) {
-                    method16858(var0, var1, var2, var3, 8388608);
-                    method16858(var0, var1, var2, var3 + 1, 134217728);
-                }
-
-                if (var8 == 2) {
-                    method16858(var0, var1, var2, var3, 33554432);
-                    method16858(var0, var1, var2 + 1, var3, 536870912);
-                }
-
-                if (var8 == 3) {
-                    method16858(var0, var1, var2, var3, 134217728);
-                    method16858(var0, var1, var2, var3 - 1, 8388608);
+                if (orientation == 3) {
+                    addFlag(flags, plane, regionX, regionY, '耀');
+                    addFlag(flags, plane, regionX - 1, regionY - 1, 2048);
                 }
             }
 
-            if (var4 == 1 || var4 == 3) {
-                if (var8 == 0) {
-                    method16858(var0, var1, var2, var3, 4194304);
-                    method16858(var0, var1, var2 - 1, var3 + 1, 67108864);
+            if (type == 2) {
+                if (orientation == 0) {
+                    addFlag(flags, plane, regionX, regionY, 66560);
+                    addFlag(flags, plane, regionX - 1, regionY, 4096);
+                    addFlag(flags, plane, regionX, 1 + regionY, 16384);
                 }
 
-                if (var8 == 1) {
-                    method16858(var0, var1, var2, var3, 16777216);
-                    method16858(var0, var1, var2 + 1, var3 + 1, 268435456);
+                if (orientation == 1) {
+                    addFlag(flags, plane, regionX, regionY, 5120);
+                    addFlag(flags, plane, regionX, 1 + regionY, 16384);
+                    addFlag(flags, plane, 1 + regionX, regionY, 65536);
                 }
 
-                if (var8 == 2) {
-                    method16858(var0, var1, var2, var3, 67108864);
-                    method16858(var0, var1, var2 + 1, var3 - 1, 4194304);
+                if (orientation == 2) {
+                    addFlag(flags, plane, regionX, regionY, 20480);
+                    addFlag(flags, plane, regionX + 1, regionY, 65536);
+                    addFlag(flags, plane, regionX, regionY - 1, 1024);
                 }
 
-                if (var8 == 3) {
-                    method16858(var0, var1, var2, var3, 268435456);
-                    method16858(var0, var1, var2 - 1, var3 - 1, 16777216);
-                }
-            }
-
-            if (var4 == 2) {
-                if (var8 == 0) {
-                    method16858(var0, var1, var2, var3, 545259520);
-                    method16858(var0, var1, var2 - 1, var3, 33554432);
-                    method16858(var0, var1, var2, var3 + 1, 134217728);
-                }
-
-                if (var8 == 1) {
-                    method16858(var0, var1, var2, var3, 41943040);
-                    method16858(var0, var1, var2, var3 + 1, 134217728);
-                    method16858(var0, var1, var2 + 1, var3, 536870912);
-                }
-
-                if (var8 == 2) {
-                    method16858(var0, var1, var2, var3, 167772160);
-                    method16858(var0, var1, var2 + 1, var3, 536870912);
-                    method16858(var0, var1, var2, var3 - 1, 8388608);
-                }
-
-                if (var8 == 3) {
-                    method16858(var0, var1, var2, var3, 671088640);
-                    method16858(var0, var1, var2, var3 - 1, 8388608);
-                    method16858(var0, var1, var2 - 1, var3, 33554432);
+                if (orientation == 3) {
+                    addFlag(flags, plane, regionX, regionY, 81920);
+                    addFlag(flags, plane, regionX, regionY - 1, 1024);
+                    addFlag(flags, plane, regionX - 1, regionY, 4096);
                 }
             }
         }
-    }
 
-    private static void method16858(int[][][] var0, int var1, int var2, int var3, int var4) {
-        if (var2 >= 0 && var2 < 64 && var3 >= 0 && var3 < 64) {
-            var0[var1][var2][var3] |= var4;
+        if (notImpenetrable) {
+            if (type == 0) {
+                if (orientation == 0) {
+                    addFlag(flags, plane, regionX, regionY, 536870912);
+                    addFlag(flags, plane, regionX - 1, regionY, 33554432);
+                }
+
+                if (orientation == 1) {
+                    addFlag(flags, plane, regionX, regionY, 8388608);
+                    addFlag(flags, plane, regionX, regionY + 1, 134217728);
+                }
+
+                if (orientation == 2) {
+                    addFlag(flags, plane, regionX, regionY, 33554432);
+                    addFlag(flags, plane, regionX + 1, regionY, 536870912);
+                }
+
+                if (orientation == 3) {
+                    addFlag(flags, plane, regionX, regionY, 134217728);
+                    addFlag(flags, plane, regionX, regionY - 1, 8388608);
+                }
+            }
+
+            if (type == 1 || type == 3) {
+                if (orientation == 0) {
+                    addFlag(flags, plane, regionX, regionY, 4194304);
+                    addFlag(flags, plane, regionX - 1, regionY + 1, 67108864);
+                }
+
+                if (orientation == 1) {
+                    addFlag(flags, plane, regionX, regionY, 16777216);
+                    addFlag(flags, plane, regionX + 1, regionY + 1, 268435456);
+                }
+
+                if (orientation == 2) {
+                    addFlag(flags, plane, regionX, regionY, 67108864);
+                    addFlag(flags, plane, regionX + 1, regionY - 1, 4194304);
+                }
+
+                if (orientation == 3) {
+                    addFlag(flags, plane, regionX, regionY, 268435456);
+                    addFlag(flags, plane, regionX - 1, regionY - 1, 16777216);
+                }
+            }
+
+            if (type == 2) {
+                if (orientation == 0) {
+                    addFlag(flags, plane, regionX, regionY, 545259520);
+                    addFlag(flags, plane, regionX - 1, regionY, 33554432);
+                    addFlag(flags, plane, regionX, regionY + 1, 134217728);
+                }
+
+                if (orientation == 1) {
+                    addFlag(flags, plane, regionX, regionY, 41943040);
+                    addFlag(flags, plane, regionX, regionY + 1, 134217728);
+                    addFlag(flags, plane, regionX + 1, regionY, 536870912);
+                }
+
+                if (orientation == 2) {
+                    addFlag(flags, plane, regionX, regionY, 167772160);
+                    addFlag(flags, plane, regionX + 1, regionY, 536870912);
+                    addFlag(flags, plane, regionX, regionY - 1, 8388608);
+                }
+
+                if (orientation == 3) {
+                    addFlag(flags, plane, regionX, regionY, 671088640);
+                    addFlag(flags, plane, regionX, regionY - 1, 8388608);
+                    addFlag(flags, plane, regionX - 1, regionY, 33554432);
+                }
+            }
         }
     }
 
-    private static int method16859(boolean var0, boolean var1) {
+    private static void addFlag(int[][][] flags, int plane, int regionX, int regionY, int flag) {
+        if (regionX >= 0 && regionX < 64 && regionY >= 0 && regionY < 64) {
+            flags[plane][regionX][regionY] |= flag;
+        }
+    }
+
+    private static int getOne(boolean var0, boolean var1) {
         return 1;
     }
 
-    private static int method16855(int var0) {
+    private static int getDirectionX(int var0) {
         switch (var0) {
             case 0:
             case 6:
@@ -283,7 +282,7 @@ public class CollisionBuilder {
         }
     }
 
-    private static int method16857(int var0) {
+    private static int getDirectionY(int var0) {
         switch (var0) {
             case 0:
             case 1:

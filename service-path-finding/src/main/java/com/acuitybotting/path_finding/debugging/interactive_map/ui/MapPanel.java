@@ -12,7 +12,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -149,20 +148,18 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_EQUALS) {
-            perspective.getBase().setPlane(perspective.getBase().getPlane() + 1);
+            perspective.getBase().setPlane(Math.min(3, Math.max(0, perspective.getBase().getPlane() + 1)));
         }
         if (e.getKeyCode() == KeyEvent.VK_MINUS) {
-            perspective.getBase().setPlane(perspective.getBase().getPlane() - 1);
+            perspective.getBase().setPlane(Math.min(3, Math.max(0, perspective.getBase().getPlane() - 1)));
         }
         if (e.getKeyCode() == KeyEvent.VK_0) {
-            File regionImageBase = RsEnvironment.getRegionImageBase();
-            if (regionImageBase.getName().contains("a2_")){
-                RsEnvironment.setRegionImageBase(new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\regions"));
-            }
-            else {
-                RsEnvironment.setRegionImageBase(new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\a2_regions"));
-            }
+            RsEnvironment.setRegionImageBaseIndex(Math.min(2, Math.max(0, RsEnvironment.getRegionImageBaseIndex() + 1)));
         }
+        if (e.getKeyCode() == KeyEvent.VK_9) {
+            RsEnvironment.setRegionImageBaseIndex(Math.min(2, Math.max(0, RsEnvironment.getRegionImageBaseIndex() - 1)));
+        }
+        repaint();
     }
 
     @Override
