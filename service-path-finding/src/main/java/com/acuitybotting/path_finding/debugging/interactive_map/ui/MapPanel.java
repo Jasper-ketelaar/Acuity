@@ -1,8 +1,6 @@
 package com.acuitybotting.path_finding.debugging.interactive_map.ui;
 
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
-import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PositionPlugin;
-import com.acuitybotting.path_finding.debugging.interactive_map.util.GameMap;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.Perspective;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.ScreenLocation;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -31,14 +29,14 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
     private Point mouseStartDragPoint = null;
     private Point mouseCurrentDragPoint = null;
 
+    private PaintUtil paintUtil = new PaintUtil(this);
+
     public MapPanel() {
         this.perspective = new Perspective(this);
 
         addMouseMotionListener(this);
         addMouseListener(this);
         addMouseWheelListener(this);
-
-        addPlugin(new PositionPlugin());
 
         Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::handleDrag, 100, 120, TimeUnit.MILLISECONDS);
     }
@@ -62,6 +60,8 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
         super.paintComponent(g);
 
         Graphics2D g1 = (Graphics2D) g.create();
+        paintUtil.onPaintStart(g1);
+
         Graphics2D g2 = (Graphics2D) g.create();
         g2.scale(perspective.getScale(), perspective.getScale());
 
@@ -87,6 +87,8 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
         for (Plugin plugin : plugins) {
             plugin.onPaint(g1);
         }
+
+        paintUtil.onPaintEnd(g1);
     }
 
     public Location getMouseLocation() {

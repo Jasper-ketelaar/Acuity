@@ -19,6 +19,10 @@ public class PaintUtil {
 
     private MapPanel mapPanel;
 
+    private List<String> debugs = new ArrayList<>();
+    private Point debugStart = new Point(10, 10);
+    private int debugSpacing = 15;
+
     public PaintUtil(MapPanel mapPanel) {
         this.mapPanel = mapPanel;
     }
@@ -67,5 +71,28 @@ public class PaintUtil {
         for (Edge neighbor : neighbors) {
             connectLocations(graphics, neighbor.getStart(), neighbor.getEnd(), color);
         }
+    }
+
+    public void onPaintStart(Graphics2D graphics){
+        debugs.clear();
+    }
+
+    public void onPaintEnd(Graphics2D graphics){
+        if (debugs.size() == 0) return;
+
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.setColor(new Color(0, 0, 0, 200));
+        graphics.fillRect(debugStart.x, debugStart.y, 300, (debugs.size() * 15)  + debugSpacing);
+        graphics.setColor(Color.WHITE);
+
+        int off = debugSpacing;
+        for (String debug : debugs) {
+            graphics.drawString(debug, debugStart.x + 15, debugStart.y + off);
+            off += debugSpacing;
+        }
+    }
+
+    public void debug(String message) {
+        debugs.add( message);
     }
 }

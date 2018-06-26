@@ -13,7 +13,6 @@ import java.awt.event.MouseListener;
 public abstract class Plugin implements PaintListener, MouseListener{
 
     private MapPanel mapPanel;
-    private PaintUtil paintUtil;
 
     public Perspective getPerspective(){
         return this.getMapPanel().getPerspective();
@@ -26,8 +25,11 @@ public abstract class Plugin implements PaintListener, MouseListener{
 
     public void attach(MapPanel mapPanel){
         this.mapPanel = mapPanel;
-        this.paintUtil = new PaintUtil(mapPanel);
         mapPanel.addMouseListener(this);
+    }
+
+    public PaintUtil getPaintUtil(){
+        return getMapPanel().getPaintUtil();
     }
 
     public void detach(){

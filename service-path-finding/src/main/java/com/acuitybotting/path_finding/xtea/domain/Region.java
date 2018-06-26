@@ -1,9 +1,11 @@
 package com.acuitybotting.path_finding.xtea.domain;
 
+import com.acuitybotting.path_finding.rs.domain.location.Location;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zachary Herridge on 6/25/2018.
@@ -29,5 +31,9 @@ public class Region {
 
     private List<SceneEntityInstance> locations = new ArrayList<>();
     private int[] keys;
+
+    public List<SceneEntityInstance> getInstancesAt(Location location){
+        return locations.stream().filter(sceneEntityInstance -> sceneEntityInstance.getPosition().toLocation().equals(location)).collect(Collectors.toList());
+    }
 
 }

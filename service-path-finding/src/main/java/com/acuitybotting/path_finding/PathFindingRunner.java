@@ -9,6 +9,8 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.PathFindingSupplier;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.HpaPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PathPlugin;
+import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PositionPlugin;
+import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.RegionPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapFrame;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
@@ -47,6 +49,7 @@ public class PathFindingRunner implements CommandLineRunner {
 
     private final PathPlugin pathPlugin;
     private final HpaPlugin hpaPlugin = new HpaPlugin();
+    private RegionPlugin regionPlugin = new RegionPlugin();
 
     private final XteaService xteaService;
 
@@ -184,7 +187,6 @@ public class PathFindingRunner implements CommandLineRunner {
 
     private void dumpRegionInfo(){
         xteaService.getRegionInfoRepository().deleteAll();
-        xteaService.setInfoBase(new File("C:\\Users\\zgher\\Desktop\\Map Info"));
         xteaService.findUnique(171).keySet().parallelStream().forEach(s -> {
             Region region = xteaService.getRegion(Integer.parseInt(s)).orElse(null);
             if (region != null){
@@ -200,11 +202,15 @@ public class PathFindingRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
+            xteaService.setInfoBase(new File("C:\\Users\\zgher\\Desktop\\Map Info"));
             RsEnvironment.setRsMapService(rsMapService);
             //RsEnvironment.loadRegions();
 
+
             MapFrame mapFrame = new MapFrame();
-            mapFrame.getMapPanel().addPlugin(hpaPlugin);
+            regionPlugin.setXteaService(xteaService);
+            mapFrame.getMapPanel().addPlugin(regionPlugin);
+            mapFrame.getMapPanel().addPlugin(new PositionPlugin());
             mapFrame.show();
 
         } catch (Exception e) {

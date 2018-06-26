@@ -28,6 +28,7 @@ public class Perspective {
     }
 
     public ScreenLocation locationToScreen(Location location){
+        if (location == null) return null;
         if (location.getPlane() != base.getPlane()) return null;
         return new ScreenLocation(locationXToScreen(location.getX()), locationYToScreen(location.getY()));
     }

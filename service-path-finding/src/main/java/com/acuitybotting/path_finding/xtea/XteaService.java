@@ -64,7 +64,9 @@ public class XteaService {
 
     public Optional<Region> getRegion(int id) {
         try {
-            return Optional.of(gson.fromJson(new FileReader(new File(infoBase, "\\json\\regions\\" + id + ".json")), Region.class));
+            File file = new File(infoBase, "\\json\\regions\\" + id + ".json");
+            if (!file.exists()) return Optional.empty();
+            return Optional.of(gson.fromJson(new FileReader(file), Region.class));
         } catch (FileNotFoundException e) {
             log.warn("Error loading region info.", e);
         }
