@@ -87,6 +87,7 @@ public class XteaService {
             }
 
             SceneEntityDefinition definition = getSceneEntityDefinition(entityInstance.getId()).orElseThrow(() -> new RuntimeException("Failed to load entity def " + entityInstance.getId() + ".'"));
+            Set<SceneEntityDefinition> allSceneEntityDefinitions = getAllSceneEntityDefinitions(entityInstance.getId());
 
             int sizeX = definition.getSizeX();
             int sizeY = definition.getSizeY();
@@ -100,24 +101,27 @@ public class XteaService {
                     plane--;
                 }
 
+                boolean solidMatch = allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> !sceneEntityDefinition.getSolid());
+                boolean impenetrableMatch = allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> !sceneEntityDefinition.getImpenetrable());
+
                 if (plane >= 0) {
                     if (type >= 0 && type <= 3) {
-                        if (definition.getClipType() != 0) {
-                            CollisionBuilder.applyWallFlags(map, plane, localX, localY, type, entityInstance.getOrientation(), !definition.getSolid(), !definition.getImpenetrable());
-                        }
+                        CollisionBuilder.applyWallFlags(map, plane, localX, localY, type, entityInstance.getOrientation(), solidMatch, impenetrableMatch);
                         continue;
                     }
                     if (type == 22) {
-                        if (definition.getClipType() == 1) {
+                        if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() == 1)) {
                             CollisionBuilder.applyObjectFlag(map, plane, localX, localY);
                         }
                     } else if (type >= 9) {
-                        if (definition.getClipType() != 0) {
+                        if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() != 0)) {
+
+
                             int orientation = entityInstance.getOrientation();
                             if (orientation != 1 && orientation != 3) {
-                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, sizeX, sizeY, !definition.getSolid(), !definition.getImpenetrable());
+                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, sizeX, sizeY, solidMatch, impenetrableMatch);
                             } else {
-                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, sizeY, sizeX, !definition.getSolid(), !definition.getImpenetrable());
+                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, sizeY, sizeX, solidMatch, impenetrableMatch);
                             }
                         }
                     }
@@ -135,6 +139,26 @@ public class XteaService {
         regionInfo.setDoors(doors);
 
         return regionInfoRepository.save(regionInfo);
+    }
+
+    public Set<SceneEntityDefinition> getAllSceneEntityDefinitions(int id){
+        Set<com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition> definitions = new HashSet<>();
+
+        com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition sceneEntityDefinition = getSceneEntityDefinition(id).orElse(null);
+        if (sceneEntityDefinition == null) throw new RuntimeException("Failed to load def for " + id + ".");
+        definitions.add(sceneEntityDefinition);
+
+        int[] transformIds = sceneEntityDefinition.getTransformIds();
+        if (transformIds != null && transformIds.length > 0){
+            for (int transformId : transformIds) {
+                if (transformId == -1) continue;
+                com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition transform = getSceneEntityDefinition(transformId).orElse(null);
+                if (transform == null) throw new RuntimeException("Failed to load def for " + transformId + ".");
+                definitions.add(transform);
+            }
+        }
+
+        return definitions;
     }
 
     public void consumeQueue() {

@@ -181,9 +181,9 @@ public class PathFindingRunner implements CommandLineRunner {
             for (int i = 0; i < 4; i++) {
                 int finalI = i;
                 executorService.submit(() -> {
-                    BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage2(finalI, regionInfo);
+                    BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage(finalI, regionInfo);
                     try {
-                        ImageIO.write(tileFlagImage, "png", new File(RsEnvironment.INFO_BASE, "\\img\\a_regions\\" + regionInfo.getKey() + "_" + finalI + ".png"));
+                        ImageIO.write(tileFlagImage, "png", new File(RsEnvironment.INFO_BASE, "\\img\\regions\\" + regionInfo.getKey() + "_" + finalI + ".png"));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -203,17 +203,30 @@ public class PathFindingRunner implements CommandLineRunner {
     }
 
     private void dumpRegionInfo(){
+        log.info("Starting RegionInfo dump.");
+
         xteaService.getRegionInfoRepository().deleteAll();
-        xteaService.findUnique(171).keySet().parallelStream().forEach(s -> {
-            Region region = xteaService.getRegion(Integer.parseInt(s)).orElse(null);
-            if (region != null){
-                RegionInfo save = xteaService.save(region);
-                System.out.println(save);
-            }
+
+        ExecutorService executorService = Executors.newFixedThreadPool(30);
+
+        xteaService.findUnique(171).keySet().forEach(s -> {
+            executorService.submit(() -> {
+                Region region = xteaService.getRegion(Integer.parseInt(s)).orElse(null);
+                if (region != null){
+                    RegionInfo save = xteaService.save(region);
+                    log.info("Saved {}.", save);
+                }
+            });
         });
 
-        System.out.println("Finished dyu");
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(3, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
+        log.info("Finished RegionInfo dump.");
     }
 
     @Override
@@ -221,8 +234,9 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
             RsEnvironment.setRsMapService(rsMapService);
 
-   /*         RsEnvironment.loadRegions();
-            dumpRegionImages();*/
+            dumpRegionInfo();
+            RsEnvironment.loadRegions();
+            dumpRegionImages();
 
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);

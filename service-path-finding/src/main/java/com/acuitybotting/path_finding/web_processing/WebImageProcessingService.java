@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.*;
 
 /**
  * Created by Zachary Herridge on 6/5/2018.
@@ -123,8 +124,6 @@ public class WebImageProcessingService {
         int pixelsY = Region.Y * tilePixelSize;
         BufferedImage image = new BufferedImage(pixelsX, pixelsY, BufferedImage.TYPE_INT_RGB);
 
-        Graphics2D mapImageGraphics = image.createGraphics();
-
         int baseX = region.getBaseX();
         int baseY = region.getBaseY();
 
@@ -136,11 +135,9 @@ public class WebImageProcessingService {
                 int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
 
                 if (setting == 1) {
-                    mapImageGraphics.setColor(new Color(50, 109, 255, 223));
-                    mapImageGraphics.fillRect(drawX, drawY, tilePixelSize, tilePixelSize);
+                    fillTile(image, drawX, drawY, tilePixelSize, new Color(50, 109, 255, 223));
                 } else {
-                    mapImageGraphics.setColor(new Color(215, 216, 216, 255));
-                    mapImageGraphics.fillRect(drawX, drawY, tilePixelSize, tilePixelSize);
+                    fillTile(image, drawX, drawY, tilePixelSize, new Color(215, 216, 216, 255));
                 }
             }
         }
@@ -148,12 +145,19 @@ public class WebImageProcessingService {
         for (SceneEntityInstance location : region.getLocations()) {
             boolean isBridge = (region.getTileSetting(location.getPosition().toLocation()) & 2) != 0;
 
+            int regionX = location.getPosition().getX() - baseX;
+            int regionY = location.getPosition().getY() - baseY;
+
+            int drawX = regionX * tilePixelSize;
+            int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
+
             if (location.getPosition().getZ() == plane + 1) {
                 if (!isBridge) {
                     continue;
                 }
             } else if (location.getPosition().getZ() == plane) {
                 if (isBridge) {
+                    fillTile(image, drawX, drawY, tilePixelSize, new Color(189, 187, 22, 198));
                     continue;
                 }
 
@@ -164,17 +168,16 @@ public class WebImageProcessingService {
                 continue;
             }
 
-            int regionX = location.getPosition().getX() - baseX;
-            int regionY = location.getPosition().getY() - baseY;
-
-            int drawX = regionX * tilePixelSize;
-            int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
-
             if (location.getType() >= 0 && location.getType() <= 3) {
                 int rgb = new Color(249, 122, 39, 223).getRGB();
 
                 int type = location.getType();
                 int rotation = location.getOrientation();
+
+                if (type == 1){
+                    //Diagonal wall
+                    fillTile(image, drawX, drawY, tilePixelSize, new Color(73, 123, 9, 198));
+                }
 
                 if (type == 0 || type == 2) {
                     if (rotation == 0) {
@@ -250,20 +253,28 @@ public class WebImageProcessingService {
             }
 
             if (location.getType() == 22) {
-                SceneEntityDefinition definition = xteaService.getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load entity def " + location.getId() + ".'"));
-                if (definition.getSolid() || definition.getImpenetrable()) {
-                    mapImageGraphics.setColor(new Color(27, 249, 27, 159));
-                    mapImageGraphics.fillRect(drawX, drawY, tilePixelSize, tilePixelSize);
+                Set<SceneEntityDefinition> allSceneEntityDefinitions = xteaService.getAllSceneEntityDefinitions(location.getId());
+                if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() == 1)){
+                    //North-West wall?
+                    fillTile(image, drawX, drawY, tilePixelSize, new Color(27, 249, 27, 159));
                 }
             } else if (location.getType() >= 9) {
-                SceneEntityDefinition definition = xteaService.getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load entity def " + location.getId() + ".'"));
-                mapImageGraphics.setColor(definition.getSolid() ?
-                        new Color(249, 45, 45, 153) :
-                        new Color(34, 31, 249, 116));
-                mapImageGraphics.fillRect(drawX, drawY, tilePixelSize, tilePixelSize);
+                Set<SceneEntityDefinition> allSceneEntityDefinitions = xteaService.getAllSceneEntityDefinitions(location.getId());
+                if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() != 0)) {
+                    fillTile(image, drawX, drawY, tilePixelSize, new Color(249, 45, 45, 153));
+                }
             }
         }
 
         return image;
+    }
+
+    private void fillTile(BufferedImage image, int drawX, int drawY, int tilePixelSize, Color color) {
+        int rgb = color.getRGB();
+        for (int x = 0; x < tilePixelSize; x++) {
+            for (int y = 0; y < tilePixelSize; y++) {
+                image.setRGB(drawX + x, drawY + y, rgb);
+            }
+        }
     }
 }
