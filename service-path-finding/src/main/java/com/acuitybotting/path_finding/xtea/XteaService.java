@@ -106,7 +106,9 @@ public class XteaService {
 
                 if (plane >= 0) {
                     if (type >= 0 && type <= 3) {
-                        CollisionBuilder.applyWallFlags(map, plane, localX, localY, type, entityInstance.getOrientation(), solidMatch, impenetrableMatch);
+                        if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() != 0)) {
+                            CollisionBuilder.applyWallFlags(map, plane, localX, localY, type, entityInstance.getOrientation(), solidMatch, impenetrableMatch);
+                        }
                         continue;
                     }
                     if (type == 22) {
