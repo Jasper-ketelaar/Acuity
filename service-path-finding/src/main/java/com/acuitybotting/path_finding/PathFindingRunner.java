@@ -35,6 +35,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -173,16 +176,29 @@ public class PathFindingRunner implements CommandLineRunner {
     }
 
     private void dumpRegionImages(){
+        ExecutorService executorService = Executors.newFixedThreadPool(30);
         for (RegionInfo regionInfo : RsEnvironment.getRegionMap().values()) {
             for (int i = 0; i < 4; i++) {
-                BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage2(i, regionInfo);
-                try {
-                    ImageIO.write(tileFlagImage, "png", new File(RsEnvironment.INFO_BASE, "\\img\\a2_regions\\" + regionInfo.getKey() + "_" + i + ".png"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                int finalI = i;
+                executorService.submit(() -> {
+                    BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage2(finalI, regionInfo);
+                    try {
+                        ImageIO.write(tileFlagImage, "png", new File(RsEnvironment.INFO_BASE, "\\img\\a_regions\\" + regionInfo.getKey() + "_" + finalI + ".png"));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
             }
         }
+
+        executorService.shutdown();
+
+        try {
+            executorService.awaitTermination(3, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("Finished image dump");
     }
 
@@ -205,8 +221,8 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
             RsEnvironment.setRsMapService(rsMapService);
 
-            RsEnvironment.loadRegions();
-            dumpRegionImages();
+   /*         RsEnvironment.loadRegions();
+            dumpRegionImages();*/
 
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);

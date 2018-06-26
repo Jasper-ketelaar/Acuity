@@ -18,9 +18,6 @@ import org.springframework.stereotype.Service;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by Zachary Herridge on 6/5/2018.
@@ -122,9 +119,11 @@ public class WebImageProcessingService {
 
         int tilePixelSize = 4;
 
-        BufferedImage mapImage = new BufferedImage(64 * tilePixelSize, 64 * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D mapImageGraphics = mapImage.createGraphics();
-        AffineTransform original = transform(mapImageGraphics, mapImage.getHeight());
+        int pixelsX = Region.X * tilePixelSize;
+        int pixelsY = Region.Y * tilePixelSize;
+        BufferedImage image = new BufferedImage(pixelsX, pixelsY, BufferedImage.TYPE_INT_RGB);
+
+        Graphics2D mapImageGraphics = image.createGraphics();
 
         int baseX = region.getBaseX();
         int baseY = region.getBaseY();
@@ -133,12 +132,15 @@ public class WebImageProcessingService {
             for (int regionY = 0; regionY < 64; regionY++) {
                 int setting = region.getTileSettings()[plane][regionX][regionY];
 
-                int pixelX = regionX * tilePixelSize;
-                int pixelY = regionY * tilePixelSize;
+                int drawX = regionX * tilePixelSize;
+                int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
 
-                if (setting == 1){
-                    mapImageGraphics.setColor(new Color(17, 47, 80, 70));
-                    mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
+                if (setting == 1) {
+                    mapImageGraphics.setColor(new Color(50, 109, 255, 223));
+                    mapImageGraphics.fillRect(drawX, drawY, tilePixelSize, tilePixelSize);
+                } else {
+                    mapImageGraphics.setColor(new Color(215, 216, 216, 255));
+                    mapImageGraphics.fillRect(drawX, drawY, tilePixelSize, tilePixelSize);
                 }
             }
         }
@@ -162,38 +164,106 @@ public class WebImageProcessingService {
                 continue;
             }
 
-            int pixelX = (location.getPosition().getX() - baseX) * tilePixelSize;
-            int pixelY = (location.getPosition().getY() - baseY) * tilePixelSize;
+            int regionX = location.getPosition().getX() - baseX;
+            int regionY = location.getPosition().getY() - baseY;
+
+            int drawX = regionX * tilePixelSize;
+            int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
 
             if (location.getType() >= 0 && location.getType() <= 3) {
-                mapImageGraphics.setColor(new Color(249, 193, 58, 159));
-                mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
+                int rgb = new Color(249, 122, 39, 223).getRGB();
+
+                int type = location.getType();
+                int rotation = location.getOrientation();
+
+                if (type == 0 || type == 2) {
+                    if (rotation == 0) {
+                        //West wall
+                        image.setRGB(drawX + 0, drawY + 0, rgb);
+                        image.setRGB(drawX + 0, drawY + 1, rgb);
+                        image.setRGB(drawX + 0, drawY + 2, rgb);
+                        image.setRGB(drawX + 0, drawY + 3, rgb);
+                    } else if (rotation == 1) {
+                        //North wall
+                        image.setRGB(drawX + 0, drawY + 0, rgb);
+                        image.setRGB(drawX + 1, drawY + 0, rgb);
+                        image.setRGB(drawX + 2, drawY + 0, rgb);
+                        image.setRGB(drawX + 3, drawY + 0, rgb);
+                    } else if (rotation == 2) {
+                        //East wall
+                        image.setRGB(drawX + 3, drawY + 0, rgb);
+                        image.setRGB(drawX + 3, drawY + 1, rgb);
+                        image.setRGB(drawX + 3, drawY + 2, rgb);
+                        image.setRGB(drawX + 3, drawY + 3, rgb);
+                    } else if (rotation == 3) {
+                        //South wall
+                        image.setRGB(drawX + 0, drawY + 3, rgb);
+                        image.setRGB(drawX + 1, drawY + 3, rgb);
+                        image.setRGB(drawX + 2, drawY + 3, rgb);
+                        image.setRGB(drawX + 3, drawY + 3, rgb);
+                    }
+                }
+
+                if (type == 3) {
+                    if (rotation == 0) {
+                        //Pillar North-West
+                        image.setRGB(drawX + 0, drawY + 0, rgb);
+                    } else if (rotation == 1) {
+                        //Pillar North-East
+                        image.setRGB(drawX + 3, drawY + 0, rgb);
+                    } else if (rotation == 2) {
+                        //Pillar South-East
+                        image.setRGB(drawX + 3, drawY + 3, rgb);
+                    } else if (rotation == 3) {
+                        //Pillar South-West
+                        image.setRGB(drawX + 0, drawY + 3, rgb);
+                    }
+                }
+
+                if (type == 2) {
+                    if (rotation == 3) {
+                        //West wall
+                        image.setRGB(drawX + 0, drawY + 0, rgb);
+                        image.setRGB(drawX + 0, drawY + 1, rgb);
+                        image.setRGB(drawX + 0, drawY + 2, rgb);
+                        image.setRGB(drawX + 0, drawY + 3, rgb);
+                    } else if (rotation == 0) {
+                        //North wall
+                        image.setRGB(drawX + 0, drawY + 0, rgb);
+                        image.setRGB(drawX + 1, drawY + 0, rgb);
+                        image.setRGB(drawX + 2, drawY + 0, rgb);
+                        image.setRGB(drawX + 3, drawY + 0, rgb);
+                    } else if (rotation == 1) {
+                        //East wall
+                        image.setRGB(drawX + 3, drawY + 0, rgb);
+                        image.setRGB(drawX + 3, drawY + 1, rgb);
+                        image.setRGB(drawX + 3, drawY + 2, rgb);
+                        image.setRGB(drawX + 3, drawY + 3, rgb);
+                    } else if (rotation == 2) {
+                        //South wall
+                        image.setRGB(drawX + 0, drawY + 3, rgb);
+                        image.setRGB(drawX + 1, drawY + 3, rgb);
+                        image.setRGB(drawX + 2, drawY + 3, rgb);
+                        image.setRGB(drawX + 3, drawY + 3, rgb);
+                    }
+                }
             }
 
-            if (location.getType() == 22 || (location.getType() >= 9 && location.getType() <= 11)){
-                SceneEntityDefinition sceneEntityDefinition = xteaService.getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load def for " + location.getId() + ".'"));
-                if (sceneEntityDefinition.getSolid()){
+            if (location.getType() == 22) {
+                SceneEntityDefinition definition = xteaService.getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load entity def " + location.getId() + ".'"));
+                if (definition.getSolid() || definition.getImpenetrable()) {
                     mapImageGraphics.setColor(new Color(27, 249, 27, 159));
-                    mapImageGraphics.fillOval(pixelX, pixelY, tilePixelSize, tilePixelSize);
+                    mapImageGraphics.fillRect(drawX, drawY, tilePixelSize, tilePixelSize);
                 }
-                if (sceneEntityDefinition.getImpenetrable()){
-                    mapImageGraphics.setColor(new Color(249, 107, 240, 50));
-                    mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
-                }
+            } else if (location.getType() >= 9) {
+                SceneEntityDefinition definition = xteaService.getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load entity def " + location.getId() + ".'"));
+                mapImageGraphics.setColor(definition.getSolid() ?
+                        new Color(249, 45, 45, 153) :
+                        new Color(34, 31, 249, 116));
+                mapImageGraphics.fillRect(drawX, drawY, tilePixelSize, tilePixelSize);
             }
-
-      /*      if (location.getType() >= 4 && location.getType() <= 8) {
-                mapImageGraphics.setColor(new Color(44, 233, 33, 70));
-                mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
-            }
-
-            if (location.getType() == 9) {
-                mapImageGraphics.setColor(new Color(100, 160, 244, 70));
-                mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
-            }*/
         }
 
-        mapImageGraphics.setTransform(original);
-        return mapImage;
+        return image;
     }
 }

@@ -88,18 +88,12 @@ public class XteaService {
 
             SceneEntityDefinition definition = getSceneEntityDefinition(entityInstance.getId()).orElseThrow(() -> new RuntimeException("Failed to load entity def " + entityInstance.getId() + ".'"));
 
+            int sizeX = definition.getSizeX();
+            int sizeY = definition.getSizeY();
+
+            int plane = entityInstance.getPosition().getZ();
             int localX = entityInstance.getPosition().getX() - region.getBaseX();
             int localY = entityInstance.getPosition().getY() - region.getBaseY();
-            int plane = entityInstance.getPosition().getZ();
-
-            int hash = (localY << 7) + localX + (entityInstance.getId() << 14) + 0x4000_0000;
-            if (definition.getClipType() == 0) {
-                hash -= Integer.MIN_VALUE;
-            }
-
-            if (hash > 0) {
-                doors[plane][localX][localY] = entityInstance.getOrientation() + 1;
-            }
 
             if (plane < 4) {
                 if (tileSettings != null && (tileSettings[1][localX][localY] & 2) == 2) {
@@ -119,11 +113,11 @@ public class XteaService {
                         }
                     } else if (type >= 9) {
                         if (definition.getClipType() != 0) {
-                            int direction = entityInstance.getOrientation();
-                            if (direction != 1 && direction != 3) {
-                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, definition.getSizeX(), definition.getSizeY(), !definition.getSolid(), !definition.getImpenetrable());
+                            int orientation = entityInstance.getOrientation();
+                            if (orientation != 1 && orientation != 3) {
+                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, sizeX, sizeY, !definition.getSolid(), !definition.getImpenetrable());
                             } else {
-                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, definition.getSizeY(), definition.getSizeX(), !definition.getSolid(), !definition.getImpenetrable());
+                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, sizeY, sizeX, !definition.getSolid(), !definition.getImpenetrable());
                             }
                         }
                     }
