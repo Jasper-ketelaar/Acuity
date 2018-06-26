@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.Set;
 
 /**
  * Created by Zachary Herridge on 6/5/2018.
@@ -168,16 +168,38 @@ public class WebImageProcessingService {
                 continue;
             }
 
-            if (location.getType() >= 0 && location.getType() <= 3) {
+            if (location.getType() == 9) {
+                Set<SceneEntityDefinition> allSceneEntityDefinitions = xteaService.getAllSceneEntityDefinitions(location.getId());
+
+                int hash = (regionX << 7) + regionY + (location.getId() << 14) + 0x4000_0000;
+                if ((hash >> 29 & 3) != 2) {
+                    continue;
+                }
+
+                boolean wall = allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getMapSceneId() == -1);
+                if (wall) {
+                    int rgb = new Color(249, 122, 39, 223).getRGB();
+
+                    int orientation = location.getOrientation();
+                    if (orientation != 0 && orientation != 2) {
+                        //North-West to South-East wall
+                        image.setRGB(drawX + 0, drawY + 0, rgb);
+                        image.setRGB(drawX + 1, drawY + 1, rgb);
+                        image.setRGB(drawX + 2, drawY + 2, rgb);
+                        image.setRGB(drawX + 3, drawY + 3, rgb);
+                    } else {
+                        //North-East to South-West wall
+                        image.setRGB(drawX + 0, drawY + 3, rgb);
+                        image.setRGB(drawX + 1, drawY + 2, rgb);
+                        image.setRGB(drawX + 2, drawY + 1, rgb);
+                        image.setRGB(drawX + 3, drawY + 0, rgb);
+                    }
+                }
+            } else if (location.getType() >= 0 && location.getType() <= 3) {
                 int rgb = new Color(249, 122, 39, 223).getRGB();
 
                 int type = location.getType();
                 int rotation = location.getOrientation();
-
-                if (type == 1){
-                    //Diagonal wall
-                    fillTile(image, drawX, drawY, tilePixelSize, new Color(73, 123, 9, 198));
-                }
 
                 if (type == 0 || type == 2) {
                     if (rotation == 0) {
@@ -254,11 +276,11 @@ public class WebImageProcessingService {
 
             if (location.getType() == 22) {
                 Set<SceneEntityDefinition> allSceneEntityDefinitions = xteaService.getAllSceneEntityDefinitions(location.getId());
-                if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() == 1)){
+                if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() == 1)) {
                     //North-West wall?
                     fillTile(image, drawX, drawY, tilePixelSize, new Color(27, 249, 27, 159));
                 }
-            } else if (location.getType() >= 9) {
+            } else if (location.getType() > 9) {
                 Set<SceneEntityDefinition> allSceneEntityDefinitions = xteaService.getAllSceneEntityDefinitions(location.getId());
                 if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() != 0)) {
                     fillTile(image, drawX, drawY, tilePixelSize, new Color(249, 45, 45, 153));
