@@ -11,6 +11,7 @@ import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class RegionPlugin extends Plugin{
@@ -37,7 +38,10 @@ public class RegionPlugin extends Plugin{
         int regionId = RsMapService.worldToRegionId(location);
         Optional<Region> region = xteaService.getRegion(regionId);
         List<Integer> collect = region.map(region1 -> region1.getInstancesAt(location)).orElse(Collections.emptyList()).stream().mapToInt(SceneEntityInstance::getType).distinct().boxed().collect(Collectors.toList());
+
+        Integer integer = region.map(region1 -> region1.getTileSetting(location)).orElse(-404);
         getPaintUtil().debug("RTypes: " + collect);
+        getPaintUtil().debug("Setting: " + integer);
         getPaintUtil().markLocation(graphics, location, Color.RED);
     }
 }

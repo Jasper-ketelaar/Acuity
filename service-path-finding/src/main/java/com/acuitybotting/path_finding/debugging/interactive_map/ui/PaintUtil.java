@@ -9,6 +9,7 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.acuitybotting.path_finding.debugging.interactive_map.util.Perspective.round;
 
@@ -94,5 +95,14 @@ public class PaintUtil {
 
     public void debug(String message) {
         debugs.add( message);
+    }
+
+    public void forEachTile(Consumer<Location> consumer) {
+        Location base = mapPanel.getPerspective().getBase();
+        for (int x = 0; x < mapPanel.getPerspective().getTileWidth(); x++) {
+            for (int y = 0; y < mapPanel.getPerspective().getTileHeight(); y++) {
+                consumer.accept(base.clone(x, -y));
+            }
+        }
     }
 }

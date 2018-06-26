@@ -8,13 +8,18 @@ import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.rs.utils.RsMapService;
+import com.acuitybotting.path_finding.xtea.XteaService;
+import com.acuitybotting.path_finding.xtea.domain.Region;
+import com.acuitybotting.path_finding.xtea.domain.SceneEntityInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zachary Herridge on 6/5/2018.
@@ -22,16 +27,18 @@ import java.util.Arrays;
 @Service
 public class WebImageProcessingService {
 
+    private XteaService xteaService;
     private TileFlagRepository flagRepository;
     private SceneEntityRepository sceneEntityRepository;
 
     @Autowired
-    public WebImageProcessingService(TileFlagRepository flagRepository, SceneEntityRepository sceneEntityRepository) {
+    public WebImageProcessingService(XteaService xteaService, TileFlagRepository flagRepository, SceneEntityRepository sceneEntityRepository) {
+        this.xteaService = xteaService;
         this.flagRepository = flagRepository;
         this.sceneEntityRepository = sceneEntityRepository;
     }
 
-    public BufferedImage createDoorImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize){
+    public BufferedImage createDoorImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize) {
         BufferedImage mapImage = createTileFlagImage(plane, baseX, baseY, regionWidth, regionHeight, tilePixelSize);
         Graphics2D mapImageGraphics = mapImage.createGraphics();
         AffineTransform original = transform(mapImageGraphics, mapImage.getHeight());
@@ -48,12 +55,12 @@ public class WebImageProcessingService {
         return mapImage;
     }
 
-    public BufferedImage createTileFlagImage(int plane, RegionInfo regionInfo){
+    public BufferedImage createTileFlagImage(int plane, RegionInfo regionInfo) {
         Location base = RsMapService.regionIdToBase(Integer.parseInt(regionInfo.getKey()));
         return createTileFlagImage(plane, base.getX(), base.getY(), 64, 64, 4);
     }
 
-    public BufferedImage createTileFlagImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize){
+    public BufferedImage createTileFlagImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize) {
         BufferedImage mapImage = new BufferedImage(regionWidth * tilePixelSize, regionHeight * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
         Graphics2D mapImageGraphics = mapImage.createGraphics();
         AffineTransform original = transform(mapImageGraphics, mapImage.getHeight());
@@ -65,7 +72,7 @@ public class WebImageProcessingService {
 
         for (int x = baseX - 1; x < baseX + regionWidth; x++) {
             for (int y = baseY - 1; y < baseY + regionHeight; y++) {
-                int localX = (x - baseX)* tilePixelSize;
+                int localX = (x - baseX) * tilePixelSize;
                 int localY = (y - baseY) * tilePixelSize;
 
                 Integer flagAt = RsEnvironment.getFlagAt(new Location(x, y, plane));
@@ -101,10 +108,75 @@ public class WebImageProcessingService {
         return mapImage;
     }
 
-    private AffineTransform transform(Graphics2D graphics2D, int height){
+    private AffineTransform transform(Graphics2D graphics2D, int height) {
         AffineTransform old = graphics2D.getTransform();
         graphics2D.translate(0, height - 1);
         graphics2D.scale(1, -1);
         return old;
+    }
+
+    public BufferedImage createTileFlagImage2(int plane, RegionInfo regionInfo) {
+        Region region = xteaService.getRegion(Integer.parseInt(regionInfo.getKey())).orElse(null);
+        if (region == null) return null;
+
+        if (region.getRegionID() == 13362) {
+            System.out.println();
+        }
+
+        int tilePixelSize = 4;
+
+        BufferedImage mapImage = new BufferedImage(64 * tilePixelSize, 64 * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D mapImageGraphics = mapImage.createGraphics();
+        AffineTransform original = transform(mapImageGraphics, mapImage.getHeight());
+
+        int baseX = region.getBaseX();
+        int baseY = region.getBaseY();
+
+        for (SceneEntityInstance location : region.getLocations()) {
+            boolean isBridge = (region.getTileSetting(location.getPosition().toLocation()) & 2) != 0;
+
+            if (location.getPosition().getZ() == plane + 1) {
+                if (!isBridge) {
+                    continue;
+                }
+            } else if (location.getPosition().getZ() == plane) {
+                if (isBridge) {
+                    continue;
+                }
+
+                if ((region.getTileSetting(location.getPosition().toLocation()) & 24) != 0) {
+                    continue;
+                }
+            } else {
+                continue;
+            }
+
+            int pixelX = (location.getPosition().getX() - baseX) * tilePixelSize;
+            int pixelY = (location.getPosition().getY() - baseY) * tilePixelSize;
+
+            if (location.getType() >= 0 && location.getType() <= 3) {
+                mapImageGraphics.setColor(new Color(249, 66, 39, 70));
+                mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
+            }
+
+            if (location.getType() >= 4 && location.getType() <= 8) {
+                mapImageGraphics.setColor(new Color(44, 233, 33, 70));
+                mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
+            }
+
+            if (location.getType() == 9) {
+                mapImageGraphics.setColor(new Color(22, 22, 244, 70));
+                mapImageGraphics.fillRect(pixelX, pixelY, tilePixelSize, tilePixelSize);
+            }
+        }
+
+        for (int regionX = 0; regionX < 64; regionX++) {
+            for (int regionY = 0; regionY < 64; regionY++) {
+
+            }
+        }
+
+        mapImageGraphics.setTransform(original);
+        return mapImage;
     }
 }

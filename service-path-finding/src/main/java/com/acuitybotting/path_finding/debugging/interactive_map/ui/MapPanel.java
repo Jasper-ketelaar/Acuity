@@ -156,11 +156,11 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
         }
         if (e.getKeyCode() == KeyEvent.VK_0) {
             File regionImageBase = RsEnvironment.getRegionImageBase();
-            if (regionImageBase.getName().contains("a_")){
+            if (regionImageBase.getName().contains("a2_")){
                 RsEnvironment.setRegionImageBase(new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\regions"));
             }
             else {
-                RsEnvironment.setRegionImageBase(new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\a_regions"));
+                RsEnvironment.setRegionImageBase(new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\a2_regions"));
             }
         }
     }

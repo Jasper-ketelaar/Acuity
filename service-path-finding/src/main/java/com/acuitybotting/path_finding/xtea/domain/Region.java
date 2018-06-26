@@ -32,6 +32,11 @@ public class Region {
     private List<SceneEntityInstance> locations = new ArrayList<>();
     private int[] keys;
 
+    public int getTileSetting(Location location){
+        Location clone = location.clone(-baseX, -baseY);
+        return tileSettings[location.getPlane()][clone.getX()][clone.getY()];
+    }
+
     public List<SceneEntityInstance> getInstancesAt(Location location){
         return locations.stream().filter(sceneEntityInstance -> sceneEntityInstance.getPosition().toLocation().equals(location)).collect(Collectors.toList());
     }

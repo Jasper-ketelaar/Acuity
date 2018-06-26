@@ -175,14 +175,15 @@ public class PathFindingRunner implements CommandLineRunner {
     private void dumpRegionImages(){
         for (RegionInfo regionInfo : RsEnvironment.getRegionMap().values()) {
             for (int i = 0; i < 4; i++) {
-                BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage(i, regionInfo);
+                BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage2(i, regionInfo);
                 try {
-                    ImageIO.write(tileFlagImage, "png", new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\a_regions\\" + regionInfo.getKey() + "_" + i + ".png"));
+                    ImageIO.write(tileFlagImage, "png", new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\a2_regions\\" + regionInfo.getKey() + "_" + i + ".png"));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
+        System.out.println("Finished image dump");
     }
 
     private void dumpRegionInfo(){
@@ -204,8 +205,8 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
             xteaService.setInfoBase(new File("C:\\Users\\zgher\\Desktop\\Map Info"));
             RsEnvironment.setRsMapService(rsMapService);
-            //RsEnvironment.loadRegions();
-
+            RsEnvironment.loadRegions();
+            dumpRegionImages();
 
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);

@@ -62,15 +62,18 @@ public class XteaService {
         return Optional.ofNullable(cache.computeIfAbsent(id, integer -> definitionRepository.findById(String.valueOf(id)).orElse(null)));
     }
 
+    private Map<String, Region> regionCache = new HashMap<>();
     public Optional<Region> getRegion(int id) {
-        try {
-            File file = new File(infoBase, "\\json\\regions\\" + id + ".json");
-            if (!file.exists()) return Optional.empty();
-            return Optional.of(gson.fromJson(new FileReader(file), Region.class));
-        } catch (FileNotFoundException e) {
-            log.warn("Error loading region info.", e);
-        }
-        return Optional.empty();
+        File file = new File(infoBase, "\\json\\regions\\" + id + ".json");
+        if (!file.exists()) return Optional.empty();
+        return Optional.ofNullable(regionCache.computeIfAbsent(String.valueOf(id), s -> {
+            try {
+                return gson.fromJson(new FileReader(file), Region.class);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }));
     }
 
     public RegionInfo save(Region region) {
