@@ -15,10 +15,6 @@ public abstract class Plugin implements PaintListener, MouseListener{
     private MapPanel mapPanel;
     private PaintUtil paintUtil;
 
-    public GameMap getGameMap(){
-        return this.getMapPanel().getGameMap();
-    }
-
     public Perspective getPerspective(){
         return this.getMapPanel().getPerspective();
     }

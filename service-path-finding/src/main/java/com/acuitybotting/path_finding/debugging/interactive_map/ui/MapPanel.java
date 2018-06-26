@@ -14,6 +14,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -22,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 @Getter
 public class MapPanel extends JPanel implements MouseMotionListener, MouseListener, MouseWheelListener, KeyListener {
 
-    private GameMap gameMap;
     private Perspective perspective;
 
     private List<Plugin> plugins = new ArrayList<>();
@@ -31,9 +31,8 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
     private Point mouseStartDragPoint = null;
     private Point mouseCurrentDragPoint = null;
 
-    public MapPanel(GameMap gameMap) {
-        this.gameMap = gameMap;
-        this.perspective = new Perspective(gameMap, this);
+    public MapPanel() {
+        this.perspective = new Perspective(this);
 
         addMouseMotionListener(this);
         addMouseListener(this);
@@ -152,6 +151,15 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
         }
         if (e.getKeyCode() == KeyEvent.VK_MINUS) {
             perspective.getBase().setPlane(perspective.getBase().getPlane() - 1);
+        }
+        if (e.getKeyCode() == KeyEvent.VK_0) {
+            File regionImageBase = RsEnvironment.getRegionImageBase();
+            if (regionImageBase.getName().contains("a_")){
+                RsEnvironment.setRegionImageBase(new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\regions"));
+            }
+            else {
+                RsEnvironment.setRegionImageBase(new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\a_regions"));
+            }
         }
     }
 

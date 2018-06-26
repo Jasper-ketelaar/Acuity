@@ -16,7 +16,7 @@ public class Perspective {
     private int mapTileSize = 4;
     private double graphicsTileSize = 4;
     
-    public Perspective(GameMap gameMap, MapPanel mapPanel) {
+    public Perspective(MapPanel mapPanel) {
         this.base = new Location(3138, 3384 + (600 / 3), 0);
         this.mapPanel = mapPanel;
     }

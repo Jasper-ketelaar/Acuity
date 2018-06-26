@@ -21,8 +21,8 @@ import com.acuitybotting.path_finding.xtea.XteaService;
 import com.acuitybotting.path_finding.xtea.domain.Region;
 import com.arangodb.springframework.repository.ArangoRepository;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -31,7 +31,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,6 +38,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class PathFindingRunner implements CommandLineRunner {
 
     private final WebImageProcessingService webImageProcessingService;
@@ -131,6 +131,9 @@ public class PathFindingRunner implements CommandLineRunner {
         for (Set<Xtea> xteas : xteaService.findUnique(171).values()) {
             Xtea xtea = xteas.stream().findAny().orElse(null);
             if(xtea == null || xtea.getKeys() == null) continue;
+            if (xteas.size() > 1) {
+                log.warn("Multiple keys found for region {}.", xtea.getRegion());
+            }
             results.put(String.valueOf(xtea.getRegion()), xtea.getKeys());
         }
 
@@ -140,8 +143,9 @@ public class PathFindingRunner implements CommandLineRunner {
     }
 
     private void saveDefs() throws IOException {
+        xteaService.getDefinitionRepository().deleteAll();
         Gson gson = new Gson();
-        File[] files = new File("C:\\Users\\zgher\\Desktop\\Map Info").listFiles();
+        File[] files = new File("C:\\Users\\zgher\\Desktop\\Map Info\\json\\objects").listFiles();
         Set<SceneEntityDefinition> sceneEntityDefinitions = new HashSet<>();
         for (File child : files) {
             SceneEntityDefinition def = gson.fromJson(Files.readAllLines(child.toPath()).stream().collect(Collectors.joining("\n")), SceneEntityDefinition.class);
@@ -165,8 +169,22 @@ public class PathFindingRunner implements CommandLineRunner {
         });
     }
 
-    private void dumpoRegions(){
-        xteaService.setInfoBase(new File("C:\\Users\\S3108772\\Desktop\\Map Info"));
+    private void dumpRegionImages(){
+        for (RegionInfo regionInfo : RsEnvironment.getRegionMap().values()) {
+            for (int i = 0; i < 4; i++) {
+                BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage(i, regionInfo);
+                try {
+                    ImageIO.write(tileFlagImage, "png", new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\a_regions\\" + regionInfo.getKey() + "_" + i + ".png"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void dumpRegionInfo(){
+        xteaService.getRegionInfoRepository().deleteAll();
+        xteaService.setInfoBase(new File("C:\\Users\\zgher\\Desktop\\Map Info"));
         xteaService.findUnique(171).keySet().parallelStream().forEach(s -> {
             Region region = xteaService.getRegion(Integer.parseInt(s)).orElse(null);
             if (region != null){
@@ -184,8 +202,6 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
             RsEnvironment.setRsMapService(rsMapService);
             //RsEnvironment.loadRegions();
-
-
 
             MapFrame mapFrame = new MapFrame();
             mapFrame.getMapPanel().addPlugin(hpaPlugin);

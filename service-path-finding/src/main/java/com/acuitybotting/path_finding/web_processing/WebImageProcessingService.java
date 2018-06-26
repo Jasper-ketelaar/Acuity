@@ -2,10 +2,12 @@ package com.acuitybotting.path_finding.web_processing;
 
 import com.acuitybotting.db.arango.path_finding.domain.SceneEntity;
 import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
+import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionInfo;
 import com.acuitybotting.db.arango.path_finding.repositories.SceneEntityRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
+import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +48,11 @@ public class WebImageProcessingService {
         return mapImage;
     }
 
+    public BufferedImage createTileFlagImage(int plane, RegionInfo regionInfo){
+        Location base = RsMapService.regionIdToBase(Integer.parseInt(regionInfo.getKey()));
+        return createTileFlagImage(plane, base.getX(), base.getY(), 64, 64, 4);
+    }
+
     public BufferedImage createTileFlagImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize){
         BufferedImage mapImage = new BufferedImage(regionWidth * tilePixelSize, regionHeight * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
         Graphics2D mapImageGraphics = mapImage.createGraphics();
@@ -56,8 +63,8 @@ public class WebImageProcessingService {
         mapImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
         mapImageGraphics.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
 
-        for (int x = baseX; x < baseX + regionWidth; x++) {
-            for (int y = baseY; y < baseY + regionHeight; y++) {
+        for (int x = baseX - 1; x < baseX + regionWidth; x++) {
+            for (int y = baseY - 1; y < baseY + regionHeight; y++) {
                 int localX = (x - baseX)* tilePixelSize;
                 int localY = (y - baseY) * tilePixelSize;
 

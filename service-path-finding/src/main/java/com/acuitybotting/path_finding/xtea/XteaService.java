@@ -110,7 +110,7 @@ public class XteaService {
                 if (plane >= 0) {
                     if (type >= 0 && type <= 3) {
                         if (definition.getClipType() != 0) {
-                            CollisionBuilder.method16860(map, plane, localX, localY, type, entityInstance.getOrientation(), !definition.isSolid(), !definition.isImpenetrable());
+                            CollisionBuilder.method16860(map, plane, localX, localY, type, entityInstance.getOrientation(), !definition.getSolid(), !definition.getImpenetrable());
                         }
                         continue;
                     }
@@ -122,9 +122,9 @@ public class XteaService {
                         if (definition.getClipType() != 0) {
                             int direction = entityInstance.getOrientation();
                             if (direction != 1 && direction != 3) {
-                                CollisionBuilder.method16856(map, plane, localX, localY, definition.getSizeX(), definition.getSizeY(), !definition.isSolid(), !definition.isImpenetrable());
+                                CollisionBuilder.method16856(map, plane, localX, localY, definition.getSizeX(), definition.getSizeY(), !definition.getSolid(), !definition.getImpenetrable());
                             } else {
-                                CollisionBuilder.method16856(map, plane, localX, localY, definition.getSizeY(), definition.getSizeX(), !definition.isSolid(), !definition.isImpenetrable());
+                                CollisionBuilder.method16856(map, plane, localX, localY, definition.getSizeY(), definition.getSizeX(), !definition.getSolid(), !definition.getImpenetrable());
                             }
                         }
                     }

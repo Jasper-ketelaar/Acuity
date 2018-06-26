@@ -27,9 +27,9 @@ public class RsEnvironment {
     public static final String[] DOOR_NAMES = new String[]{"Door", "Gate", "Large door", "Castle door", "Gate of War", "Rickety door", "Oozing barrier", "Portal of Death", "Magic guild door", "Prison door", "Barbarian door"};
     public static final String[] DOOR_ACTIONS = new String[]{"OPEN"};
 
-
     public static final String[] STAIR_NAMES = new String[]{"Stairs", "Ladder", "Stair"};
 
+    private static File regionImageBase = new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\a_regions\\");
     private static RsMapService rsMapService;
 
     private static Map<String, RegionInfo> regionMap = new HashMap<>();
@@ -62,6 +62,10 @@ public class RsEnvironment {
         return regionInfo.getFlags()[location.getPlane()][localX][localY];
     }
 
+    public static Map<String, RegionInfo> getRegionMap() {
+        return regionMap;
+    }
+
     public static Iterable<SceneEntity> getStairsWithin(HPARegion region) {
         return Collections.emptyList();
     }
@@ -81,13 +85,22 @@ public class RsEnvironment {
     public static BufferedImage getRegionImage(int regionId, int plane) {
         return regionImageMap.computeIfAbsent(String.valueOf(regionId + "_" + plane), s -> {
             try {
-                File file = new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\regions\\" + regionId + "_" + plane + ".png");
+                File file = new File(regionImageBase, + regionId + "_" + plane + ".png");
                 return file.exists() ? ImageIO.read(file) : null;
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
         });
+    }
+
+    public static File getRegionImageBase() {
+        return regionImageBase;
+    }
+
+    public static void setRegionImageBase(File regionImageBase) {
+        RsEnvironment.regionImageBase = regionImageBase;
+        regionImageMap.clear();
     }
 
     public static BufferedImage getRegionImage(Location location, int plane) {
