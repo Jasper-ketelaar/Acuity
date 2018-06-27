@@ -27,20 +27,20 @@ public class CollisionBuilder {
     }
 
     public static void applyNonLoadedFlags(int[][][] flags, int[][][] tileSettings) {
-        int var3;
-        for (int var10000 = var3 = 0; var10000 < 4; var10000 = var3) {
+        int currentPlane;
+        for (int plane = currentPlane = 0; plane < 4; plane = currentPlane) {
             int var4;
-            for (var10000 = var4 = 0; var10000 < 64; var10000 = var4) {
+            for (plane = var4 = 0; plane < 64; plane = var4) {
                 int var5;
-                for (var10000 = var5 = 0; var10000 < 64; var10000 = var5) {
-                    if ((flags[var3][var4][var5] & 1) == 1) {
-                        int var6 = var3;
+                for (plane = var5 = 0; plane < 64; plane = var5) {
+                    if ((flags[currentPlane][var4][var5] & 1) == 1) {
+                        int appliedPlane = currentPlane;
                         if ((flags[1][var4][var5] & 2) == 2) {
-                            var6 = var3 - 1;
+                            appliedPlane = currentPlane - 1;
                         }
 
-                        if (var6 >= 0) {
-                            addFlag(tileSettings, var6, var4, var5, 2097152);
+                        if (appliedPlane >= 0) {
+                            addFlag(tileSettings, appliedPlane, var4, var5, 2097152);
                         }
                     }
 
@@ -50,7 +50,7 @@ public class CollisionBuilder {
                 ++var4;
             }
 
-            ++var3;
+            ++currentPlane;
         }
 
     }
