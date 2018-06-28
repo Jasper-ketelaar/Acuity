@@ -68,21 +68,6 @@ public class PathFindingRunner implements CommandLineRunner {
         this.hpaWebService = hpaWebService;
     }
 
-    private void dumpImage() {
-        try {
-            System.out.println("Started image dump.");
-            BufferedImage image = webImageProcessingService.createTileFlagImage(
-                    0, 3138 - 1000, 3384 - 1000,
-                    2000, 2000,
-                    4);
-            ImageIO.write(image, "png", new File("saved3.png"));
-            image = null;
-            System.out.println("Image dump complete.");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private PathFindingSupplier getPathfindingSupplier() {
         return new PathFindingSupplier() {
             @Override
@@ -233,16 +218,25 @@ public class PathFindingRunner implements CommandLineRunner {
     public void run(String... args) {
         try {
             RsEnvironment.setRsMapService(rsMapService);
+            Region region = xteaService.getRegion(12598).orElse(null);
+            if (region != null){
+                xteaService.getRegionInfoRepository().deleteById(String.valueOf(region.getRegionID()));
+                RegionInfo save = xteaService.save(region);
+                BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage(0, save);
+                ImageIO.write(tileFlagImage, "png", new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\test.png"));
+                log.info("Saved {}.", save);
+            }
 
-            dumpRegionInfo();
+
+      /*      dumpRegionInfo();
             RsEnvironment.loadRegions();
-            dumpRegionImages();
-
+            dumpRegionImages();*/
+/*
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);
             mapFrame.getMapPanel().addPlugin(regionPlugin);
             mapFrame.getMapPanel().addPlugin(new PositionPlugin());
-            mapFrame.show();
+            mapFrame.show();*/
 
         } catch (Exception e) {
             e.printStackTrace();

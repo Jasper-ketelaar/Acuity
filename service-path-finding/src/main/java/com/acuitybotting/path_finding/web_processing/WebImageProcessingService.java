@@ -37,45 +37,23 @@ public class WebImageProcessingService {
         this.sceneEntityRepository = sceneEntityRepository;
     }
 
-    public BufferedImage createDoorImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize) {
-        BufferedImage mapImage = createTileFlagImage(plane, baseX, baseY, regionWidth, regionHeight, tilePixelSize);
-        Graphics2D mapImageGraphics = mapImage.createGraphics();
-        AffineTransform original = transform(mapImageGraphics, mapImage.getHeight());
-
-        mapImageGraphics.setColor(new Color(255, 145, 232, 223));
-        Iterable<SceneEntity> doors = sceneEntityRepository.findAllByXBetweenAndYBetweenAndPlaneAndNameIn(baseX, baseX + regionWidth, baseY, baseY + regionHeight, plane, RsEnvironment.DOOR_NAMES);
-        for (SceneEntity sceneEntity : doors) {
-            int localX = (sceneEntity.getX() - baseX) * tilePixelSize;
-            int localY = (sceneEntity.getY() - baseY) * tilePixelSize;
-            mapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize);
-        }
-
-        mapImageGraphics.setTransform(original);
-        return mapImage;
-    }
-
     public BufferedImage createTileFlagImage(int plane, RegionInfo regionInfo) {
-        Location base = RsMapService.regionIdToBase(Integer.parseInt(regionInfo.getKey()));
-        return createTileFlagImage(plane, base.getX(), base.getY(), 64, 64, 4);
-    }
-
-    public BufferedImage createTileFlagImage(int plane, int baseX, int baseY, int regionWidth, int regionHeight, int tilePixelSize) {
-        BufferedImage mapImage = new BufferedImage(regionWidth * tilePixelSize, regionHeight * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
+        int tilePixelSize = 4;
+        BufferedImage mapImage = new BufferedImage(64 * tilePixelSize, 64 * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
         Graphics2D mapImageGraphics = mapImage.createGraphics();
         AffineTransform original = transform(mapImageGraphics, mapImage.getHeight());
 
         mapImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-        mapImageGraphics.fillRect(0, 0, regionWidth * tilePixelSize, regionHeight * tilePixelSize);
+        mapImageGraphics.fillRect(0, 0, 64 * tilePixelSize, 64 * tilePixelSize);
         mapImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
         mapImageGraphics.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
 
-        for (int x = baseX - 1; x < baseX + regionWidth; x++) {
-            for (int y = baseY - 1; y < baseY + regionHeight; y++) {
-                int localX = (x - baseX) * tilePixelSize;
-                int localY = (y - baseY) * tilePixelSize;
+        for (int x = 0; x < 64; x++) {
+            for (int y = 0; y < 64; y++) {
+                int localX = (x) * tilePixelSize;
+                int localY = (y) * tilePixelSize;
 
-                Integer flagAt = RsEnvironment.getFlagAt(new Location(x, y, plane));
-                if (flagAt == null) continue;
+                Integer flagAt = regionInfo.getFlags()[plane][x][y];
                 TileFlag tileFlag = new TileFlag();
                 tileFlag.setFlag(flagAt);
 
@@ -143,6 +121,8 @@ public class WebImageProcessingService {
         }
 
         for (SceneEntityInstance location : region.getLocations()) {
+
+
             boolean isBridge = (region.getTileSetting(location.getPosition().toLocation()) & 2) != 0;
 
             int locationType = location.getType();
