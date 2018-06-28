@@ -4,6 +4,7 @@ import com.acuitybotting.data.flow.messaging.services.client.MessagingClientServ
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionInfo;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
+import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.RegionInfoRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.SceneEntityDefinitionRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
@@ -37,14 +38,18 @@ public class XteaService {
 
     private final RegionInfoRepository regionInfoRepository;
     private final MessagingClientService clientService;
+
+    private final TileFlagRepository tileFlagRepository;
+
     private Gson gson = new Gson();
 
     @Autowired
-    public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionInfoRepository regionInfoRepository, MessagingClientService clientService) {
+    public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionInfoRepository regionInfoRepository, MessagingClientService clientService, TileFlagRepository tileFlagRepository) {
         this.definitionRepository = definitionRepository;
         this.xteaRepository = xteaRepository;
         this.regionInfoRepository = regionInfoRepository;
         this.clientService = clientService;
+        this.tileFlagRepository = tileFlagRepository;
     }
 
     public Map<String, Set<Xtea>> findUnique(int rev) {
@@ -101,24 +106,22 @@ public class XteaService {
                     plane--;
                 }
 
-                boolean solidMatch = allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> !sceneEntityDefinition.getSolid());
-                boolean impenetrableMatch = allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> !sceneEntityDefinition.getImpenetrable());
+                boolean solidMatch = !definition.getSolid();
+                boolean impenetrableMatch = !definition.getImpenetrable();
 
                 if (plane >= 0) {
                     if (type >= 0 && type <= 3) {
-                        if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() != 0)) {
-                            CollisionBuilder.applyWallFlags(map, plane, localX, localY, type, entityInstance.getOrientation(), solidMatch, impenetrableMatch);
+                        if (definition.getClipType() != 0) {
+                            //CollisionBuilder.applyWallFlags(map, plane, localX, localY, type, entityInstance.getOrientation(), solidMatch, impenetrableMatch);
                         }
                         continue;
                     }
                     if (type == 22) {
-                        if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() == 1)) {
-                            CollisionBuilder.applyObjectFlag(map, plane, localX, localY);
+                        if (definition.getClipType() == 1) {
+                            //CollisionBuilder.applyObjectFlag(map, plane, localX, localY);
                         }
                     } else if (type >= 9) {
-                        if (allSceneEntityDefinitions.stream().anyMatch(sceneEntityDefinition -> sceneEntityDefinition.getClipType() != 0)) {
-
-
+                        if (definition.getClipType() != 0) {
                             int orientation = entityInstance.getOrientation();
                             if (orientation != 1 && orientation != 3) {
                                 CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, sizeX, sizeY, solidMatch, impenetrableMatch);

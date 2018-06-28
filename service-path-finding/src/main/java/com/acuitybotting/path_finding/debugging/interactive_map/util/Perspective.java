@@ -50,7 +50,7 @@ public class Perspective {
     }
 
     private double locationYToMap(int y){
-        return (base.getY() - y) * getMapTileSize();
+        return ((base.getY() - y) + 1) * getMapTileSize();
     }
 
     public void incScale(double value){

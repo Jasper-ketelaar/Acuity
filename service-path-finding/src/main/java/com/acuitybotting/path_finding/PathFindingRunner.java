@@ -52,11 +52,9 @@ public class PathFindingRunner implements CommandLineRunner {
 
     private final PathPlugin pathPlugin;
     private final HpaPlugin hpaPlugin = new HpaPlugin();
-    private RegionPlugin regionPlugin = new RegionPlugin();
-
     private final XteaService xteaService;
-
     private final HpaWebService hpaWebService;
+    private RegionPlugin regionPlugin = new RegionPlugin();
 
     @Autowired
     public PathFindingRunner(WebImageProcessingService webImageProcessingService, RsMapService rsMapService, AStarService aStarService, PathPlugin pathPlugin, XteaService xteaService, HpaWebService hpaWebService) {
@@ -89,7 +87,7 @@ public class PathFindingRunner implements CommandLineRunner {
         };
     }
 
-    private HPAGraph initGraph(){
+    private HPAGraph initGraph() {
         HPAGraph graph = new HPAGraph();
         graph.init(
                 new Location(3138 - 1000, 3384 - 1000, 0),
@@ -117,19 +115,15 @@ public class PathFindingRunner implements CommandLineRunner {
         hpaWebService.save(graph, version);
     }
 
-    public void printXteas(){
-        Map<String, int[]> results = new HashMap<>();
-        for (Set<Xtea> xteas : xteaService.findUnique(171).values()) {
-            Xtea xtea = xteas.stream().findAny().orElse(null);
-            if(xtea == null || xtea.getKeys() == null) continue;
-            if (xteas.size() > 1) {
-                log.warn("Multiple keys found for region {}.", xtea.getRegion());
-            }
-            results.put(String.valueOf(xtea.getRegion()), xtea.getKeys());
-        }
+    public void printXteas() {
+        Set<Map.Entry<String, Set<Xtea>>> keySets = xteaService.findUnique(171).entrySet();
 
-        for (Map.Entry<String, int[]> stringEntry : results.entrySet()) {
-            System.out.println(stringEntry.getKey() + " " + Arrays.toString(stringEntry.getValue()).replaceAll("\\[", "").replaceAll("]", "").replaceAll(",", ""));
+        for (Map.Entry<String, Set<Xtea>> keySetEntry : keySets) {
+            StringBuilder result = new StringBuilder(keySetEntry.getKey());
+            for (Xtea xtea : keySetEntry.getValue()) {
+                result.append(" ").append(Arrays.stream(xtea.getKeys()).mapToObj(String::valueOf).collect(Collectors.joining(",")));
+            }
+            System.out.println(result);
         }
     }
 
@@ -141,7 +135,7 @@ public class PathFindingRunner implements CommandLineRunner {
         for (File child : files) {
             SceneEntityDefinition def = gson.fromJson(Files.readAllLines(child.toPath()).stream().collect(Collectors.joining("\n")), SceneEntityDefinition.class);
             for (int i = 0; i < def.getActions().length; i++) {
-                if (def.getActions()[i] == null){
+                if (def.getActions()[i] == null) {
                     def.getActions()[i] = "null";
                 }
             }
@@ -153,27 +147,27 @@ public class PathFindingRunner implements CommandLineRunner {
         System.out.println("Done");
     }
 
-    private void save(ArangoRepository repository, int size, Collection<?> collection){
+    private void save(ArangoRepository repository, int size, Collection<?> collection) {
         final AtomicInteger counter = new AtomicInteger(0);
         collection.stream().collect(Collectors.groupingBy(it -> counter.getAndIncrement() / size)).values().parallelStream().forEach(set -> {
             repository.saveAll(set);
         });
     }
 
-    private void dumpRegionImages(){
+    private void dumpRegionImages() {
         ExecutorService executorService = Executors.newFixedThreadPool(30);
         for (RegionInfo regionInfo : RsEnvironment.getRegionMap().values()) {
-            for (int i = 0; i < 4; i++) {
-                int finalI = i;
-                executorService.submit(() -> {
-                    BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage(finalI, regionInfo);
+            executorService.submit(() -> {
+                BufferedImage[] tileFlagImage = webImageProcessingService.createTileFlagImage2(regionInfo.getKey());
+                for (int i = 0; i < tileFlagImage.length; i++) {
+
                     try {
-                        ImageIO.write(tileFlagImage, "png", new File(RsEnvironment.INFO_BASE, "\\img\\a2_regions\\" + regionInfo.getKey() + "_" + finalI + ".png"));
+                        ImageIO.write(tileFlagImage[i], "png", new File(RsEnvironment.INFO_BASE, "\\img\\a_regions\\" + regionInfo.getKey() + "_" + i + ".png"));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                });
-            }
+                }
+            });
         }
 
         executorService.shutdown();
@@ -187,7 +181,7 @@ public class PathFindingRunner implements CommandLineRunner {
         System.out.println("Finished image dump");
     }
 
-    private void dumpRegionInfo(){
+    private void dumpRegionInfo() {
         log.info("Starting RegionInfo dump.");
 
         xteaService.getRegionInfoRepository().deleteAll();
@@ -197,7 +191,7 @@ public class PathFindingRunner implements CommandLineRunner {
         xteaService.findUnique(171).keySet().forEach(s -> {
             executorService.submit(() -> {
                 Region region = xteaService.getRegion(Integer.parseInt(s)).orElse(null);
-                if (region != null){
+                if (region != null) {
                     RegionInfo save = xteaService.save(region);
                     log.info("Saved {}.", save);
                 }
@@ -218,33 +212,18 @@ public class PathFindingRunner implements CommandLineRunner {
     public void run(String... args) {
         try {
             RsEnvironment.setRsMapService(rsMapService);
-            Region region = xteaService.getRegion(12598).orElse(null);
-            if (region != null){
-                xteaService.getRegionInfoRepository().deleteById(String.valueOf(region.getRegionID()));
-                RegionInfo save = xteaService.save(region);
-                BufferedImage tileFlagImage = webImageProcessingService.createTileFlagImage(0, save);
-                ImageIO.write(tileFlagImage, "png", new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\test.png"));
-                log.info("Saved {}.", save);
-            }
 
-
-      /*      dumpRegionInfo();
             RsEnvironment.loadRegions();
-            dumpRegionImages();*/
-/*
+            dumpRegionImages();
+
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);
             mapFrame.getMapPanel().addPlugin(regionPlugin);
             mapFrame.getMapPanel().addPlugin(new PositionPlugin());
-            mapFrame.show();*/
+            mapFrame.show();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @AllArgsConstructor
-    private static class MapInfo{
-        private Map<String, Set<Xtea>> info;
     }
 }

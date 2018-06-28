@@ -6,16 +6,35 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import com.acuitybotting.path_finding.xtea.XteaService;
 import com.acuitybotting.path_finding.xtea.domain.Region;
+import com.acuitybotting.path_finding.xtea.domain.SceneEntityInstance;
 
 import java.awt.*;
-import java.util.Collections;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class RegionPlugin extends Plugin {
 
     private XteaService xteaService;
+
+    private static String defToDebug(SceneEntityDefinition baseDef) {
+        String result = "";
+        result += "CT:" + baseDef.getClipType() + " ";
+        result += baseDef.getProjectileClipped() ? "P" : "_";
+        result += baseDef.getSolid() ? "S" : "_";
+        result += baseDef.getImpenetrable() ? "I" : "_";
+        result += baseDef.getClipped() ? "C" : "_";
+
+        result += " " + baseDef.getMapSceneId();
+        result += " " + baseDef.getMapFunction();
+        result += " " + baseDef.getItemSupport();
+
+        result += "   " + baseDef.getVarpbitIndex();
+        result += " " + baseDef.getVarpIndex();
+
+        return result;
+    }
 
     public void setXteaService(XteaService xteaService) {
         this.xteaService = xteaService;
@@ -32,27 +51,48 @@ public class RegionPlugin extends Plugin {
     }
 
     @Override
+    public void mouseClicked(MouseEvent e) {
+        Location location = getPerspective().screenToLocation(this.getMapPanel().getMousePosition());
+        if (location != null){
+            xteaService.getTileFlagRepository().findByLocation(location).ifPresent(tileFlag -> {
+                System.out.println(location + ": " + tileFlag.getFlag());
+            });
+        }
+    }
+
+    @Override
     public void onPaint(Graphics2D graphics) {
         Location location = getPerspective().screenToLocation(this.getMapPanel().getMousePosition());
+
         int regionId = RsMapService.worldToRegionId(location);
-        Optional<Region> region = xteaService.getRegion(regionId);
-        List<String> locations = region
-                .map(region1 -> region1.getInstancesAt(location))
-                .orElse(Collections.emptyList()).stream()
-                .map(sceneEntityInstance -> {
-                    SceneEntityDefinition sceneEntityDefinition = xteaService.getSceneEntityDefinition(sceneEntityInstance.getId()).orElse(null);
-                    return sceneEntityInstance.getType() + " " +
-                            sceneEntityDefinition.getClipType() + " " +
-                            sceneEntityDefinition.getSolid();
+        Region region = xteaService.getRegion(regionId).orElse(null);
 
-                })
-                .collect(Collectors.toList());
+        List<String> locationDebugs = new ArrayList<>();
+        int setting = -404;
+        if (region != null) {
+            setting = region.getTileSetting(location);
 
-        Integer integer = region.map(region1 -> region1.getTileSetting(location)).orElse(-404);
-        getPaintUtil().debug("Setting: " + integer);
-        for (String s : locations) {
-            getPaintUtil().debug(s);
+            List<SceneEntityInstance> instancesAt = region.getInstancesAt(location);
+            instancesAt.stream().sorted(Comparator.comparingInt(SceneEntityInstance::getType)).forEach(sceneEntityInstance -> {
+                SceneEntityDefinition baseDef = xteaService.getSceneEntityDefinition(sceneEntityInstance.getId()).orElse(null);
+                if (baseDef != null) {
+                    locationDebugs.add(baseDef.getName() + "/" + baseDef.getObjectId() + ": OT:" + sceneEntityInstance.getType() + " " + defToDebug(baseDef));
+
+                    int[] transformIds = baseDef.getTransformIds();
+                    if (transformIds == null) return;
+                    for (int transformId : transformIds) {
+                        SceneEntityDefinition subDef = xteaService.getSceneEntityDefinition(transformId).orElse(null);
+                        if (subDef != null) {
+                            locationDebugs.add("  " + subDef.getName() + "/" + subDef.getObjectId() + " " + defToDebug(baseDef));
+                        }
+                    }
+
+                }
+            });
         }
+
+        getPaintUtil().debug("Setting: " + setting);
+        locationDebugs.forEach(s -> getPaintUtil().debug(s));
         getPaintUtil().markLocation(graphics, location, Color.RED);
     }
 }
