@@ -15,6 +15,7 @@ import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapFrame;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.utils.ExecutorUtil;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import com.acuitybotting.path_finding.web_processing.HpaWebService;
@@ -23,7 +24,6 @@ import com.acuitybotting.path_finding.xtea.XteaService;
 import com.acuitybotting.path_finding.xtea.domain.Region;
 import com.arangodb.springframework.repository.ArangoRepository;
 import com.google.gson.Gson;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -155,30 +155,22 @@ public class PathFindingRunner implements CommandLineRunner {
     }
 
     private void dumpRegionImages() {
-        ExecutorService executorService = Executors.newFixedThreadPool(30);
-        for (RegionInfo regionInfo : RsEnvironment.getRegionMap().values()) {
-            executorService.submit(() -> {
-                BufferedImage[] tileFlagImage = webImageProcessingService.createTileFlagImage2(regionInfo.getKey());
-                for (int i = 0; i < tileFlagImage.length; i++) {
-
-                    try {
-                        ImageIO.write(tileFlagImage[i], "png", new File(RsEnvironment.INFO_BASE, "\\img\\a_regions\\" + regionInfo.getKey() + "_" + i + ".png"));
-                    } catch (IOException e) {
-                        e.printStackTrace();
+        log.info("Starting region image dump.");
+        ExecutorUtil.run(30, executor -> {
+            for (RegionInfo regionInfo : RsEnvironment.getRegionMap().values()) {
+                executor.execute(() -> {
+                    BufferedImage[] tileFlagImage = webImageProcessingService.createTileFlagImageFromRegionInfo(regionInfo);
+                    for (int i = 0; i < tileFlagImage.length; i++) {
+                        try {
+                            ImageIO.write(tileFlagImage[i], "png", new File(RsEnvironment.INFO_BASE, "\\img\\a2_regions\\" + regionInfo.getKey() + "_" + i + ".png"));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
-        }
-
-        executorService.shutdown();
-
-        try {
-            executorService.awaitTermination(3, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("Finished image dump");
+                });
+            }
+        });
+        log.info("Finished region image dump.");
     }
 
     private void dumpRegionInfo() {
@@ -186,26 +178,26 @@ public class PathFindingRunner implements CommandLineRunner {
 
         xteaService.getRegionInfoRepository().deleteAll();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(30);
+        Set<String> regionIds = xteaService.findUnique(171).keySet();
 
-        xteaService.findUnique(171).keySet().forEach(s -> {
-            executorService.submit(() -> {
-                Region region = xteaService.getRegion(Integer.parseInt(s)).orElse(null);
-                if (region != null) {
-                    RegionInfo save = xteaService.save(region);
-                    log.info("Saved {}.", save);
-                }
-            });
+        ExecutorUtil.run(30, executor -> {
+            for (String regionId : regionIds) {
+                executor.execute(() -> xteaService.applySettings(Integer.parseInt(regionId)));
+            }
         });
 
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(3, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        ExecutorUtil.run(30, executor -> {
+            for (String regionId : regionIds) {
+                executor.execute(() -> xteaService.applyLocations(Integer.parseInt(regionId)));
+            }
+        });
+
+        for (RegionInfo regionInfo : RsEnvironment.getRegionMap().values()) {
+            RegionInfo save = xteaService.getRegionInfoRepository().save(regionInfo);
+            log.info("Saved {}.", save);
         }
 
-        log.info("Finished RegionInfo dump.");
+        log.info("Finished RegionInfo dump with {} regions.", RsEnvironment.getRegionMap().values().size());
     }
 
     @Override

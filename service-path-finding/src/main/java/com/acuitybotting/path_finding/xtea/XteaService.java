@@ -8,7 +8,11 @@ import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.RegionInfoRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.SceneEntityDefinitionRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
+import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
+import com.acuitybotting.path_finding.rs.utils.RsMapService;
+import com.acuitybotting.path_finding.xtea.domain.EntityLocation;
 import com.acuitybotting.path_finding.xtea.domain.Region;
 import com.acuitybotting.path_finding.xtea.domain.SceneEntityInstance;
 import com.google.gson.Gson;
@@ -75,95 +79,213 @@ public class XteaService {
         }));
     }
 
-    public RegionInfo save(Region region) {
+    private void addFlag(EntityLocation position, int plane, int flag){
+        int regionId = RsMapService.worldToRegionId(position.toLocation());
+        RegionInfo regionInfo = RsEnvironment.getRegionMap().get(String.valueOf(regionId));
+        if (regionInfo == null){
+            log.warn("Failed to add flag to region {}.", regionId);
+            return;
+        }
+        regionInfo.addFlag(new Location(position.getX(), position.getY(), plane), flag);
+    }
+
+    private RegionInfo createRegionInfo(Region region){
         RegionInfo regionInfo = new RegionInfo();
         regionInfo.setKey(String.valueOf(region.getRegionID()));
-        regionInfo.init();
-
-        int[][][] map = new int[4][64][64];
-
-        int[][][] doors = new int[4][64][64];
-        int[][][] tileSettings = region.getTileSettings();
-
-        for (SceneEntityInstance entityInstance : region.getLocations()) {
-            int type = entityInstance.getType();
-            if (type >= 4 && type <= 8) {
-                continue;
+        regionInfo.setBaseX(region.getBaseX());
+        regionInfo.setBaseY(region.getBaseY());
+        int[][][] flags = new int[Region.Z][Region.X][Region.Y];
+        for (int[][] planeFlags : flags) {
+            for (int[] axisFlags : planeFlags) {
+                Arrays.fill(axisFlags, 1);
             }
+        };
+        regionInfo.setFlags(flags);
+        return regionInfo;
+    }
 
-            SceneEntityDefinition definition = getSceneEntityDefinition(entityInstance.getId()).orElseThrow(() -> new RuntimeException("Failed to load entity def " + entityInstance.getId() + ".'"));
-            Set<SceneEntityDefinition> allSceneEntityDefinitions = getAllSceneEntityDefinitions(entityInstance.getId());
+    public void applySettings(int regionId){
+        Region region = getRegion(regionId).orElse(null);
+        if (region == null){
+            log.warn("Failed to load region {}. Skipping applying flags to region.", regionId);
+            return;
+        }
+        RegionInfo regionInfo = RsEnvironment.getRegionMap().computeIfAbsent(String.valueOf(region.getRegionID()), s -> createRegionInfo(region));
 
-            int sizeX = definition.getSizeX();
-            int sizeY = definition.getSizeY();
+        for (int plane = 0; plane < Region.Z; plane++) {
+            for (int regionX = 0; regionX < Region.X; regionX++) {
+                for (int regionY = 0; regionY < Region.Y; regionY++) {
+                    int setting = region.getTileSettings()[plane][regionX][regionY];
 
-            int plane = entityInstance.getPosition().getZ();
-            int localX = entityInstance.getPosition().getX() - region.getBaseX();
-            int localY = entityInstance.getPosition().getY() - region.getBaseY();
+                    boolean bridge = plane + 1 < 4 && (region.getTileSettings()[plane + 1][regionX][regionY] == 2);
+                    if (!bridge && setting == 1) {
+                        //blocked
+                        regionInfo.addFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING);
+                    }
+                    else {
+                        //walkable
+                        regionInfo.addFlag(regionX, regionY, plane, MapFlags.OPEN_SETTINGS);
+                    }
+                }
+            }
+        }
+
+    }
+
+    public void applyLocations(int regionId) {
+        Region region = getRegion(regionId).orElse(null);
+        if (region == null){
+            log.warn("Failed to load region {}. Skipping applying locations to region.", regionId);
+            return;
+        }
+
+        for (SceneEntityInstance location : region.getLocations()) {
+            int locationType = location.getType();
+
+            int baseX = region.getBaseX();
+            int baseY = region.getBaseY();
+            int regionX = location.getPosition().getX() - baseX;
+            int regionY = location.getPosition().getY() - baseY;
+            int plane = location.getPosition().getZ();
 
             if (plane < 4) {
-                if (tileSettings != null && (tileSettings[1][localX][localY] & 2) == 2) {
-                    plane--;
+                if ((region.getTileSettings()[1][regionX][regionY] & 2) == 2) {//Settings that apply locations to plane below.
+                    plane = plane - 1;
                 }
 
-                boolean solidMatch = !definition.getSolid();
-                boolean impenetrableMatch = !definition.getImpenetrable();
-
                 if (plane >= 0) {
-                    if (type >= 0 && type <= 3) {
-                        if (definition.getClipType() != 0) {
-                            //CollisionBuilder.applyWallFlags(map, plane, localX, localY, type, entityInstance.getOrientation(), solidMatch, impenetrableMatch);
+                    addFlag(location.getPosition(), plane, MapFlags.OCCUPIED);
+
+                    SceneEntityDefinition baseDefinition = getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load " + location.getId() + "."));
+
+                    Integer clipType = baseDefinition.getClipType();
+                    if (locationType == 22) {
+                        if (clipType == 1) {
+                            //block22 Never actually happens but client checks it.
+                            addFlag(location.getPosition(), plane, MapFlags.BLOCKED_22);
                         }
-                        continue;
-                    }
-                    if (type == 22) {
-                        if (definition.getClipType() == 1) {
-                            //CollisionBuilder.applyObjectFlag(map, plane, localX, localY);
-                        }
-                    } else if (type >= 9) {
-                        if (definition.getClipType() != 0) {
-                            int orientation = entityInstance.getOrientation();
-                            if (orientation != 1 && orientation != 3) {
-                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, sizeX, sizeY, solidMatch, impenetrableMatch);
+                    } else {
+                        if (locationType != 10 && locationType != 11) {
+                            int rotation = location.getOrientation();
+
+                            if (locationType >= 12) {
+                                if (clipType != 0) {
+                                    //addObject block, these are visible roofs from other rooms.
+                                    addFlag(location.getPosition(), plane, MapFlags.BLOCKED_ROOF);
+                                }
+                            }
+
+                            if (baseDefinition.getItemSupport() == 1) {
+                                if (locationType == 0 || locationType == 2) {
+                                    if (rotation == 0) {
+                                        //West wall
+                                        addFlag(location.getPosition(), plane, MapFlags.WALL_WEST);
+                                    } else if (rotation == 1) {
+                                        //North wall
+                                        addFlag(location.getPosition(), plane, MapFlags.WALL_NORTH);
+                                    } else if (rotation == 2) {
+                                        //East wall
+                                        addFlag(location.getPosition(), plane, MapFlags.WALL_EAST);
+                                    } else if (rotation == 3) {
+                                        //South wall
+                                        addFlag(location.getPosition(), plane, MapFlags.WALL_SOUTH);
+                                    }
+                                }
+
+                                if (locationType == 1) {
+                                    //Wall interconnecting ignore
+                                }
+
+                                if (locationType == 2) {
+                                    if (rotation == 3) {
+                                        //West wall
+                                        addFlag(location.getPosition(), plane, MapFlags.WALL_WEST);
+                                    } else if (rotation == 0) {
+                                        //North wall
+                                        addFlag(location.getPosition(), plane, MapFlags.WALL_NORTH);
+                                    } else if (rotation == 1) {
+                                        //East wall
+                                        addFlag(location.getPosition(), plane, MapFlags.WALL_EAST);
+                                    } else if (rotation == 2) {
+                                        //South wall
+                                        addFlag(location.getPosition(), plane, MapFlags.WALL_SOUTH);
+                                    }
+                                }
+
+                                if (locationType == 3) {
+                                    if (rotation == 0) {
+                                        //Pillar North-West
+                                        addFlag(location.getPosition(), plane, MapFlags.PILLAR_NORTH_WEST);
+                                    } else if (rotation == 1) {
+                                        //Pillar North-East
+                                        addFlag(location.getPosition(), plane, MapFlags.PILLAR_NORTH_EAST);
+                                    } else if (rotation == 2) {
+                                        //Pillar South-East
+                                        addFlag(location.getPosition(), plane, MapFlags.PILLAR_SOUTH_EAST);
+                                    } else if (rotation == 3) {
+                                        //Pillar South-West
+                                        addFlag(location.getPosition(), plane, MapFlags.PILLAR_SOUTH_WEST);
+                                    }
+                                }
+
+                                if (locationType == 9) {
+                                    int hash = (regionX << 7) + regionY + (location.getId() << 14) + 0x4000_0000;
+                                    if ((hash >> 29 & 3) != 2) {
+                                        continue; //Idk works
+                                    }
+
+                                    if (rotation != 0 && rotation != 2) {
+                                        //North-West to South-East wall
+                                        addFlag(location.getPosition(), plane, MapFlags.WALL_NORTH_WEST_TO_SOUTH_EAST);
+                                    } else {
+                                        //North-East to South-West wall
+                                        addFlag(location.getPosition(), plane, MapFlags.WALL_NORTH_EAST_TO_SOUTH_WEST);
+                                    }
+                                }
+                            }
+
+                            if (locationType == 4) {
+                                //addBoundaryDecoration ignore
                             } else {
-                                CollisionBuilder.applyLargeObjectFlags(map, plane, localX, localY, sizeY, sizeX, solidMatch, impenetrableMatch);
+                                if (locationType == 5) {
+                                    //addBoundaryDecoration ignore
+                                } else if (locationType == 6) {
+                                    //addBoundaryDecoration ignore
+                                } else if (locationType == 7) {
+                                    //addBoundaryDecoration ignore
+                                } else if (locationType == 8) {
+                                    //addBoundaryDecoration ignore
+                                }
+                            }
+                        }
+                        else {
+                            if (!"null".equals(baseDefinition.getName()) && baseDefinition.getProjectileClipped() && baseDefinition.getItemSupport() == 1) {
+                                //addObject blocks walking
+
+                                int width;
+                                int length;
+
+                                int orientation = location.getOrientation();
+                                if(orientation != 1 && orientation != 3) {
+                                    width = baseDefinition.getSizeX();
+                                    length = baseDefinition.getSizeY();
+                                }
+                                else {
+                                    width = baseDefinition.getSizeY();
+                                    length = baseDefinition.getSizeX();
+                                }
+
+                                for (int xOff = 0; xOff < width; xOff++) {
+                                    for (int yOff = 0; yOff < length; yOff++) {
+                                        addFlag(location.getPosition(), plane, MapFlags.BLOCKED_SCENE_OBJECT);
+                                    }
+                                }
                             }
                         }
                     }
                 }
-
             }
         }
-
-        if (tileSettings != null) {
-            CollisionBuilder.applyNonLoadedFlags(tileSettings, map);
-        }
-
-        regionInfo.setRenderSettings(tileSettings);
-        regionInfo.setFlags(map);
-        regionInfo.setDoors(doors);
-
-        return regionInfoRepository.save(regionInfo);
-    }
-
-    public Set<SceneEntityDefinition> getAllSceneEntityDefinitions(int id){
-        Set<com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition> definitions = new HashSet<>();
-
-        com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition sceneEntityDefinition = getSceneEntityDefinition(id).orElse(null);
-        if (sceneEntityDefinition == null) throw new RuntimeException("Failed to load def for " + id + ".");
-        definitions.add(sceneEntityDefinition);
-
-        int[] transformIds = sceneEntityDefinition.getTransformIds();
-        if (transformIds != null && transformIds.length > 0){
-            for (int transformId : transformIds) {
-                if (transformId == -1) continue;
-                com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition transform = getSceneEntityDefinition(transformId).orElse(null);
-                if (transform == null) throw new RuntimeException("Failed to load def for " + transformId + ".");
-                definitions.add(transform);
-            }
-        }
-
-        return definitions;
     }
 
     public void consumeQueue() {

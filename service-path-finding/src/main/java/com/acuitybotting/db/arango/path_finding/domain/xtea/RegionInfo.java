@@ -1,7 +1,9 @@
 package com.acuitybotting.db.arango.path_finding.domain.xtea;
 
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.rs.utils.RsMapService;
+import com.acuitybotting.path_finding.xtea.domain.EntityLocation;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.Key;
 import lombok.Getter;
@@ -24,13 +26,19 @@ public class RegionInfo {
 
     private Integer baseX, baseY;
 
-    private int[][][] renderSettings;
     private int[][][] flags;
-    private int[][][] doors;
 
-    public void init(){
-        Location location = RsMapService.regionIdToBase(Integer.parseInt(key));
-        baseX = location.getX();
-        baseY = location.getY();
+    public void addFlag(int regionX, int regionY, int plane, int flag) {
+        flags[plane][regionX][regionY] = MapFlags.add(flags[plane][regionX][regionY], flag);
+    }
+
+    public boolean checkFlag(int regionX, int regionY, int plane, int flag) {
+        return MapFlags.check(flags[plane][regionX][regionY], flag);
+    }
+
+    public void addFlag(Location location, int flag) {
+        int regionX = location.getX() - baseX;
+        int regionY = location.getY() - baseY;
+        addFlag(regionX, regionY, location.getPlane(), flag);
     }
 }

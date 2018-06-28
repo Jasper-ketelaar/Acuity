@@ -5,6 +5,7 @@ import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionInfo;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.repositories.SceneEntityRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
+import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.xtea.XteaService;
 import com.acuitybotting.path_finding.xtea.domain.Region;
 import com.acuitybotting.path_finding.xtea.domain.SceneEntityInstance;
@@ -32,69 +33,7 @@ public class WebImageProcessingService {
         this.sceneEntityRepository = sceneEntityRepository;
     }
 
-    private static void thinking(int locationType, int clipType) {
-
-    }
-
-    public BufferedImage createTileFlagImage(int plane, RegionInfo regionInfo) {
-        int tilePixelSize = 4;
-        BufferedImage mapImage = new BufferedImage(64 * tilePixelSize, 64 * tilePixelSize, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D mapImageGraphics = mapImage.createGraphics();
-        AffineTransform original = transform(mapImageGraphics, mapImage.getHeight());
-
-        mapImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-        mapImageGraphics.fillRect(0, 0, 64 * tilePixelSize, 64 * tilePixelSize);
-        mapImageGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
-        mapImageGraphics.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
-
-        for (int x = 0; x < 64; x++) {
-            for (int y = 0; y < 64; y++) {
-                int localX = (x) * tilePixelSize;
-                int localY = (y) * tilePixelSize;
-
-                Integer flagAt = regionInfo.getFlags()[plane][x][y];
-                TileFlag tileFlag = new TileFlag();
-                tileFlag.setFlag(flagAt);
-
-                mapImageGraphics.setColor(new Color(3, 1, 3, 47));
-                mapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize);
-
-                if (!tileFlag.isWalkable()) {
-                    mapImageGraphics.setColor(new Color(50, 109, 255, 223));
-                    mapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize);
-                }
-
-                mapImageGraphics.setColor(new Color(249, 122, 39, 223));
-                if (tileFlag.blockedNorth()) {
-                    mapImageGraphics.fillRect(localX, localY, tilePixelSize, tilePixelSize / 4);
-                }
-                if (tileFlag.blockedEast()) {
-                    mapImageGraphics.fillRect(localX + tilePixelSize - tilePixelSize / 4, localY, tilePixelSize / 4, tilePixelSize);
-                }
-                if (tileFlag.blockedSouth()) {
-                    mapImageGraphics.fillRect(localX, localY + tilePixelSize - tilePixelSize / 4, tilePixelSize, tilePixelSize / 4);
-                }
-                if (tileFlag.blockedWest()) {
-                    mapImageGraphics.fillRect(localX, localY, tilePixelSize / 4, tilePixelSize);
-                }
-            }
-        }
-
-        mapImageGraphics.setTransform(original);
-        return mapImage;
-    }
-
-    private AffineTransform transform(Graphics2D graphics2D, int height) {
-        AffineTransform old = graphics2D.getTransform();
-        graphics2D.translate(0, height - 1);
-        graphics2D.scale(1, -1);
-        return old;
-    }
-
-    public BufferedImage[] createTileFlagImage2(String regionId) {
-        Region region = xteaService.getRegion(Integer.parseInt(regionId)).orElse(null);
-        if (region == null) return null;
-
+    public BufferedImage[] createTileFlagImageFromRegionInfo(RegionInfo regionInfo) {
         int tilePixelSize = 4;
 
         BufferedImage[] mapImages = new BufferedImage[Region.Z];
@@ -102,205 +41,93 @@ public class WebImageProcessingService {
             mapImages[i] = new BufferedImage(Region.X * tilePixelSize, Region.Y * tilePixelSize, BufferedImage.TYPE_INT_RGB);
         }
 
-        int baseX = region.getBaseX();
-        int baseY = region.getBaseY();
-
         for (int plane = 0; plane < Region.Z; plane++) {
             for (int regionX = 0; regionX < Region.X; regionX++) {
                 for (int regionY = 0; regionY < Region.Y; regionY++) {
-                    int setting = region.getTileSettings()[plane][regionX][regionY];
-
                     int drawX = regionX * tilePixelSize;
                     int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
-
-                    boolean bridge = plane + 1 < 4 && (region.getTileSettings()[plane + 1][regionX][regionY] == 2);
-                    if (!bridge && setting == 1) {
-                        //blocked
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING)){
                         fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(50, 109, 255, 223));
                     }
                     else {
-                        //walkable
                         fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(215, 216, 216, 255));
                     }
                 }
             }
         }
 
-        for (SceneEntityInstance location : region.getLocations()) {
-            int locationType = location.getType();
+        int rgb = new Color(249, 122, 39, 223).getRGB();
 
-            int regionX = location.getPosition().getX() - baseX;
-            int regionY = location.getPosition().getY() - baseY;
-            int plane = location.getPosition().getZ();
+        for (int plane = 0; plane < Region.Z; plane++) {
+            for (int regionX = 0; regionX < Region.X; regionX++) {
+                for (int regionY = 0; regionY < Region.Y; regionY++) {
+                    int drawX = regionX * tilePixelSize;
+                    int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
 
-            int drawX = regionX * tilePixelSize;
-            int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_WEST)){
+                        mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
+                        mapImages[plane].setRGB(drawX + 0, drawY + 1, rgb);
+                        mapImages[plane].setRGB(drawX + 0, drawY + 2, rgb);
+                        mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
+                    }
 
-            if (plane < 4) {
-                if ((region.getTileSettings()[1][regionX][regionY] & 2) == 2) {//Settings that apply locations to plane below.
-                    plane = plane - 1;
-                }
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_NORTH)){
+                        mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
+                        mapImages[plane].setRGB(drawX + 1, drawY + 0, rgb);
+                        mapImages[plane].setRGB(drawX + 2, drawY + 0, rgb);
+                        mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
+                    }
 
-                if (plane >= 0) {
-                    SceneEntityDefinition baseDefinition = xteaService.getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load " + location.getId() + "."));
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_EAST)){
+                        mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
+                        mapImages[plane].setRGB(drawX + 3, drawY + 1, rgb);
+                        mapImages[plane].setRGB(drawX + 3, drawY + 2, rgb);
+                        mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
+                    }
 
-                    Integer clipType = baseDefinition.getClipType();
-                    if (locationType == 22) {
-                        if (clipType == 1) {
-                            //block22 Never actually happens but client checks it.
-                            fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(20, 189, 153, 198));
-                        }
-                    } else {
-                        if (locationType != 10 && locationType != 11) {
-                            int rgb = new Color(249, 122, 39, 223).getRGB();
-                            int rotation = location.getOrientation();
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_SOUTH)){
+                        mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
+                        mapImages[plane].setRGB(drawX + 1, drawY + 3, rgb);
+                        mapImages[plane].setRGB(drawX + 2, drawY + 3, rgb);
+                        mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
+                    }
 
-                            if (locationType >= 12) {
-                                if (clipType != 0) {
-                                    //addObject block, these are visible roofs from other rooms.
-                                    fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(189, 30, 139, 198));
-                                }
-                            }
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_NORTH_WEST)){
+                        mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
+                    }
 
-                            if (baseDefinition.getItemSupport() == 1) {
-                                if (locationType == 0 || locationType == 2) {
-                                    if (rotation == 0) {
-                                        //West wall
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 1, rgb);
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 2, rgb);
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
-                                    } else if (rotation == 1) {
-                                        //North wall
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
-                                        mapImages[plane].setRGB(drawX + 1, drawY + 0, rgb);
-                                        mapImages[plane].setRGB(drawX + 2, drawY + 0, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
-                                    } else if (rotation == 2) {
-                                        //East wall
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 1, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 2, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
-                                    } else if (rotation == 3) {
-                                        //South wall
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
-                                        mapImages[plane].setRGB(drawX + 1, drawY + 3, rgb);
-                                        mapImages[plane].setRGB(drawX + 2, drawY + 3, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
-                                    }
-                                }
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_NORTH_EAST)){
+                        mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
+                    }
 
-                                if (locationType == 1) {
-                                    //Wall interconnecting ignore
-                                }
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_SOUTH_EAST)){
+                        mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
+                    }
 
-                                if (locationType == 2) {
-                                    if (rotation == 3) {
-                                        //West wall
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 1, rgb);
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 2, rgb);
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
-                                    } else if (rotation == 0) {
-                                        //North wall
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
-                                        mapImages[plane].setRGB(drawX + 1, drawY + 0, rgb);
-                                        mapImages[plane].setRGB(drawX + 2, drawY + 0, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
-                                    } else if (rotation == 1) {
-                                        //East wall
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 1, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 2, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
-                                    } else if (rotation == 2) {
-                                        //South wall
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
-                                        mapImages[plane].setRGB(drawX + 1, drawY + 3, rgb);
-                                        mapImages[plane].setRGB(drawX + 2, drawY + 3, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
-                                    }
-                                }
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_SOUTH_WEST)){
+                        mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
+                    }
 
-                                if (locationType == 3) {
-                                    if (rotation == 0) {
-                                        //Pillar North-West
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
-                                    } else if (rotation == 1) {
-                                        //Pillar North-East
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
-                                    } else if (rotation == 2) {
-                                        //Pillar South-East
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
-                                    } else if (rotation == 3) {
-                                        //Pillar South-West
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
-                                    }
-                                }
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_NORTH_WEST_TO_SOUTH_EAST)){
+                        mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
+                        mapImages[plane].setRGB(drawX + 1, drawY + 1, rgb);
+                        mapImages[plane].setRGB(drawX + 2, drawY + 2, rgb);
+                        mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
+                    }
 
-                                if (locationType == 9) {
-                                    int hash = (regionX << 7) + regionY + (location.getId() << 14) + 0x4000_0000;
-                                    if ((hash >> 29 & 3) != 2) {
-                                        continue; //Idk works
-                                    }
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_NORTH_EAST_TO_SOUTH_WEST)){
+                        mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
+                        mapImages[plane].setRGB(drawX + 1, drawY + 2, rgb);
+                        mapImages[plane].setRGB(drawX + 2, drawY + 1, rgb);
+                        mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
+                    }
 
-                                    if (rotation != 0 && rotation != 2) {
-                                        //North-West to South-East wall
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
-                                        mapImages[plane].setRGB(drawX + 1, drawY + 1, rgb);
-                                        mapImages[plane].setRGB(drawX + 2, drawY + 2, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
-                                    } else {
-                                        //North-East to South-West wall
-                                        mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
-                                        mapImages[plane].setRGB(drawX + 1, drawY + 2, rgb);
-                                        mapImages[plane].setRGB(drawX + 2, drawY + 1, rgb);
-                                        mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
-                                    }
-                                }
-                            }
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_ROOF)){
+                        fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(189, 30, 139, 198));
+                    }
 
-                            if (locationType == 4) {
-                                //addBoundaryDecoration ignore
-                            } else {
-                                if (locationType == 5) {
-                                    //addBoundaryDecoration ignore
-                                } else if (locationType == 6) {
-                                    //addBoundaryDecoration ignore
-                                } else if (locationType == 7) {
-                                    //addBoundaryDecoration ignore
-                                } else if (locationType == 8) {
-                                    //addBoundaryDecoration ignore
-                                }
-                            }
-                        }
-                        else {
-                            if (!"null".equals(baseDefinition.getName()) && baseDefinition.getProjectileClipped() && baseDefinition.getItemSupport() == 1) {
-                                //addObject blocks walking
-
-                                int width;
-                                int length;
-
-                                int orientation = location.getOrientation();
-                                if(orientation != 1 && orientation != 3) {
-                                    width = baseDefinition.getSizeX();
-                                    length = baseDefinition.getSizeY();
-                                }
-                                else {
-                                    width = baseDefinition.getSizeY();
-                                    length = baseDefinition.getSizeX();
-                                }
-
-                                for (int xOff = 0; xOff < width; xOff++) {
-                                    for (int yOff = 0; yOff < length; yOff++) {
-                                        drawX = (regionX + xOff) * tilePixelSize;
-                                        drawY = (Region.Y - 1 - (regionY + yOff)) * tilePixelSize;
-                                        fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(51, 189, 20, 198));
-                                    }
-                                }
-                            }
-                        }
+                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SCENE_OBJECT)){
+                        fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(51, 189, 20, 198));
                     }
                 }
             }

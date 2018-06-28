@@ -46,7 +46,6 @@ public class RsEnvironment {
         regionMap.clear();
         log.info("Starting region load.");
         for (RegionInfo regionInfo : rsMapService.getRegionInfoRepository().findAll()) {
-            regionInfo.init();
             regionMap.put(regionInfo.getKey(), regionInfo);
         }
         log.info("Finished region load with {} regions.", regionMap.size());

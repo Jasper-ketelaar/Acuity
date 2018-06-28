@@ -87,7 +87,7 @@ public class HpaWebService {
     }
 
     public void save(HPAGraph graph, int version) {
-        log.info("Starting save of {} as version {}.", graph, version);
+        log.info("Starting applyLocations of {} as version {}.", graph, version);
 
         AtomicInteger keyIndex = new AtomicInteger(0);
         Supplier<String> keySupplier = () -> version + "_" + keyIndex.getAndIncrement();
