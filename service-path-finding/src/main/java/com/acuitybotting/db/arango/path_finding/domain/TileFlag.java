@@ -1,6 +1,6 @@
 package com.acuitybotting.db.arango.path_finding.domain;
 
-import com.acuitybotting.path_finding.rs.utils.CollisionFlags;
+import com.acuitybotting.path_finding.rs.utils.RsCollisionFlags;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.Key;
@@ -30,27 +30,27 @@ public class TileFlag {
     private String requestID;
 
     public boolean blockedNorth(){
-        return CollisionFlags.blockedNorth(getFlag());
+        return RsCollisionFlags.blockedNorth(getFlag());
     }
 
     public boolean blockedEast(){
-        return CollisionFlags.blockedEast(getFlag());
+        return RsCollisionFlags.blockedEast(getFlag());
     }
 
     public boolean blockedSouth(){
-        return CollisionFlags.blockedSouth(getFlag());
+        return RsCollisionFlags.blockedSouth(getFlag());
     }
 
     public boolean blockedWest(){
-        return CollisionFlags.blockedWest(getFlag());
+        return RsCollisionFlags.blockedWest(getFlag());
     }
 
     public boolean isWalkable(){
-        return CollisionFlags.isWalkable(getFlag());
+        return RsCollisionFlags.isWalkable(getFlag());
     }
 
     public boolean isInitialized(){
-        return CollisionFlags.isInitialized(getFlag());
+        return RsCollisionFlags.isInitialized(getFlag());
     }
 
     public Location getLocation(){

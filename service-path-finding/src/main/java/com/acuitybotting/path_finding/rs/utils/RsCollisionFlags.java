@@ -2,7 +2,7 @@ package com.acuitybotting.path_finding.rs.utils;
 
 import java.util.StringJoiner;
 
-public class CollisionFlags {
+public class RsCollisionFlags {
 
     public static final int OPEN = 0;
 
@@ -74,23 +74,23 @@ public class CollisionFlags {
     }
 
     public static boolean blockedNorth(int collisionData){
-        return CollisionFlags.check(collisionData, CollisionFlags.NORTH_WALL) || CollisionFlags.check(collisionData, CollisionFlags.BLOCKED_NORTH_WALL);
+        return RsCollisionFlags.check(collisionData, RsCollisionFlags.NORTH_WALL) || RsCollisionFlags.check(collisionData, RsCollisionFlags.BLOCKED_NORTH_WALL);
     }
 
     public static boolean blockedEast(int collisionData){
-        return CollisionFlags.check(collisionData, CollisionFlags.EAST_WALL) || CollisionFlags.check(collisionData, CollisionFlags.BLOCKED_EAST_WALL);
+        return RsCollisionFlags.check(collisionData, RsCollisionFlags.EAST_WALL) || RsCollisionFlags.check(collisionData, RsCollisionFlags.BLOCKED_EAST_WALL);
     }
 
     public static boolean blockedSouth(int collisionData){
-        return CollisionFlags.check(collisionData, CollisionFlags.SOUTH_WALL) || CollisionFlags.check(collisionData, CollisionFlags.BLOCKED_SOUTH_WALL);
+        return RsCollisionFlags.check(collisionData, RsCollisionFlags.SOUTH_WALL) || RsCollisionFlags.check(collisionData, RsCollisionFlags.BLOCKED_SOUTH_WALL);
     }
 
     public static boolean blockedWest(int collisionData){
-        return CollisionFlags.check(collisionData, CollisionFlags.WEST_WALL) || CollisionFlags.check(collisionData, CollisionFlags.BLOCKED_WEST_WALL);
+        return RsCollisionFlags.check(collisionData, RsCollisionFlags.WEST_WALL) || RsCollisionFlags.check(collisionData, RsCollisionFlags.BLOCKED_WEST_WALL);
     }
 
     public static boolean isInitialized(int collisionData){
-        return !(blockedNorth(collisionData) && blockedEast(collisionData) && blockedSouth(collisionData) && blockedWest(collisionData) && !isWalkable(collisionData)) || CollisionFlags.check(collisionData, CollisionFlags.INITIALIZED);
+        return !(blockedNorth(collisionData) && blockedEast(collisionData) && blockedSouth(collisionData) && blockedWest(collisionData) && !isWalkable(collisionData)) || RsCollisionFlags.check(collisionData, RsCollisionFlags.INITIALIZED);
     }
 
     public static boolean blocked(int flag, int checkFlag) {
@@ -98,10 +98,10 @@ public class CollisionFlags {
     }
 
     public static boolean isWalkable(int collisionData){
-        return !(CollisionFlags.check(collisionData, CollisionFlags.OCCUPIED)
-                || CollisionFlags.check(collisionData, CollisionFlags.SOLID)
-                || CollisionFlags.check(collisionData, CollisionFlags.BLOCKED)
-                || CollisionFlags.check(collisionData, CollisionFlags.CLOSED));
+        return !(RsCollisionFlags.check(collisionData, RsCollisionFlags.OCCUPIED)
+                || RsCollisionFlags.check(collisionData, RsCollisionFlags.SOLID)
+                || RsCollisionFlags.check(collisionData, RsCollisionFlags.BLOCKED)
+                || RsCollisionFlags.check(collisionData, RsCollisionFlags.CLOSED));
     }
 
     public static String toString(int flag) {

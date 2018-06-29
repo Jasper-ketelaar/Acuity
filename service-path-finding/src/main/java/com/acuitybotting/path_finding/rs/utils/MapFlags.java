@@ -1,5 +1,8 @@
 package com.acuitybotting.path_finding.rs.utils;
 
+import java.lang.reflect.Field;
+import java.util.StringJoiner;
+
 /**
  * Created by Zachary Herridge on 6/28/2018.
  */
@@ -68,19 +71,40 @@ public class MapFlags {
                 break;
 
             case NORTH_EAST:
-                if (check(startFlag, WALL_NORTH | WALL_EAST) || check(endFlag, WALL_SOUTH | WALL_WEST)) return false;
+                if (check(startFlag, WALL_NORTH | WALL_EAST | PILLAR_NORTH_EAST) || check(endFlag, WALL_SOUTH | WALL_WEST | PILLAR_SOUTH_WEST)) return false;
                 break;
             case NORTH_WEST:
-                if (check(startFlag, WALL_NORTH | WALL_WEST) || check(endFlag, WALL_SOUTH | WALL_EAST)) return false;
+                if (check(startFlag, WALL_NORTH | WALL_WEST | PILLAR_NORTH_WEST) || check(endFlag, WALL_SOUTH | WALL_EAST | PILLAR_SOUTH_EAST)) return false;
                 break;
             case SOUTH_EAST:
-                if (check(startFlag, WALL_SOUTH | WALL_EAST) || check(endFlag, WALL_NORTH | WALL_WEST)) return false;
+                if (check(startFlag, WALL_SOUTH | WALL_EAST | PILLAR_SOUTH_EAST) || check(endFlag, WALL_NORTH | WALL_WEST | PILLAR_NORTH_WEST)) return false;
                 break;
             case SOUTH_WEST:
-                if (check(startFlag, WALL_SOUTH | WALL_WEST) || check(endFlag, WALL_NORTH | WALL_EAST)) return false;
+                if (check(startFlag, WALL_SOUTH | WALL_WEST | PILLAR_SOUTH_WEST) || check(endFlag, WALL_NORTH | WALL_EAST | PILLAR_NORTH_EAST)) return false;
                 break;
         }
 
         return true;
+    }
+
+    public static String toString(int flag){
+        StringJoiner result = new StringJoiner(" ");
+
+        for (Field field : MapFlags.class.getDeclaredFields()) {
+            field.setAccessible(true);
+            try {
+                int checkFlag = (int) field.get(null);
+                if (check(flag, checkFlag)){
+                    result.add(field.getName());
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return result.toString();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(toString(5121));
     }
 }

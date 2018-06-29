@@ -33,6 +33,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
     public MapPanel() {
         this.perspective = new Perspective(this);
 
+        setDoubleBuffered(true);
         addMouseMotionListener(this);
         addMouseListener(this);
         addMouseWheelListener(this);
