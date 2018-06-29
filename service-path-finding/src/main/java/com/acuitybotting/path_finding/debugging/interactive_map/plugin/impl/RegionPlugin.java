@@ -3,7 +3,8 @@ package com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
-import com.acuitybotting.path_finding.rs.utils.RsMapService;
+import com.acuitybotting.path_finding.rs.utils.RegionUtils;
+import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.xtea.XteaService;
 import com.acuitybotting.path_finding.xtea.domain.Region;
 import com.acuitybotting.path_finding.xtea.domain.SceneEntityInstance;
@@ -64,7 +65,7 @@ public class RegionPlugin extends Plugin {
     public void onPaint(Graphics2D graphics) {
         Location location = getPerspective().screenToLocation(this.getMapPanel().getMousePosition());
 
-        int regionId = RsMapService.worldToRegionId(location);
+        int regionId = RegionUtils.locationToRegionId(location);
         Region region = xteaService.getRegion(regionId).orElse(null);
 
         List<String> locationDebugs = new ArrayList<>();
@@ -93,6 +94,11 @@ public class RegionPlugin extends Plugin {
 
         getPaintUtil().debug("Setting: " + setting);
         locationDebugs.forEach(s -> getPaintUtil().debug(s));
+
         getPaintUtil().markLocation(graphics, location, Color.RED);
+
+        if (location != null){
+            getPaintUtil().connectLocations(graphics, RsEnvironment.getRsMap().getNode(location).getNeighbors(), Color.RED);
+        }
     }
 }

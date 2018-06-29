@@ -1,6 +1,6 @@
 package com.acuitybotting.path_finding;
 
-import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionInfo;
+import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
@@ -17,11 +17,9 @@ import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.ExecutorUtil;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
-import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import com.acuitybotting.path_finding.web_processing.HpaWebService;
 import com.acuitybotting.path_finding.web_processing.WebImageProcessingService;
 import com.acuitybotting.path_finding.xtea.XteaService;
-import com.acuitybotting.path_finding.xtea.domain.Region;
 import com.arangodb.springframework.repository.ArangoRepository;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -47,7 +42,6 @@ import java.util.stream.Collectors;
 public class PathFindingRunner implements CommandLineRunner {
 
     private final WebImageProcessingService webImageProcessingService;
-    private final RsMapService rsMapService;
     private final AStarService aStarService;
 
     private final PathPlugin pathPlugin;
@@ -57,9 +51,8 @@ public class PathFindingRunner implements CommandLineRunner {
     private RegionPlugin regionPlugin = new RegionPlugin();
 
     @Autowired
-    public PathFindingRunner(WebImageProcessingService webImageProcessingService, RsMapService rsMapService, AStarService aStarService, PathPlugin pathPlugin, XteaService xteaService, HpaWebService hpaWebService) {
+    public PathFindingRunner(WebImageProcessingService webImageProcessingService, AStarService aStarService, PathPlugin pathPlugin, XteaService xteaService, HpaWebService hpaWebService) {
         this.webImageProcessingService = webImageProcessingService;
-        this.rsMapService = rsMapService;
         this.aStarService = aStarService;
         this.pathPlugin = pathPlugin;
         this.xteaService = xteaService;
@@ -72,16 +65,16 @@ public class PathFindingRunner implements CommandLineRunner {
             public Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate) {
                 return aStarService.findPath(
                         new LocateableHeuristic(),
-                        RsEnvironment.getNode(start),
-                        RsEnvironment.getNode(end),
+                        RsEnvironment.getRsMap().getNode(start),
+                        RsEnvironment.getRsMap().getNode(end),
                         predicate
                 );
             }
 
             @Override
             public boolean isDirectlyConnected(Location start, Location end) {
-                TileNode sNode = RsEnvironment.getNode(start);
-                TileNode endNode = RsEnvironment.getNode(end);
+                TileNode sNode = RsEnvironment.getRsMap().getNode(start);
+                TileNode endNode = RsEnvironment.getRsMap().getNode(end);
                 return sNode.getNeighbors().stream().anyMatch(edge -> edge.getEnd().equals(endNode));
             }
         };
@@ -157,12 +150,12 @@ public class PathFindingRunner implements CommandLineRunner {
     private void dumpRegionImages() {
         log.info("Starting region image dump.");
         ExecutorUtil.run(30, executor -> {
-            for (RegionInfo regionInfo : RsEnvironment.getRegionMap().values()) {
+            for (RegionMap regionMap : RsEnvironment.getRsMap().getRegions().values()) {
                 executor.execute(() -> {
-                    BufferedImage[] tileFlagImage = webImageProcessingService.createTileFlagImageFromRegionInfo(regionInfo);
+                    BufferedImage[] tileFlagImage = webImageProcessingService.createTileFlagImageFromRegionInfo(regionMap);
                     for (int i = 0; i < tileFlagImage.length; i++) {
                         try {
-                            ImageIO.write(tileFlagImage[i], "png", new File(RsEnvironment.INFO_BASE, "\\img\\a2_regions\\" + regionInfo.getKey() + "_" + i + ".png"));
+                            ImageIO.write(tileFlagImage[i], "png", new File(RsEnvironment.INFO_BASE, "\\img\\a2_regions\\" + regionMap.getKey() + "_" + i + ".png"));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -174,7 +167,7 @@ public class PathFindingRunner implements CommandLineRunner {
     }
 
     private void dumpRegionInfo() {
-        log.info("Starting RegionInfo dump.");
+        log.info("Starting RegionMap dump.");
 
         xteaService.getRegionInfoRepository().deleteAll();
 
@@ -192,21 +185,27 @@ public class PathFindingRunner implements CommandLineRunner {
             }
         });
 
-        for (RegionInfo regionInfo : RsEnvironment.getRegionMap().values()) {
-            RegionInfo save = xteaService.getRegionInfoRepository().save(regionInfo);
+        for (RegionMap regionMap : RsEnvironment.getRsMap().getRegions().values()) {
+            RegionMap save = xteaService.getRegionInfoRepository().save(regionMap);
             log.info("Saved {}.", save);
         }
 
-        log.info("Finished RegionInfo dump with {} regions.", RsEnvironment.getRegionMap().values().size());
+        log.info("Finished RegionMap dump with {} regions.", RsEnvironment.getRsMap().getRegions().size());
+    }
+
+    private void loadRsMap(){
+        log.info("Started loading RsMap this may take a few moments..");
+        for (RegionMap regionMap : xteaService.getRegionInfoRepository().findAll()) {
+            RsEnvironment.getRsMap().getRegions().put(Integer.valueOf(regionMap.getKey()), regionMap);
+        }
+        log.info("Finished loading RsMap with {} regions.", RsEnvironment.getRsMap().getRegions().size());
     }
 
     @Override
     public void run(String... args) {
         try {
-            RsEnvironment.setRsMapService(rsMapService);
 
-            dumpRegionInfo();
-            dumpRegionImages();
+            loadRsMap();
 
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);

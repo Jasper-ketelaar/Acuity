@@ -2,12 +2,11 @@ package com.acuitybotting.db.arango.path_finding.domain.xtea;
 
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
-import com.acuitybotting.path_finding.rs.utils.RsMapService;
-import com.acuitybotting.path_finding.xtea.domain.EntityLocation;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.Key;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 
 /**
@@ -15,8 +14,9 @@ import org.springframework.data.annotation.Id;
  */
 @Getter
 @Setter
-@Document("RegionInfo")
-public class RegionInfo {
+@ToString
+@Document("RegionMap")
+public class RegionMap {
 
     @Id
     private String id;

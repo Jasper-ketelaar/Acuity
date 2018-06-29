@@ -194,7 +194,7 @@ public class HPAGraph {
     }
 
     private void addStairConnections(HPARegion region) {
-        for (SceneEntity sceneEntity : RsEnvironment.getStairsWithin(region)) {
+    /*    for (SceneEntity sceneEntity : RsEnvironment.getStairsWithin(region)) {
             if (sceneEntity.getActions() == null) continue;
             boolean up = Arrays.stream(sceneEntity.getActions()).anyMatch(s -> s.toLowerCase().contains("up"));
             boolean down = Arrays.stream(sceneEntity.getActions()).anyMatch(s -> s.toLowerCase().contains("down"));
@@ -226,7 +226,7 @@ public class HPAGraph {
 
                 System.out.println("Adding stairs. make this better.");
             }
-        }
+        }*/
     }
 
     private HPANode createStairNode(Location stairLocation){

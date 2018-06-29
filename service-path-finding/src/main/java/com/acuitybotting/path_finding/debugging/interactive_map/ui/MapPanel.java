@@ -4,8 +4,8 @@ import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.Perspective;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.ScreenLocation;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.utils.RegionUtils;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
-import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -68,7 +68,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
         int xSteps = Perspective.round(perspective.getTileWidth() / 64) + 2;
         int ySteps = Perspective.round(perspective.getTileHeight() / 64) + 2;
 
-        Location regionBase = RsMapService.locationToRegionBase(perspective.screenToLocation(new Point(0, 0)));
+        Location regionBase = RegionUtils.locationToRegionBase(perspective.screenToLocation(new Point(0, 0)));
 
         for (int x = -2; x < xSteps; x++) {
             for (int y = -2; y < ySteps; y++) {

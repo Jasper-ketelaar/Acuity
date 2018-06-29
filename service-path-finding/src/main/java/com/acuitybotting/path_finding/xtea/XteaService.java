@@ -1,7 +1,7 @@
 package com.acuitybotting.path_finding.xtea;
 
 import com.acuitybotting.data.flow.messaging.services.client.MessagingClientService;
-import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionInfo;
+import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
@@ -10,8 +10,8 @@ import com.acuitybotting.db.arango.path_finding.repositories.xtea.SceneEntityDef
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
+import com.acuitybotting.path_finding.rs.utils.RegionUtils;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
-import com.acuitybotting.path_finding.rs.utils.RsMapService;
 import com.acuitybotting.path_finding.xtea.domain.EntityLocation;
 import com.acuitybotting.path_finding.xtea.domain.Region;
 import com.acuitybotting.path_finding.xtea.domain.SceneEntityInstance;
@@ -84,28 +84,27 @@ public class XteaService {
     }
 
     private void addFlag(Location location, int plane, int flag){
-        int regionId = RsMapService.worldToRegionId(location);
-        RegionInfo regionInfo = RsEnvironment.getRegionMap().get(String.valueOf(regionId));
-        if (regionInfo == null){
-            log.warn("Failed to add flag to region {}.", regionId);
+        RegionMap regionMap = RsEnvironment.getRsMap().getRegion(location).orElse(null);
+        if (regionMap == null){
+            log.warn("Failed to add flag to {}.", location);
             return;
         }
-        regionInfo.addFlag(new Location(location.getX(), location.getY(), plane), flag);
+        regionMap.addFlag(new Location(location.getX(), location.getY(), plane), flag);
     }
 
-    private RegionInfo createRegionInfo(Region region){
-        RegionInfo regionInfo = new RegionInfo();
-        regionInfo.setKey(String.valueOf(region.getRegionID()));
-        regionInfo.setBaseX(region.getBaseX());
-        regionInfo.setBaseY(region.getBaseY());
+    private RegionMap createRegionInfo(Region region){
+        RegionMap regionMap = new RegionMap();
+        regionMap.setKey(String.valueOf(region.getRegionID()));
+        regionMap.setBaseX(region.getBaseX());
+        regionMap.setBaseY(region.getBaseY());
         int[][][] flags = new int[Region.Z][Region.X][Region.Y];
         for (int[][] planeFlags : flags) {
             for (int[] axisFlags : planeFlags) {
                 Arrays.fill(axisFlags, 1);
             }
         };
-        regionInfo.setFlags(flags);
-        return regionInfo;
+        regionMap.setFlags(flags);
+        return regionMap;
     }
 
     public void applySettings(int regionId){
@@ -114,7 +113,7 @@ public class XteaService {
             log.warn("Failed to load region {}. Skipping applying flags to region.", regionId);
             return;
         }
-        RegionInfo regionInfo = RsEnvironment.getRegionMap().computeIfAbsent(String.valueOf(region.getRegionID()), s -> createRegionInfo(region));
+        RegionMap regionMap = RsEnvironment.getRsMap().getRegions().computeIfAbsent(region.getRegionID(), s -> createRegionInfo(region));
 
         for (int plane = 0; plane < Region.Z; plane++) {
             for (int regionX = 0; regionX < Region.X; regionX++) {
@@ -124,11 +123,11 @@ public class XteaService {
                     boolean bridge = plane + 1 < 4 && (region.getTileSettings()[plane + 1][regionX][regionY] == 2);
                     if (!bridge && setting == 1) {
                         //blocked
-                        regionInfo.addFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING);
+                        regionMap.addFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING);
                     }
                     else {
                         //walkable
-                        regionInfo.addFlag(regionX, regionY, plane, MapFlags.OPEN_SETTINGS);
+                        regionMap.addFlag(regionX, regionY, plane, MapFlags.OPEN_SETTINGS);
                     }
                 }
             }

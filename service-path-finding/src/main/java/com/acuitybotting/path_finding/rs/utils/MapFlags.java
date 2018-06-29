@@ -40,4 +40,47 @@ public class MapFlags {
     public static boolean check(int flag, int value){
         return (flag & value) != 0;
     }
+
+    public static boolean isBlocked(int flag){
+        return check(flag, BLOCKED_22 | BLOCKED_SETTING | BLOCKED_ROOF | BLOCKED_SCENE_OBJECT);
+    }
+
+    public static boolean isWalkable(Direction direction, int startFlag, int endFlag, boolean ignoreStartBlocked) {
+        if (isBlocked(endFlag) || (!ignoreStartBlocked && isBlocked(startFlag))){
+            return false;
+        }
+
+        if (check(startFlag, WALL_NORTH_EAST_TO_SOUTH_WEST | WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
+        if (check(endFlag, WALL_NORTH_EAST_TO_SOUTH_WEST | WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
+
+        switch (direction) {
+            case NORTH:
+                if (check(startFlag, WALL_NORTH) || check(endFlag, WALL_SOUTH)) return false;
+                break;
+            case SOUTH:
+                if (check(startFlag, WALL_SOUTH) || check(endFlag, WALL_NORTH)) return false;
+                break;
+            case WEST:
+                if (check(startFlag, WALL_WEST) || check(endFlag, WALL_EAST)) return false;
+                break;
+            case EAST:
+                if (check(startFlag, WALL_EAST) || check(endFlag, WALL_WEST)) return false;
+                break;
+
+            case NORTH_EAST:
+                if (check(startFlag, WALL_NORTH | WALL_EAST) || check(endFlag, WALL_SOUTH | WALL_WEST)) return false;
+                break;
+            case NORTH_WEST:
+                if (check(startFlag, WALL_NORTH | WALL_WEST) || check(endFlag, WALL_SOUTH | WALL_EAST)) return false;
+                break;
+            case SOUTH_EAST:
+                if (check(startFlag, WALL_SOUTH | WALL_EAST) || check(endFlag, WALL_NORTH | WALL_WEST)) return false;
+                break;
+            case SOUTH_WEST:
+                if (check(startFlag, WALL_SOUTH | WALL_WEST) || check(endFlag, WALL_NORTH | WALL_EAST)) return false;
+                break;
+        }
+
+        return true;
+    }
 }

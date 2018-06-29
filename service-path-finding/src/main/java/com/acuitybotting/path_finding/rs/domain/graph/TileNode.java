@@ -2,12 +2,11 @@ package com.acuitybotting.path_finding.rs.domain.graph;
 
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
-import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
-import com.acuitybotting.path_finding.rs.utils.CollisionFlags;
 import com.acuitybotting.path_finding.rs.utils.Direction;
+import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import lombok.Getter;
 import lombok.Setter;
@@ -71,20 +70,20 @@ public class TileNode implements Node, Locateable {
     }
 
     private boolean containsDoor(Location location){
-        return RsEnvironment.getDoorsAt(location).size() > 0;
+        return false;
     }
 
-    private boolean addEdge(Set<Edge> edges, int x, int y, int z, Direction dir, boolean ignoreSelf) {
+    private boolean addEdge(Set<Edge> edges, int x, int y, int z, Direction direction, boolean ignoreStartBlocked) {
         Location location = new Location(x, y, z);
-        Integer localFlag = RsEnvironment.getFlagAt(new Location(getX(), getY(), getPlane()));
-        Integer flag = RsEnvironment.getFlagAt(location);
+        Integer startFlag = RsEnvironment.getRsMap().getFlagAt(new Location(getX(), getY(), getPlane())).orElse(null);
+        Integer endFlag = RsEnvironment.getRsMap().getFlagAt(location).orElse(null);
 
-        if (CollisionFlags.checkWalkable(dir, localFlag, flag, ignoreSelf)) {
-            edges.add(new TileEdge(this, RsEnvironment.getNode(new Location(x, y, z))));
+        if (MapFlags.isWalkable(direction, startFlag, endFlag, ignoreStartBlocked)) {
+            edges.add(new TileEdge(this, RsEnvironment.getRsMap().getNode(new Location(x, y, z))));
             return true;
         }
         else if (containsDoor(location)){
-            TileEdge tileEdge = new TileEdge(this, RsEnvironment.getNode(new Location(x, y, z)), 1);
+            TileEdge tileEdge = new TileEdge(this, RsEnvironment.getRsMap().getNode(new Location(x, y, z)), 1);
             tileEdge.setType(HPANode.DOOR);
             edges.add(tileEdge);
 

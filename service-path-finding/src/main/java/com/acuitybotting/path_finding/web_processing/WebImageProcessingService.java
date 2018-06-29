@@ -1,19 +1,15 @@
 package com.acuitybotting.path_finding.web_processing;
 
-import com.acuitybotting.db.arango.path_finding.domain.TileFlag;
-import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionInfo;
-import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
+import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.repositories.SceneEntityRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.xtea.XteaService;
 import com.acuitybotting.path_finding.xtea.domain.Region;
-import com.acuitybotting.path_finding.xtea.domain.SceneEntityInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 /**
@@ -33,7 +29,7 @@ public class WebImageProcessingService {
         this.sceneEntityRepository = sceneEntityRepository;
     }
 
-    public BufferedImage[] createTileFlagImageFromRegionInfo(RegionInfo regionInfo) {
+    public BufferedImage[] createTileFlagImageFromRegionInfo(RegionMap regionMap) {
         int tilePixelSize = 4;
 
         BufferedImage[] mapImages = new BufferedImage[Region.Z];
@@ -46,7 +42,7 @@ public class WebImageProcessingService {
                 for (int regionY = 0; regionY < Region.Y; regionY++) {
                     int drawX = regionX * tilePixelSize;
                     int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING)){
                         fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(50, 109, 255, 223));
                     }
                     else {
@@ -64,69 +60,69 @@ public class WebImageProcessingService {
                     int drawX = regionX * tilePixelSize;
                     int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_WEST)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.WALL_WEST)){
                         mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
                         mapImages[plane].setRGB(drawX + 0, drawY + 1, rgb);
                         mapImages[plane].setRGB(drawX + 0, drawY + 2, rgb);
                         mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
                     }
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_NORTH)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.WALL_NORTH)){
                         mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
                         mapImages[plane].setRGB(drawX + 1, drawY + 0, rgb);
                         mapImages[plane].setRGB(drawX + 2, drawY + 0, rgb);
                         mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
                     }
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_EAST)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.WALL_EAST)){
                         mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
                         mapImages[plane].setRGB(drawX + 3, drawY + 1, rgb);
                         mapImages[plane].setRGB(drawX + 3, drawY + 2, rgb);
                         mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
                     }
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_SOUTH)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.WALL_SOUTH)){
                         mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
                         mapImages[plane].setRGB(drawX + 1, drawY + 3, rgb);
                         mapImages[plane].setRGB(drawX + 2, drawY + 3, rgb);
                         mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
                     }
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_NORTH_WEST)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_NORTH_WEST)){
                         mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
                     }
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_NORTH_EAST)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_NORTH_EAST)){
                         mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
                     }
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_SOUTH_EAST)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_SOUTH_EAST)){
                         mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
                     }
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_SOUTH_WEST)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.PILLAR_SOUTH_WEST)){
                         mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
                     }
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_NORTH_WEST_TO_SOUTH_EAST)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.WALL_NORTH_WEST_TO_SOUTH_EAST)){
                         mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);
                         mapImages[plane].setRGB(drawX + 1, drawY + 1, rgb);
                         mapImages[plane].setRGB(drawX + 2, drawY + 2, rgb);
                         mapImages[plane].setRGB(drawX + 3, drawY + 3, rgb);
                     }
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.WALL_NORTH_EAST_TO_SOUTH_WEST)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.WALL_NORTH_EAST_TO_SOUTH_WEST)){
                         mapImages[plane].setRGB(drawX + 0, drawY + 3, rgb);
                         mapImages[plane].setRGB(drawX + 1, drawY + 2, rgb);
                         mapImages[plane].setRGB(drawX + 2, drawY + 1, rgb);
                         mapImages[plane].setRGB(drawX + 3, drawY + 0, rgb);
                     }
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_ROOF)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_ROOF)){
                         fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(189, 30, 139, 198));
                     }
 
-                    if(regionInfo.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SCENE_OBJECT)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SCENE_OBJECT)){
                         fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(51, 189, 20, 198));
                     }
                 }

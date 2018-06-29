@@ -82,8 +82,8 @@ public class PathPlugin extends Plugin {
         currentSearch = aStarService.build();
         return currentSearch.findPath(
                 new LocateableHeuristic(),
-                RsEnvironment.getNode(start.getLocation()),
-                RsEnvironment.getNode(end.getLocation())
+                RsEnvironment.getRsMap().getNode(start.getLocation()),
+                RsEnvironment.getRsMap().getNode(end.getLocation())
         );
     }
 
