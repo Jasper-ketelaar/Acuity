@@ -14,6 +14,7 @@ public class MapFlags {
     public static final int WALL_EAST = 1 << 2;
     public static final int WALL_SOUTH = 1 << 3;
     public static final int WALL_WEST = 1 << 4;
+    public static final int WALL_TYPE_1 = 1 << 17;
 
     public static final int WALL_NORTH_EAST_TO_SOUTH_WEST = 1 << 5;
     public static final int WALL_NORTH_WEST_TO_SOUTH_EAST = 1 << 6;
@@ -32,6 +33,8 @@ public class MapFlags {
     public static final int PILLAR_SOUTH_WEST = 1 << 14;
     public static final int PILLAR_SOUTH_EAST = 1 << 15;
 
+    public static final int OPEN_SCENE_OBJECT_OVERRIDE = 1 << 18;
+
     public static int add(int flag, int value){
         return flag | value;
     }
@@ -45,7 +48,7 @@ public class MapFlags {
     }
 
     public static boolean isBlocked(int flag){
-        return check(flag, BLOCKED_22 | BLOCKED_SETTING | BLOCKED_ROOF | BLOCKED_SCENE_OBJECT);
+        return check(flag, BLOCKED_22 | BLOCKED_SETTING | BLOCKED_ROOF) || (check(flag, BLOCKED_SCENE_OBJECT) && !check(flag, OPEN_SCENE_OBJECT_OVERRIDE));
     }
 
     public static String toString(int flag){

@@ -117,7 +117,11 @@ public class WebImageProcessingService {
                     }
 
                     if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SCENE_OBJECT)){
-                        fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(51, 189, 20, 198));
+                        Color color = regionMap.checkFlag(regionX, regionY, plane, MapFlags.OPEN_SCENE_OBJECT_OVERRIDE) ?
+                                new Color(33, 189, 151, 198):
+                                new Color(51, 189, 20, 198);
+
+                        fillTile(mapImages[plane], drawX, drawY, tilePixelSize, color);
                     }
                 }
             }

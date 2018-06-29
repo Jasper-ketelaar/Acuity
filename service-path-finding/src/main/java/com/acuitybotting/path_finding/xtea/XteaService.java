@@ -192,6 +192,7 @@ public class XteaService {
 
                                 if (locationType == 1) {
                                     //Wall interconnecting ignore
+                                    addFlag(location.getPosition(), plane, MapFlags.WALL_TYPE_1);
                                 }
 
                                 if (locationType == 2) {
@@ -273,9 +274,13 @@ public class XteaService {
                                     length = baseDefinition.getSizeX();
                                 }
 
+
+                                boolean custom = "Wilderness ditch".equalsIgnoreCase(baseDefinition.getName());
+
                                 for (int xOff = 0; xOff < width; xOff++) {
                                     for (int yOff = 0; yOff < length; yOff++) {
                                         addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.BLOCKED_SCENE_OBJECT);
+                                        if (custom) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_SCENE_OBJECT_OVERRIDE);
                                     }
                                 }
                             }
