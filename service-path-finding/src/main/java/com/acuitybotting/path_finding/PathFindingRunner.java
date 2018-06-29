@@ -95,7 +95,7 @@ public class PathFindingRunner implements CommandLineRunner {
 
     private void loadHpa(int version) {
         HPAGraph graph = initGraph();
-        hpaWebService.loadInto(graph, version);
+        hpaWebService.loadInto(graph, version, false);
         graph.addCustomNodes();
         hpaPlugin.setGraph(graph);
     }
@@ -107,6 +107,8 @@ public class PathFindingRunner implements CommandLineRunner {
 
         hpaWebService.deleteVersion(version);
         hpaWebService.save(graph, version);
+
+        hpaPlugin.setGraph(graph);
     }
 
     public void printXteas() {
@@ -200,12 +202,12 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
 
             loadRsMap();
-            buildHpa(2);
+            //loadHpa(2);
 
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);
-            //mapFrame.getMapPanel().addPlugin(hpaPlugin);
             mapFrame.getMapPanel().addPlugin(new PositionPlugin());
+            mapFrame.getMapPanel().addPlugin(hpaPlugin);
             mapFrame.show();
 
         } catch (Exception e) {

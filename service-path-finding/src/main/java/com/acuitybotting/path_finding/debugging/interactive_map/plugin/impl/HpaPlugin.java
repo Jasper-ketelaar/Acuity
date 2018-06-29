@@ -16,7 +16,7 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executor;
 
 /**
@@ -59,10 +59,16 @@ public class HpaPlugin extends Plugin {
         for (HPARegion HPARegion : graph.getRegions().values()) {
             for (HPANode hpaNode : HPARegion.getNodes().values()) {
                 getPaintUtil().markLocation(graphics, hpaNode.getLocation(), nodeColorings[hpaNode.getType()]);
-
                 for (Edge edge : hpaNode.getEdges()) {
                     if (edge instanceof HPAEdge) {
-                        getPaintUtil().connectLocations(graphics, ((HPAEdge) edge).getPath(), Color.BLUE);
+                        Color color = ((HPAEdge) edge).getPathKey() != null ? Color.BLUE : Color.ORANGE;
+                        java.util.List<Edge> path = ((HPAEdge) edge).getPath();
+                        if (path != null){
+                            getPaintUtil().connectLocations(graphics, path, color);
+                        }
+                        else {
+                            getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), color);
+                        }
                     }
                 }
             }
@@ -83,10 +89,7 @@ public class HpaPlugin extends Plugin {
             }
         }
 
-        if (startNode != null) {
-            getPaintUtil().markLocation(graphics, startNode, Color.RED);
-            getPaintUtil().connectLocations(graphics, new TileNode(startNode.getLocation()).getNeighbors(), Color.RED);
-        }
+        if (startNode != null) getPaintUtil().markLocation(graphics, startNode, Color.RED);
         if (endNode != null) getPaintUtil().markLocation(graphics, endNode, Color.GREEN);
     }
 

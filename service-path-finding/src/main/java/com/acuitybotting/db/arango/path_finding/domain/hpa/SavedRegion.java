@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * Created by Zachary Herridge on 6/21/2018.
  */
-@Document("SavedHpaRegion")
+@Document("HpaRegion")
 @Getter
 @Setter
 public class SavedRegion {

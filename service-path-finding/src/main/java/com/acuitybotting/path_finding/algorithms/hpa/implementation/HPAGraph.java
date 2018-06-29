@@ -13,6 +13,7 @@ import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
+import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -162,8 +163,9 @@ public class HPAGraph {
             if (path != null) {
                 found++;
                 internalConnectionCount++;
-                startNode.addConnection(endNode, HPANode.GROUND, path);
-                endNode.addConnection(startNode, HPANode.GROUND, path);
+                String pathKey = RsEnvironment.getRsMap().addPath(path);
+                startNode.addConnection(endNode, HPANode.GROUND, path.size()).setPathKey(pathKey);
+                endNode.addConnection(startNode, HPANode.GROUND, path.size()).setPathKey(pathKey);
             }
         }
     }
@@ -261,8 +263,8 @@ public class HPAGraph {
     private Map<String, HPARegion> findRegions() {
         Map<String, HPARegion> regions = new HashMap<>();
         for (int z = lower.getPlane(); z <= upper.getPlane(); z++) {
-            for (int x = lower.getX(); x <= upper.getX(); x += regionWidth) {
-                for (int y = lower.getY(); y <= upper.getY(); y += regionHeight) {
+            for (int x = lower.getX(); x < upper.getX(); x += regionWidth) {
+                for (int y = lower.getY(); y < upper.getY(); y += regionHeight) {
                     HPARegion region = new HPARegion(this, new Location(x, y, z), regionWidth, regionHeight);
                     regions.put(region.getKey(), region);
                 }

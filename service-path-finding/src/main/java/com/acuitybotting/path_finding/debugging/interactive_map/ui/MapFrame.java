@@ -1,8 +1,5 @@
 package com.acuitybotting.path_finding.debugging.interactive_map.ui;
 
-import com.acuitybotting.path_finding.debugging.interactive_map.util.GameMap;
-import com.acuitybotting.path_finding.rs.domain.location.Location;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -31,7 +28,7 @@ public class MapFrame {
         return mapPanel;
     }
 
-    public void centerFrame() {
+    private void centerFrame() {
         final Toolkit toolkit = Toolkit.getDefaultToolkit();
         final int x = (toolkit.getScreenSize().width / 2) - (this.mapFrame.getWidth() / 2);
         final int y = (toolkit.getScreenSize().height / 2) - (this.mapFrame.getHeight() / 2);

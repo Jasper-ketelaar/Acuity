@@ -28,14 +28,14 @@ public class PlayerTiedEdges {
                 new CustomEdge()
                         .setEnd(new Location(3212, 3424, 0))
                         .setInteraction(new Interaction(Interaction.SPELL).setSpellName("VARROCK_TELEPORT"))
-                        .withRequirement((PlayerPredicate) Player::isModernSpellbook)
+                        .withRequirement(Player::isModernSpellbook)
         );
 
         customEdges.add(
                 new CustomEdge()
                         .setEnd(new Location(2757, 3480, 0))
                         .setInteraction(new Interaction(Interaction.SPELL).setSpellName("CAMELOT_TELEPORT"))
-                        .withRequirement((PlayerPredicate) Player::isModernSpellbook)
+                        .withRequirement(Player::isModernSpellbook)
         );
     }
 

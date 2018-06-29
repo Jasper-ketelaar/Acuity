@@ -1,6 +1,11 @@
 package com.acuitybotting.db.arango.utils;
 
 import com.arangodb.springframework.repository.ArangoRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.querydsl.QPageRequest;
+import org.springframework.data.querydsl.QSort;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
