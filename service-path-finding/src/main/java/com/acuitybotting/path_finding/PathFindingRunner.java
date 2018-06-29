@@ -206,10 +206,11 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
 
             loadRsMap();
+            loadHpa(2);
 
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);
-            mapFrame.getMapPanel().addPlugin(regionPlugin);
+            mapFrame.getMapPanel().addPlugin(hpaPlugin);
             mapFrame.getMapPanel().addPlugin(new PositionPlugin());
             mapFrame.show();
 

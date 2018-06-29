@@ -50,7 +50,7 @@ public class MapFlags {
             return false;
         }
 
-        if (check(startFlag, WALL_NORTH_EAST_TO_SOUTH_WEST | WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
+        if (!ignoreStartBlocked && check(startFlag, WALL_NORTH_EAST_TO_SOUTH_WEST | WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
         if (check(endFlag, WALL_NORTH_EAST_TO_SOUTH_WEST | WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
 
         switch (direction) {
