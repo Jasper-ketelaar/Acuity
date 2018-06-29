@@ -206,7 +206,7 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
 
             loadRsMap();
-            //loadHpa(2);
+            buildHpa(2);
 
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);

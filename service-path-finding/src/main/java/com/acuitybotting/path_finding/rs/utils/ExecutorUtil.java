@@ -1,11 +1,14 @@
 package com.acuitybotting.path_finding.rs.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 /**
  * Created by Zachary Herridge on 6/28/2018.
  */
+@Slf4j
 public class ExecutorUtil {
 
     public static void run(int poolSize, Consumer<Executor> executorConsumer){
@@ -14,7 +17,7 @@ public class ExecutorUtil {
             protected void afterExecute(Runnable r, Throwable t) {
                 super.afterExecute(r, t);
                 if (t != null){
-                    t.printStackTrace();
+                    log.error("Error in thread pool.", t);
                 }
             }
         };
@@ -23,7 +26,7 @@ public class ExecutorUtil {
         try {
             threadPoolExecutor.awaitTermination(3, TimeUnit.DAYS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error("Error in thread pool.", e);
         }
     }
 }

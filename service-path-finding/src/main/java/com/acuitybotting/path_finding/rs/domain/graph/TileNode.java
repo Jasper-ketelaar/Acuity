@@ -78,6 +78,8 @@ public class TileNode implements Node, Locateable {
         Integer startFlag = RsEnvironment.getRsMap().getFlagAt(new Location(getX(), getY(), getPlane())).orElse(null);
         Integer endFlag = RsEnvironment.getRsMap().getFlagAt(location).orElse(null);
 
+        if (startFlag == null || endFlag == null) return false;
+
         if (MapFlags.isWalkable(direction, startFlag, endFlag, ignoreStartBlocked)) {
             edges.add(new TileEdge(this, RsEnvironment.getRsMap().getNode(new Location(x, y, z))));
             return true;

@@ -14,6 +14,7 @@ import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
+import com.acuitybotting.path_finding.rs.utils.ExecutorUtil;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,66 +64,46 @@ public class HPAGraph {
         regions = findRegions();
         log.info("Initiated with {} regions.", regions.size());
 
-        ExecutorService executorService = Executors.newFixedThreadPool(20);
+        ExecutorUtil.run(20, executor -> {
+            for (HPARegion internalHPARegion : regions.values()) {
+                executor.execute(() -> {
+                    List<LocationPair> externalConnections = findExternalConnections(internalHPARegion, pathFindingSupplier);
+                    log.debug("Found {} external connections from {}.", externalConnections.size(), internalHPARegion);
+                    for (LocationPair externalConnection : externalConnections) {
+                        HPARegion externalHPARegion = getRegionContaining(externalConnection.getEnd());
 
-        for (HPARegion internalHPARegion : regions.values()) {
-            executorService.submit(() -> {
-                List<LocationPair> externalConnections = findExternalConnections(internalHPARegion, pathFindingSupplier);
-                log.debug("Found {} external connections from {}.", externalConnections.size(), internalHPARegion);
-                for (LocationPair externalConnection : externalConnections) {
-                    HPARegion externalHPARegion = getRegionContaining(externalConnection.getEnd());
+                        HPANode internalNode = internalHPARegion.getOrCreateNode(externalConnection.getStart());
+                        HPANode externalNode = externalHPARegion.getOrCreateNode(externalConnection.getEnd());
 
-                    HPANode internalNode = internalHPARegion.getOrCreateNode(externalConnection.getStart());
-                    HPANode externalNode = externalHPARegion.getOrCreateNode(externalConnection.getEnd());
+                        internalNode.addConnection(externalNode, HPANode.GROUND);
+                        externalNode.addConnection(internalNode, HPANode.GROUND);
 
-                    internalNode.addConnection(externalNode, HPANode.GROUND);
-                    externalNode.addConnection(internalNode, HPANode.GROUND);
-
-                    externalConnectionsCount++;
-                }
-            });
-        }
-
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(5, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+                        externalConnectionsCount++;
+                    }
+                });
+            }
+        });
 
         log.info("Found {} external connections.", externalConnectionsCount);
 
 
-        executorService = Executors.newFixedThreadPool(20);
-
-        for (HPARegion hpaRegion : regions.values()) {
-            executorService.submit(() -> addStairConnections(hpaRegion));
-        }
-
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(5, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        ExecutorUtil.run(20, executor -> {
+            for (HPARegion hpaRegion : regions.values()) {
+                executor.execute(() -> addStairConnections(hpaRegion));
+            }
+        });
 
         log.info("Found {} stair nodes with {} connections.", stairNodesAddedCount, stairNodeConnectionsAddedCount);
 
-        executorService = Executors.newFixedThreadPool(10);
-        for (HPARegion region : regions.values()) {
-            executorService.submit(() -> {
-                for (HPANode startNode : region.getNodes().values()) {
-                    findInternalConnections(region, startNode);
-                }
-            });
-        }
-
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(5, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        ExecutorUtil.run(20, executor -> {
+            for (HPARegion region : regions.values()) {
+                executor.execute(() -> {
+                    for (HPANode startNode : region.getNodes().values()) {
+                        findInternalConnections(region, startNode);
+                    }
+                });
+            }
+        });
 
         log.info("Found {} internal connections.", internalConnectionCount);
 
