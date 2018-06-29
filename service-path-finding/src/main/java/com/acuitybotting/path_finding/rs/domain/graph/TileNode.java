@@ -47,19 +47,16 @@ public class TileNode implements Node, Locateable {
 
     public Collection<Edge> getNeighbors(boolean ignoreSelf) {
         Set<Edge> edges = new HashSet<>(8);
-        boolean north = addEdge(edges, getX(), getY() + 1, getPlane(), NORTH, ignoreSelf);
-        boolean east = addEdge(edges, getX() + 1, getY(), getPlane(), EAST, ignoreSelf);
-        boolean west = addEdge(edges, getX() - 1, getY(), getPlane(), WEST, ignoreSelf);
-        boolean south = addEdge(edges, getX(), getY() - 1, getPlane(), SOUTH, ignoreSelf);
-
-        if (north) {
-            if (east) addEdge(edges,getX() + 1, getY() + 1, getPlane(), NORTH_EAST, ignoreSelf);
-            if (west) addEdge(edges,getX() - 1, getY() + 1, getPlane(), NORTH_WEST, ignoreSelf);
+        boolean east = addEdge(edges,EAST, ignoreSelf);
+        boolean west = addEdge(edges,WEST, ignoreSelf);
+        if (addEdge(edges, NORTH, ignoreSelf)) {
+            if (east) addEdge(edges, NORTH_EAST, ignoreSelf);
+            if (west) addEdge(edges, NORTH_WEST, ignoreSelf);
         }
 
-        if (south) {
-            if (east) addEdge(edges, getX() + 1, getY() - 1, getPlane(), SOUTH_EAST, ignoreSelf);
-            if (west) addEdge(edges, getX() - 1, getY() - 1, getPlane(), SOUTH_WEST, ignoreSelf);
+        if (addEdge(edges, SOUTH, ignoreSelf)) {
+            if (east) addEdge(edges, SOUTH_EAST, ignoreSelf);
+            if (west) addEdge(edges, SOUTH_WEST, ignoreSelf);
         }
         return edges;
     }
@@ -73,19 +70,16 @@ public class TileNode implements Node, Locateable {
         return false;
     }
 
-    private boolean addEdge(Set<Edge> edges, int x, int y, int z, Direction direction, boolean ignoreStartBlocked) {
-        Location location = new Location(x, y, z);
-        Integer startFlag = RsEnvironment.getRsMap().getFlagAt(new Location(getX(), getY(), getPlane())).orElse(null);
-        Integer endFlag = RsEnvironment.getRsMap().getFlagAt(location).orElse(null);
+    private boolean addEdge(Set<Edge> edges, Direction direction, boolean ignoreStartBlocked) {
+        Location startLocation = getLocation();
+        Location endLocation = startLocation.clone(direction.getXOff(), direction.getYOff());
 
-        if (startFlag == null || endFlag == null) return false;
-
-        if (MapFlags.isWalkable(direction, startFlag, endFlag, ignoreStartBlocked)) {
-            edges.add(new TileEdge(this, RsEnvironment.getRsMap().getNode(new Location(x, y, z))));
+        if (RsEnvironment.getRsMap().checkWalkable(startLocation, direction, ignoreStartBlocked)){
+            edges.add(new TileEdge(this, RsEnvironment.getRsMap().getNode(endLocation)));
             return true;
         }
-        else if (containsDoor(location)){
-            TileEdge tileEdge = new TileEdge(this, RsEnvironment.getRsMap().getNode(new Location(x, y, z)), 1);
+        else if (containsDoor(endLocation)){
+            TileEdge tileEdge = new TileEdge(this, RsEnvironment.getRsMap().getNode(endLocation), 1);
             tileEdge.setType(HPANode.DOOR);
             edges.add(tileEdge);
 

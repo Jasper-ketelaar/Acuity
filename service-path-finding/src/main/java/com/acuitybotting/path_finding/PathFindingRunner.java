@@ -202,6 +202,7 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
 
             loadRsMap();
+            buildHpa(2);
             //loadHpa(2);
 
             MapFrame mapFrame = new MapFrame();

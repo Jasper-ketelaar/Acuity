@@ -31,6 +31,46 @@ public class RsMap {
         return Optional.ofNullable(regions.get(RegionUtils.locationToRegionId(location.getX(), location.getY())));
     }
 
+    public boolean checkWalkable(Location start, Direction direction){
+        return checkWalkable(start, direction, false);
+    }
+
+    public boolean checkWalkable(Location start, Direction direction, boolean ignoreStartBlocked){
+        Integer startFlag = getFlagAt(start).orElse(null);
+        if (startFlag == null) return false;
+
+        Location end = start.clone(direction.getXOff(), direction.getYOff());
+        Integer endFlag = getFlagAt(end).orElse(null);
+        if (endFlag == null) return false;
+
+        if (MapFlags.isBlocked(endFlag) || (!ignoreStartBlocked && MapFlags.isBlocked(startFlag))) return false;
+
+        if (!ignoreStartBlocked && MapFlags.check(startFlag, MapFlags.WALL_NORTH_EAST_TO_SOUTH_WEST | MapFlags.WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
+        if (MapFlags.check(endFlag, MapFlags.WALL_NORTH_EAST_TO_SOUTH_WEST | MapFlags.WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
+
+        switch (direction) {
+            case NORTH:
+                return !(MapFlags.check(startFlag, MapFlags.WALL_NORTH) || MapFlags.check(endFlag, MapFlags.WALL_SOUTH));
+            case SOUTH:
+                return !(MapFlags.check(startFlag, MapFlags.WALL_SOUTH) || MapFlags.check(endFlag, MapFlags.WALL_NORTH));
+            case WEST:
+                return !(MapFlags.check(startFlag, MapFlags.WALL_WEST) || MapFlags.check(endFlag, MapFlags.WALL_EAST));
+            case EAST:
+                return !(MapFlags.check(startFlag, MapFlags.WALL_EAST) || MapFlags.check(endFlag, MapFlags.WALL_WEST));
+
+            case NORTH_WEST:
+                return checkWalkable(end, Direction.SOUTH) && checkWalkable(end, Direction.EAST);
+            case NORTH_EAST:
+                return checkWalkable(end, Direction.SOUTH) && checkWalkable(end, Direction.WEST);
+            case SOUTH_EAST:
+                return checkWalkable(end, Direction.NORTH) && checkWalkable(end, Direction.WEST);
+            case SOUTH_WEST:
+                return checkWalkable(end, Direction.NORTH) && checkWalkable(end, Direction.EAST);
+        }
+
+        return false;
+    }
+
     public Optional<Integer> getFlagAt(Location location) {
         RegionMap regionMap = getRegion(location).orElse(null);
         if (regionMap == null) return Optional.empty();

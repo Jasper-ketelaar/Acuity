@@ -48,45 +48,6 @@ public class MapFlags {
         return check(flag, BLOCKED_22 | BLOCKED_SETTING | BLOCKED_ROOF | BLOCKED_SCENE_OBJECT);
     }
 
-    public static boolean isWalkable(Direction direction, int startFlag, int endFlag, boolean ignoreStartBlocked) {
-        if (isBlocked(endFlag) || (!ignoreStartBlocked && isBlocked(startFlag))){
-            return false;
-        }
-
-        if (!ignoreStartBlocked && check(startFlag, WALL_NORTH_EAST_TO_SOUTH_WEST | WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
-        if (check(endFlag, WALL_NORTH_EAST_TO_SOUTH_WEST | WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
-
-        switch (direction) {
-            case NORTH:
-                if (check(startFlag, WALL_NORTH) || check(endFlag, WALL_SOUTH)) return false;
-                break;
-            case SOUTH:
-                if (check(startFlag, WALL_SOUTH) || check(endFlag, WALL_NORTH)) return false;
-                break;
-            case WEST:
-                if (check(startFlag, WALL_WEST) || check(endFlag, WALL_EAST)) return false;
-                break;
-            case EAST:
-                if (check(startFlag, WALL_EAST) || check(endFlag, WALL_WEST)) return false;
-                break;
-
-            case NORTH_EAST:
-                if (check(startFlag, WALL_NORTH | WALL_EAST | PILLAR_NORTH_EAST) || check(endFlag, WALL_SOUTH | WALL_WEST | PILLAR_SOUTH_WEST)) return false;
-                break;
-            case NORTH_WEST:
-                if (check(startFlag, WALL_NORTH | WALL_WEST | PILLAR_NORTH_WEST) || check(endFlag, WALL_SOUTH | WALL_EAST | PILLAR_SOUTH_EAST)) return false;
-                break;
-            case SOUTH_EAST:
-                if (check(startFlag, WALL_SOUTH | WALL_EAST | PILLAR_SOUTH_EAST) || check(endFlag, WALL_NORTH | WALL_WEST | PILLAR_NORTH_WEST)) return false;
-                break;
-            case SOUTH_WEST:
-                if (check(startFlag, WALL_SOUTH | WALL_WEST | PILLAR_SOUTH_WEST) || check(endFlag, WALL_NORTH | WALL_EAST | PILLAR_NORTH_EAST)) return false;
-                break;
-        }
-
-        return true;
-    }
-
     public static String toString(int flag){
         StringJoiner result = new StringJoiner(" ");
 
