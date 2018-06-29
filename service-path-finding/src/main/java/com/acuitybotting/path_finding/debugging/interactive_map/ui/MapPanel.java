@@ -1,5 +1,6 @@
 package com.acuitybotting.path_finding.debugging.interactive_map.ui;
 
+import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.Perspective;
 import com.acuitybotting.path_finding.debugging.interactive_map.util.ScreenLocation;
@@ -14,7 +15,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Getter
@@ -38,7 +38,7 @@ public class MapPanel extends JPanel implements MouseMotionListener, MouseListen
         addMouseListener(this);
         addMouseWheelListener(this);
 
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(this::handleDrag, 100, 120, TimeUnit.MILLISECONDS);
+        ExecutorUtil.newScheduledExecutorPool(1).scheduleAtFixedRate(this::handleDrag, 100, 120, TimeUnit.MILLISECONDS);
     }
 
     public void addPlugin(Plugin plugin) {

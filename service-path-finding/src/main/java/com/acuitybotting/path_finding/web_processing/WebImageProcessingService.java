@@ -1,11 +1,9 @@
 package com.acuitybotting.path_finding.web_processing;
 
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
-import com.acuitybotting.db.arango.path_finding.repositories.SceneEntityRepository;
-import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.xtea.XteaService;
-import com.acuitybotting.path_finding.xtea.domain.Region;
+import com.acuitybotting.path_finding.xtea.domain.RsRegion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,29 +17,25 @@ import java.awt.image.BufferedImage;
 public class WebImageProcessingService {
 
     private XteaService xteaService;
-    private TileFlagRepository flagRepository;
-    private SceneEntityRepository sceneEntityRepository;
 
     @Autowired
-    public WebImageProcessingService(XteaService xteaService, TileFlagRepository flagRepository, SceneEntityRepository sceneEntityRepository) {
+    public WebImageProcessingService(XteaService xteaService) {
         this.xteaService = xteaService;
-        this.flagRepository = flagRepository;
-        this.sceneEntityRepository = sceneEntityRepository;
     }
 
     public BufferedImage[] createTileFlagImageFromRegionInfo(RegionMap regionMap) {
         int tilePixelSize = 4;
 
-        BufferedImage[] mapImages = new BufferedImage[Region.Z];
+        BufferedImage[] mapImages = new BufferedImage[RsRegion.Z];
         for (int i = 0; i < mapImages.length; i++) {
-            mapImages[i] = new BufferedImage(Region.X * tilePixelSize, Region.Y * tilePixelSize, BufferedImage.TYPE_INT_RGB);
+            mapImages[i] = new BufferedImage(RsRegion.X * tilePixelSize, RsRegion.Y * tilePixelSize, BufferedImage.TYPE_INT_RGB);
         }
 
-        for (int plane = 0; plane < Region.Z; plane++) {
-            for (int regionX = 0; regionX < Region.X; regionX++) {
-                for (int regionY = 0; regionY < Region.Y; regionY++) {
+        for (int plane = 0; plane < RsRegion.Z; plane++) {
+            for (int regionX = 0; regionX < RsRegion.X; regionX++) {
+                for (int regionY = 0; regionY < RsRegion.Y; regionY++) {
                     int drawX = regionX * tilePixelSize;
-                    int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
+                    int drawY = (RsRegion.Y - 1 - regionY) * tilePixelSize;
                     if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING)){
                         fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(50, 109, 255, 223));
                     }
@@ -54,11 +48,11 @@ public class WebImageProcessingService {
 
         int rgb = new Color(249, 122, 39, 223).getRGB();
 
-        for (int plane = 0; plane < Region.Z; plane++) {
-            for (int regionX = 0; regionX < Region.X; regionX++) {
-                for (int regionY = 0; regionY < Region.Y; regionY++) {
+        for (int plane = 0; plane < RsRegion.Z; plane++) {
+            for (int regionX = 0; regionX < RsRegion.X; regionX++) {
+                for (int regionY = 0; regionY < RsRegion.Y; regionY++) {
                     int drawX = regionX * tilePixelSize;
-                    int drawY = (Region.Y - 1 - regionY) * tilePixelSize;
+                    int drawY = (RsRegion.Y - 1 - regionY) * tilePixelSize;
 
                     if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.WALL_WEST)){
                         mapImages[plane].setRGB(drawX + 0, drawY + 0, rgb);

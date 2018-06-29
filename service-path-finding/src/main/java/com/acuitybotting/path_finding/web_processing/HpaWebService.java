@@ -6,6 +6,7 @@ import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedRegion;
 import com.acuitybotting.db.arango.path_finding.repositories.hpa.EdgeRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.hpa.NodeRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.hpa.RegionRepository;
+import com.acuitybotting.db.arango.utils.ArangoUtils;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
@@ -15,7 +16,6 @@ import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
-import com.arangodb.springframework.repository.ArangoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -137,22 +137,15 @@ public class HpaWebService {
         long saveStartTime = System.currentTimeMillis();
 
         log.info("Saving {} regions.", savedRegions.size());
-        save(regionRepository, chunkSize, savedRegions);
+        ArangoUtils.saveAll(regionRepository, chunkSize, savedRegions);
 
         log.info("Saving {} nodes.", nodeMap.values().size());
-        save(nodeRepository, chunkSize, nodeMap.values());
+        ArangoUtils.saveAll(nodeRepository, chunkSize, nodeMap.values());
 
         log.info("Saving {} edges.", savedEdges.size());
-        save(edgeRepository, chunkSize, savedEdges);
+        ArangoUtils.saveAll(edgeRepository, chunkSize, savedEdges);
 
         log.info("Finished saving of {} as version {} with {} regions, {} edges, and {} nodes in {} seconds.", graph, version, savedRegions.size(), savedEdges.size(), nodeMap.size(), (System.currentTimeMillis() - saveStartTime) / 1000);
-    }
-
-    private void save(ArangoRepository repository, int size, Collection<?> collection){
-        final AtomicInteger counter = new AtomicInteger(0);
-        collection.stream().collect(Collectors.groupingBy(it -> counter.getAndIncrement() / size)).values().parallelStream().forEach(set -> {
-            repository.saveAll(set);
-        });
     }
 
     private SavedEdge createSavedEdge(String key, HPAEdge hpaEdge, SavedNode startNode, SavedNode endNode) {

@@ -1,5 +1,6 @@
 package com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl;
 
+import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.path_finding.algorithms.astar.implmentation.AStarImplementation;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
@@ -17,7 +18,6 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
  * Created by Zachary Herridge on 6/18/2018.
@@ -32,7 +32,7 @@ public class HpaPlugin extends Plugin {
     private HPANode startNode, endNode;
 
     private java.util.List<Edge> path;
-    private Executor executor = Executors.newSingleThreadExecutor();
+    private Executor executor = ExecutorUtil.newExecutorPool(1);
 
     private AStarImplementation aStarImplementation;
 

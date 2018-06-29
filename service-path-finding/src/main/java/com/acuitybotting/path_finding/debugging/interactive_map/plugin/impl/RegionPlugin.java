@@ -6,12 +6,13 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.RegionUtils;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.xtea.XteaService;
-import com.acuitybotting.path_finding.xtea.domain.Region;
-import com.acuitybotting.path_finding.xtea.domain.SceneEntityInstance;
+import com.acuitybotting.path_finding.xtea.domain.RsRegion;
+import com.acuitybotting.path_finding.xtea.domain.RsLocation;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -53,12 +54,7 @@ public class RegionPlugin extends Plugin {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        Location location = getPerspective().screenToLocation(this.getMapPanel().getMousePosition());
-        if (location != null){
-            xteaService.getTileFlagRepository().findByLocation(location).ifPresent(tileFlag -> {
-                System.out.println(location + ": " + tileFlag.getFlag());
-            });
-        }
+
     }
 
     @Override
@@ -66,18 +62,18 @@ public class RegionPlugin extends Plugin {
         Location location = getPerspective().screenToLocation(this.getMapPanel().getMousePosition());
 
         int regionId = RegionUtils.locationToRegionId(location);
-        Region region = xteaService.getRegion(regionId).orElse(null);
+        RsRegion rsRegion = xteaService.getRegion(regionId).orElse(null);
 
         List<String> locationDebugs = new ArrayList<>();
         int setting = -404;
-        if (region != null) {
-            setting = region.getTileSetting(location);
+        if (rsRegion != null) {
+            setting = rsRegion.getTileSetting(location);
 
-            List<SceneEntityInstance> instancesAt = region.getInstancesAt(location);
-            instancesAt.stream().sorted(Comparator.comparingInt(SceneEntityInstance::getType)).forEach(sceneEntityInstance -> {
-                SceneEntityDefinition baseDef = xteaService.getSceneEntityDefinition(sceneEntityInstance.getId()).orElse(null);
+            Collection<RsLocation> instancesAt = rsRegion.getInstancesAt(location);
+            instancesAt.stream().sorted(Comparator.comparingInt(RsLocation::getType)).forEach(rsLocation -> {
+                SceneEntityDefinition baseDef = xteaService.getSceneEntityDefinition(rsLocation.getId()).orElse(null);
                 if (baseDef != null) {
-                    locationDebugs.add(baseDef.getName() + "/" + baseDef.getObjectId() + ": OT:" + sceneEntityInstance.getType() + " " + defToDebug(baseDef));
+                    locationDebugs.add(baseDef.getName() + "/" + baseDef.getObjectId() + ": OT:" + rsLocation.getType() + " " + defToDebug(baseDef));
 
                     int[] transformIds = baseDef.getTransformIds();
                     if (transformIds == null) return;

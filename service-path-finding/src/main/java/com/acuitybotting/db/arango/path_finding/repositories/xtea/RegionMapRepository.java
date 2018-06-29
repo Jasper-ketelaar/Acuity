@@ -6,5 +6,5 @@ import com.arangodb.springframework.repository.ArangoRepository;
 /**
  * Created by Zachary Herridge on 6/25/2018.
  */
-public interface RegionInfoRepository extends ArangoRepository<RegionMap> {
+public interface RegionMapRepository extends ArangoRepository<RegionMap> {
 }

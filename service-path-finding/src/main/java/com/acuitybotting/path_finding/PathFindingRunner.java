@@ -1,8 +1,10 @@
 package com.acuitybotting.path_finding;
 
+import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
+import com.acuitybotting.db.arango.utils.ArangoUtils;
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
@@ -15,12 +17,10 @@ import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapFrame;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
-import com.acuitybotting.path_finding.rs.utils.ExecutorUtil;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.web_processing.HpaWebService;
 import com.acuitybotting.path_finding.web_processing.WebImageProcessingService;
 import com.acuitybotting.path_finding.xtea.XteaService;
-import com.arangodb.springframework.repository.ArangoRepository;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -135,16 +134,9 @@ public class PathFindingRunner implements CommandLineRunner {
             sceneEntityDefinitions.add(def);
         }
 
-        save(xteaService.getDefinitionRepository(), 400, sceneEntityDefinitions);
+        ArangoUtils.saveAll(xteaService.getDefinitionRepository(), 400, sceneEntityDefinitions);
 
         System.out.println("Done");
-    }
-
-    private void save(ArangoRepository repository, int size, Collection<?> collection) {
-        final AtomicInteger counter = new AtomicInteger(0);
-        collection.stream().collect(Collectors.groupingBy(it -> counter.getAndIncrement() / size)).values().parallelStream().forEach(set -> {
-            repository.saveAll(set);
-        });
     }
 
     private void dumpRegionImages() {
@@ -169,7 +161,7 @@ public class PathFindingRunner implements CommandLineRunner {
     private void dumpRegionInfo() {
         log.info("Starting RegionMap dump.");
 
-        xteaService.getRegionInfoRepository().deleteAll();
+        xteaService.getRegionMapRepository().deleteAll();
 
         Set<String> regionIds = xteaService.findUnique(171).keySet();
 
@@ -186,7 +178,7 @@ public class PathFindingRunner implements CommandLineRunner {
         });
 
         for (RegionMap regionMap : RsEnvironment.getRsMap().getRegions().values()) {
-            RegionMap save = xteaService.getRegionInfoRepository().save(regionMap);
+            RegionMap save = xteaService.getRegionMapRepository().save(regionMap);
             log.info("Saved {}.", save);
         }
 
@@ -195,7 +187,7 @@ public class PathFindingRunner implements CommandLineRunner {
 
     private void loadRsMap(){
         log.info("Started loading RsMap this may take a few moments..");
-        for (RegionMap regionMap : xteaService.getRegionInfoRepository().findAll()) {
+        for (RegionMap regionMap : xteaService.getRegionMapRepository().findAll()) {
             RsEnvironment.getRsMap().getRegions().put(Integer.valueOf(regionMap.getKey()), regionMap);
         }
         log.info("Finished loading RsMap with {} regions.", RsEnvironment.getRsMap().getRegions().size());

@@ -1,5 +1,6 @@
 package com.acuitybotting.data.flow.messaging.services.client;
 
+import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.data.flow.messaging.services.client.message.Message;
 import com.acuitybotting.data.flow.messaging.services.client.message.MessageFuture;
 import com.acuitybotting.data.flow.messaging.services.client.message.MessageParser;
@@ -109,7 +110,7 @@ public class MessagingClientService {
     public CompletableFuture<Boolean> consumeQueue(String queueUrl, Consumer<Message> callback, BiConsumer<Boolean, ? super Throwable> shutdownCallback) {
         CompletableFuture<Boolean> running = new CompletableFuture<>();
         if (shutdownCallback != null) running.whenCompleteAsync(shutdownCallback);
-        Executors.newSingleThreadExecutor().submit(() -> {
+        ExecutorUtil.newExecutorPool(1).submit(() -> {
             try {
                 while (!running.isDone()) {
                     read(queueUrl).ifPresent(messageWrappers -> {
@@ -150,8 +151,6 @@ public class MessagingClientService {
                 "&VisibilityTimeout=" + visibilityTimeout +
                 "&WaitTimeSeconds=" + messageTimeout +
                 "&AttributeName=" + "All";
-
-
 
         return Optional.ofNullable(MessageParser.parse(HttpUtil.get(null, request, null)));
     }

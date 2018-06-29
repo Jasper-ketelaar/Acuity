@@ -4,6 +4,7 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
  */
 
 @Getter
-public class Region {
+public class RsRegion {
 
     public static final int X = 64;
     public static final int Y = 64;
@@ -29,7 +30,7 @@ public class Region {
     private int[][][] overlayRotations = new int[Z][X][Y];
     private int[][][] underlayIds = new int[Z][X][Y];
 
-    private List<SceneEntityInstance> locations = new ArrayList<>();
+    private List<RsLocation> locations = new ArrayList<>();
     private int[] keys;
 
     public int getTileSetting(Location location){
@@ -37,8 +38,8 @@ public class Region {
         return tileSettings[location.getPlane()][clone.getX()][ clone.getY()];
     }
 
-    public List<SceneEntityInstance> getInstancesAt(Location location){
-        return locations.stream().filter(sceneEntityInstance -> sceneEntityInstance.getPosition().toLocation().equals(location)).collect(Collectors.toList());
+    public Collection<RsLocation> getInstancesAt(Location location){
+        return locations.stream().filter(sceneEntityInstance -> sceneEntityInstance.getPosition().toLocation().equals(location)).collect(Collectors.toSet());
     }
 
 }

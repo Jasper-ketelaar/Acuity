@@ -17,7 +17,7 @@ public class PositionPlugin extends Plugin {
         getPaintUtil().debug("Cursor (Map): " + getPerspective().screenToLocation(this.getMapPanel().getMousePosition()));
         getPaintUtil().debug("Cursor: " + this.getMapPanel().getMousePosition());
         getPaintUtil().debug("View Base: " + getPerspective().getBase());
-        getPaintUtil().debug("Region: " + RegionUtils.locationToRegionId(getPerspective().screenToLocation(this.getMapPanel().getMousePosition())));
+        getPaintUtil().debug("RsRegion: " + RegionUtils.locationToRegionId(getPerspective().screenToLocation(this.getMapPanel().getMousePosition())));
 
         Location mouseLocation = getMapPanel().getMouseLocation();
         if (mouseLocation != null){

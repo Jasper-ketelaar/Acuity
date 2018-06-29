@@ -4,17 +4,15 @@ import com.acuitybotting.data.flow.messaging.services.client.MessagingClientServ
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
-import com.acuitybotting.db.arango.path_finding.repositories.TileFlagRepository;
-import com.acuitybotting.db.arango.path_finding.repositories.xtea.RegionInfoRepository;
+import com.acuitybotting.db.arango.path_finding.repositories.xtea.RegionMapRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.SceneEntityDefinitionRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
-import com.acuitybotting.path_finding.rs.utils.RegionUtils;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.xtea.domain.EntityLocation;
-import com.acuitybotting.path_finding.xtea.domain.Region;
-import com.acuitybotting.path_finding.xtea.domain.SceneEntityInstance;
+import com.acuitybotting.path_finding.xtea.domain.RsRegion;
+import com.acuitybotting.path_finding.xtea.domain.RsLocation;
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -40,20 +38,17 @@ public class XteaService {
     private final SceneEntityDefinitionRepository definitionRepository;
     private final XteaRepository xteaRepository;
 
-    private final RegionInfoRepository regionInfoRepository;
+    private final RegionMapRepository regionMapRepository;
     private final MessagingClientService clientService;
-
-    private final TileFlagRepository tileFlagRepository;
 
     private Gson gson = new Gson();
 
     @Autowired
-    public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionInfoRepository regionInfoRepository, MessagingClientService clientService, TileFlagRepository tileFlagRepository) {
+    public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionMapRepository regionMapRepository, MessagingClientService clientService) {
         this.definitionRepository = definitionRepository;
         this.xteaRepository = xteaRepository;
-        this.regionInfoRepository = regionInfoRepository;
+        this.regionMapRepository = regionMapRepository;
         this.clientService = clientService;
-        this.tileFlagRepository = tileFlagRepository;
     }
 
     public Map<String, Set<Xtea>> findUnique(int rev) {
@@ -65,13 +60,13 @@ public class XteaService {
         return Optional.ofNullable(cache.computeIfAbsent(id, integer -> definitionRepository.findById(String.valueOf(id)).orElse(null)));
     }
 
-    private Map<String, Region> regionCache = new HashMap<>();
-    public Optional<Region> getRegion(int id) {
+    private Map<String, RsRegion> regionCache = new HashMap<>();
+    public Optional<RsRegion> getRegion(int id) {
         File file = new File(RsEnvironment.INFO_BASE, "\\json\\regions\\" + id + ".json");
         if (!file.exists()) return Optional.empty();
         return Optional.ofNullable(regionCache.computeIfAbsent(String.valueOf(id), s -> {
             try {
-                return gson.fromJson(new FileReader(file), Region.class);
+                return gson.fromJson(new FileReader(file), RsRegion.class);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -92,12 +87,12 @@ public class XteaService {
         regionMap.addFlag(new Location(location.getX(), location.getY(), plane), flag);
     }
 
-    private RegionMap createRegionInfo(Region region){
+    private RegionMap createRegionInfo(RsRegion rsRegion){
         RegionMap regionMap = new RegionMap();
-        regionMap.setKey(String.valueOf(region.getRegionID()));
-        regionMap.setBaseX(region.getBaseX());
-        regionMap.setBaseY(region.getBaseY());
-        int[][][] flags = new int[Region.Z][Region.X][Region.Y];
+        regionMap.setKey(String.valueOf(rsRegion.getRegionID()));
+        regionMap.setBaseX(rsRegion.getBaseX());
+        regionMap.setBaseY(rsRegion.getBaseY());
+        int[][][] flags = new int[RsRegion.Z][RsRegion.X][RsRegion.Y];
         for (int[][] planeFlags : flags) {
             for (int[] axisFlags : planeFlags) {
                 Arrays.fill(axisFlags, 1);
@@ -108,19 +103,19 @@ public class XteaService {
     }
 
     public void applySettings(int regionId){
-        Region region = getRegion(regionId).orElse(null);
-        if (region == null){
-            log.warn("Failed to load region {}. Skipping applying flags to region.", regionId);
+        RsRegion rsRegion = getRegion(regionId).orElse(null);
+        if (rsRegion == null){
+            log.warn("Failed to load rsRegion {}. Skipping applying flags to rsRegion.", regionId);
             return;
         }
-        RegionMap regionMap = RsEnvironment.getRsMap().getRegions().computeIfAbsent(region.getRegionID(), s -> createRegionInfo(region));
+        RegionMap regionMap = RsEnvironment.getRsMap().getRegions().computeIfAbsent(rsRegion.getRegionID(), s -> createRegionInfo(rsRegion));
 
-        for (int plane = 0; plane < Region.Z; plane++) {
-            for (int regionX = 0; regionX < Region.X; regionX++) {
-                for (int regionY = 0; regionY < Region.Y; regionY++) {
-                    int setting = region.getTileSettings()[plane][regionX][regionY];
+        for (int plane = 0; plane < RsRegion.Z; plane++) {
+            for (int regionX = 0; regionX < RsRegion.X; regionX++) {
+                for (int regionY = 0; regionY < RsRegion.Y; regionY++) {
+                    int setting = rsRegion.getTileSettings()[plane][regionX][regionY];
 
-                    boolean bridge = plane + 1 < 4 && (region.getTileSettings()[plane + 1][regionX][regionY] == 2);
+                    boolean bridge = plane + 1 < 4 && (rsRegion.getTileSettings()[plane + 1][regionX][regionY] == 2);
                     if (!bridge && setting == 1) {
                         //blocked
                         regionMap.addFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING);
@@ -136,23 +131,23 @@ public class XteaService {
     }
 
     public void applyLocations(int regionId) {
-        Region region = getRegion(regionId).orElse(null);
-        if (region == null){
-            log.warn("Failed to load region {}. Skipping applying locations to region.", regionId);
+        RsRegion rsRegion = getRegion(regionId).orElse(null);
+        if (rsRegion == null){
+            log.warn("Failed to load rsRegion {}. Skipping applying locations to rsRegion.", regionId);
             return;
         }
 
-        for (SceneEntityInstance location : region.getLocations()) {
+        for (RsLocation location : rsRegion.getLocations()) {
             int locationType = location.getType();
 
-            int baseX = region.getBaseX();
-            int baseY = region.getBaseY();
+            int baseX = rsRegion.getBaseX();
+            int baseY = rsRegion.getBaseY();
             int regionX = location.getPosition().getX() - baseX;
             int regionY = location.getPosition().getY() - baseY;
             int plane = location.getPosition().getZ();
 
             if (plane < 4) {
-                if ((region.getTileSettings()[1][regionX][regionY] & 2) == 2) {//Settings that apply locations to plane below.
+                if ((rsRegion.getTileSettings()[1][regionX][regionY] & 2) == 2) {//Settings that apply locations to plane below.
                     plane = plane - 1;
                 }
 

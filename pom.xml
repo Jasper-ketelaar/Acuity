@@ -22,6 +22,7 @@
         <module>security-web-api</module>
         <module>service-acuity-identities</module>
         <module>website-acuity-dashboard</module>
+        <module>common-utils</module>
     </modules>
 
     <properties>

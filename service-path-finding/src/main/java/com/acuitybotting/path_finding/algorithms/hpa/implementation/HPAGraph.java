@@ -1,10 +1,9 @@
 package com.acuitybotting.path_finding.algorithms.hpa.implementation;
 
 
-import com.acuitybotting.db.arango.path_finding.domain.SceneEntity;
+import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
-import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
 import com.acuitybotting.path_finding.rs.custom_edges.CustomEdge;
@@ -14,14 +13,9 @@ import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
-import com.acuitybotting.path_finding.rs.utils.ExecutorUtil;
-import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
