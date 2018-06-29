@@ -205,7 +205,7 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
             RsEnvironment.setRsMapService(rsMapService);
 
-            RsEnvironment.loadRegions();
+            dumpRegionInfo();
             dumpRegionImages();
 
             MapFrame mapFrame = new MapFrame();

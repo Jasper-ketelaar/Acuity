@@ -34,7 +34,7 @@ public class Region {
 
     public int getTileSetting(Location location){
         Location clone = location.clone(-baseX, -baseY);
-        return tileSettings[location.getPlane()][clone.getX()][clone.getY()];
+        return tileSettings[location.getPlane()][clone.getX()][ clone.getY()];
     }
 
     public List<SceneEntityInstance> getInstancesAt(Location location){

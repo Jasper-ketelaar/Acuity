@@ -79,14 +79,18 @@ public class XteaService {
         }));
     }
 
-    private void addFlag(EntityLocation position, int plane, int flag){
-        int regionId = RsMapService.worldToRegionId(position.toLocation());
+    private void addFlag(EntityLocation location, int plane, int flag){
+        addFlag(location.toLocation(), plane, flag);
+    }
+
+    private void addFlag(Location location, int plane, int flag){
+        int regionId = RsMapService.worldToRegionId(location);
         RegionInfo regionInfo = RsEnvironment.getRegionMap().get(String.valueOf(regionId));
         if (regionInfo == null){
             log.warn("Failed to add flag to region {}.", regionId);
             return;
         }
-        regionInfo.addFlag(new Location(position.getX(), position.getY(), plane), flag);
+        regionInfo.addFlag(new Location(location.getX(), location.getY(), plane), flag);
     }
 
     private RegionInfo createRegionInfo(Region region){
@@ -259,7 +263,7 @@ public class XteaService {
                             }
                         }
                         else {
-                            if (!"null".equals(baseDefinition.getName()) && baseDefinition.getProjectileClipped() && baseDefinition.getItemSupport() == 1) {
+                            if (baseDefinition.getProjectileClipped() && baseDefinition.getItemSupport() == 1) {
                                 //addObject blocks walking
 
                                 int width;
@@ -277,7 +281,7 @@ public class XteaService {
 
                                 for (int xOff = 0; xOff < width; xOff++) {
                                     for (int yOff = 0; yOff < length; yOff++) {
-                                        addFlag(location.getPosition(), plane, MapFlags.BLOCKED_SCENE_OBJECT);
+                                        addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.BLOCKED_SCENE_OBJECT);
                                     }
                                 }
                             }
