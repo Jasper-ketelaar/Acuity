@@ -58,7 +58,7 @@ public class PathFindingRunner implements CommandLineRunner {
         this.hpaWebService = hpaWebService;
     }
 
-    private PathFindingSupplier getPathfindingSupplier() {
+    private PathFindingSupplier getPathFindingSupplier() {
         return new PathFindingSupplier() {
             @Override
             public Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate) {
@@ -80,14 +80,16 @@ public class PathFindingRunner implements CommandLineRunner {
     }
 
     private HPAGraph initGraph() {
+        RsEnvironment.getRsMap().calculateBounds();
+
         HPAGraph graph = new HPAGraph();
         graph.init(
-                new Location(3138 - 1000, 3384 - 1000, 0),
-                new Location(3138 + 1000, 3384 + 1000, 1),
+                new Location(RsEnvironment.getRsMap().getLowestX(), RsEnvironment.getRsMap().getLowestY(), 0),
+                new Location(RsEnvironment.getRsMap().getHighestX(), RsEnvironment.getRsMap().getHighestY(), 3),
                 30,
                 30
         );
-        graph.setPathFindingSupplier(getPathfindingSupplier());
+        graph.setPathFindingSupplier(getPathFindingSupplier());
         return graph;
     }
 
