@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.acuitybotting</groupId>
-    <artifactId>service-bot-statistics</artifactId>
+    <artifactId>security-influxdb</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <parent>
@@ -15,11 +15,6 @@
     </parent>
 
     <dependencies>
-        <dependency>
-            <groupId>com.acuitybotting</groupId>
-            <artifactId>db-influx</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>

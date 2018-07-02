@@ -13,7 +13,6 @@
         <module>db-arango</module>
         <module>service-path-finding</module>
         <module>service-bot-control</module>
-        <module>service-bot-statistics</module>
         <module>db-influx</module>
         <module>security-acuity</module>
         <module>data-flow-messaging</module>
@@ -23,6 +22,7 @@
         <module>service-acuity-identities</module>
         <module>website-acuity-dashboard</module>
         <module>common-utils</module>
+        <module>security-influxdb</module>
     </modules>
 
     <properties>

@@ -1,7 +1,0 @@
-spring:
-    influxdb:
-      url: http://localhost:8080
-      username: influx
-      password: 123123
-      database: test
-      retention-policy: autogen
