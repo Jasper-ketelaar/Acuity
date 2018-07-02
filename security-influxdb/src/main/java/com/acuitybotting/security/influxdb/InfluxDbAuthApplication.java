@@ -1,4 +1,4 @@
-package com.acuitybotting.bot.statistics;
+package com.acuitybotting.security.influxdb;
 
 /**
  * Created by Zachary Herridge on 6/6/2018.

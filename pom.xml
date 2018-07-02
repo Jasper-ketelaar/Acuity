@@ -23,6 +23,7 @@
         <module>website-acuity-dashboard</module>
         <module>common-utils</module>
         <module>security-influxdb</module>
+        <module>security-rabbitmq</module>
     </modules>
 
     <properties>

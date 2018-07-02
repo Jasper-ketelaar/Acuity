@@ -48,7 +48,7 @@ public interface MessagingClient {
 
     boolean delete(Message message);
 
-    void start(String host, int port);
+    void start(String vHost, String host, int port, String username, String password);
 
     MessageFuture getMessageFuture(String id);
 

@@ -8,6 +8,7 @@ import com.acuitybotting.data.flow.messaging.services.interfaces.MessageConsumer
 import com.acuitybotting.data.flow.messaging.services.interfaces.MessagingClient;
 import com.google.gson.Gson;
 import com.rabbitmq.client.*;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.function.Consumer;
  * Created by Zachary Herridge on 7/2/2018.
  */
 @Slf4j
+@Getter
 public class RabbitClientService implements MessagingClient {
 
     private EmptyMessageFuture EMPTY_MESSAGE_FUTURE = new EmptyMessageFuture();
@@ -37,16 +39,16 @@ public class RabbitClientService implements MessagingClient {
     private Channel channel;
 
     @Override
-    public void start(String host, int port){
+    public void start(String vHost, String host, int port, String username, String password){
         EMPTY_MESSAGE_FUTURE.cancel(true);
 
         connectionFactory.setHost(host);
         connectionFactory.setPort(port);
 
-        connectionFactory.setUsername("tempUser");
-        connectionFactory.setPassword("123123");
+        connectionFactory.setUsername(username);
+        connectionFactory.setPassword(password);
 
-        connectionFactory.setVirtualHost("AcuityBotting");
+        connectionFactory.setVirtualHost(vHost);
 
         executorService.execute(this::connect);
     }
