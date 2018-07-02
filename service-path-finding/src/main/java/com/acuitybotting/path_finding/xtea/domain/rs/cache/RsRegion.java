@@ -33,9 +33,13 @@ public class RsRegion {
     private List<RsLocation> locations = new ArrayList<>();
     private int[] keys;
 
-    public int getTileSetting(Location location){
+    public int getAt(int[][][] map, Location location){
         Location clone = location.clone(-baseX, -baseY);
-        return tileSettings[location.getPlane()][clone.getX()][ clone.getY()];
+        return map[location.getPlane()][clone.getX()][ clone.getY()];
+    }
+
+    public int getTileSetting(Location location){
+        return getAt(tileSettings, location);
     }
 
     public Collection<RsLocation> getInstancesAt(Location location){

@@ -145,6 +145,10 @@ public class XteaService {
                         //walkable
                         regionMap.addFlag(regionX, regionY, plane, MapFlags.OPEN_SETTINGS);
                     }
+
+                    if (rsRegion.getOverlayIds()[plane][regionX][regionY] == 0){
+                        regionMap.addFlag(regionX, regionY, plane, MapFlags.NO_OVERLAY);
+                    }
                 }
             }
         }

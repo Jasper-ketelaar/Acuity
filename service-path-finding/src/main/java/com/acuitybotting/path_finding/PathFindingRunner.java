@@ -139,7 +139,7 @@ public class PathFindingRunner implements CommandLineRunner {
                     BufferedImage[] tileFlagImage = webImageProcessingService.createTileFlagImageFromRegionInfo(regionMap);
                     for (int i = 0; i < tileFlagImage.length; i++) {
                         try {
-                            ImageIO.write(tileFlagImage[i], "png", new File(RsEnvironment.INFO_BASE, "\\img\\a2_regions\\" + regionMap.getKey() + "_" + i + ".png"));
+                            ImageIO.write(tileFlagImage[i], "png", new File(RsEnvironment.INFO_BASE, "\\img\\a_regions\\" + regionMap.getKey() + "_" + i + ".png"));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -170,7 +170,12 @@ public class PathFindingRunner implements CommandLineRunner {
         });
 
         for (RegionMap regionMap : RsEnvironment.getRsMap().getRegions().values()) {
-            RegionMap save = xteaService.getRegionMapRepository().save(regionMap);
+            try {
+                xteaService.getRegionMapRepository().save(regionMap);
+            }
+            catch (Exception e){
+                log.error("Error during save. " + regionMap, e);
+            }
         }
 
         log.info("Finished RegionMap dump with {} regions.", RsEnvironment.getRsMap().getRegions().size());
@@ -192,8 +197,8 @@ public class PathFindingRunner implements CommandLineRunner {
     public void run(String... args) {
         try {
 
-            dumpRegionInfo();
-            dumpRegionImages();
+            loadRsMap();
+            loadHpa(1);
 
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);

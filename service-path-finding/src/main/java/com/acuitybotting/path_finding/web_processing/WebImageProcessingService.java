@@ -36,7 +36,10 @@ public class WebImageProcessingService {
                 for (int regionY = 0; regionY < RsRegion.Y; regionY++) {
                     int drawX = regionX * tilePixelSize;
                     int drawY = (RsRegion.Y - 1 - regionY) * tilePixelSize;
-                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.NO_OVERLAY)){
+                        fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(149, 233, 255, 223));
+                    }
+                    else if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING)){
                         fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(50, 109, 255, 223));
                     }
                     else {

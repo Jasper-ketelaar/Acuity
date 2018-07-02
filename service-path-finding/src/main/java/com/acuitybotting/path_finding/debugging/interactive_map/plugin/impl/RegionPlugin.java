@@ -67,6 +67,14 @@ public class RegionPlugin extends Plugin {
         List<String> locationDebugs = new ArrayList<>();
         int setting = -404;
         if (rsRegion != null) {
+            String ids = "Id: " +
+                    rsRegion.getAt(rsRegion.getOverlayIds(), location) + " " +
+                    rsRegion.getAt(rsRegion.getOverlayPaths(), location) + " " +
+                    rsRegion.getAt(rsRegion.getOverlayRotations(), location) + " " +
+                    rsRegion.getAt(rsRegion.getUnderlayIds(), location) + " " +
+                    rsRegion.getAt(rsRegion.getTileHeights(), location);
+            getPaintUtil().debug(ids);
+
             setting = rsRegion.getTileSetting(location);
 
             Collection<RsLocation> instancesAt = rsRegion.getInstancesAt(location);

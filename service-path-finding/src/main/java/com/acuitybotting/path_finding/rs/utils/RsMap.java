@@ -43,6 +43,8 @@ public class RsMap {
         Integer endFlag = getFlagAt(end).orElse(null);
         if (endFlag == null) return false;
 
+        if (start.getPlane() > 0) if (MapFlags.check(endFlag, MapFlags.NO_OVERLAY) || (!ignoreStartBlocked && MapFlags.check(endFlag, MapFlags.NO_OVERLAY))) return false;
+
         if (MapFlags.isBlocked(endFlag) || (!ignoreStartBlocked && MapFlags.isBlocked(startFlag))) return false;
 
         if (!ignoreStartBlocked && MapFlags.check(startFlag, MapFlags.WALL_NORTH_EAST_TO_SOUTH_WEST | MapFlags.WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;

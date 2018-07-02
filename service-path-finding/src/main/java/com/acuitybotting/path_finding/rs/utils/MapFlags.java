@@ -35,6 +35,8 @@ public class MapFlags {
 
     public static final int OPEN_SCENE_OBJECT_OVERRIDE = 1 << 18;
 
+    public static final int NO_OVERLAY = 1 << 19;
+
     public static int add(int flag, int value){
         return flag | value;
     }
