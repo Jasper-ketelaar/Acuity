@@ -10,9 +10,9 @@ import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
-import com.acuitybotting.path_finding.xtea.domain.EntityLocation;
-import com.acuitybotting.path_finding.xtea.domain.RsRegion;
-import com.acuitybotting.path_finding.xtea.domain.RsLocation;
+import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsLocationPosition;
+import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
+import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsLocation;
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,12 +57,33 @@ public class XteaService {
         return xteaRepository.findAllByRevision(rev).stream().collect(Collectors.groupingBy(object -> String.valueOf(object.getRegion()), Collectors.toSet()));
     }
 
+    public void exportXteas(int rev, File out) {
+        Set<Map.Entry<String, Set<Xtea>>> keySets = findUnique(rev).entrySet();
+
+        StringJoiner stringJoiner = new StringJoiner("\n");
+        for (Map.Entry<String, Set<Xtea>> keySetEntry : keySets) {
+            StringBuilder result = new StringBuilder(keySetEntry.getKey());
+            for (Xtea xtea : keySetEntry.getValue()) {
+                result.append(" ").append(Arrays.stream(xtea.getKeys()).mapToObj(String::valueOf).collect(Collectors.joining(",")));
+            }
+            stringJoiner.add(result.toString());
+        }
+
+        try {
+            Files.write(out.toPath(), stringJoiner.toString().getBytes());
+        } catch (IOException e) {
+            log.error("Error during exporting xteas.", e);
+        }
+    }
+
     private Map<Integer, SceneEntityDefinition> cache = new HashMap<>();
+
     public Optional<SceneEntityDefinition> getSceneEntityDefinition(int id) {
         return Optional.ofNullable(cache.computeIfAbsent(id, integer -> definitionRepository.findById(String.valueOf(id)).orElse(null)));
     }
 
     private Map<String, RsRegion> regionCache = new HashMap<>();
+
     public Optional<RsRegion> getRegion(int id) {
         File file = new File(RsEnvironment.INFO_BASE, "\\json\\regions\\" + id + ".json");
         if (!file.exists()) return Optional.empty();
@@ -74,20 +97,20 @@ public class XteaService {
         }));
     }
 
-    private void addFlag(EntityLocation location, int plane, int flag){
+    private void addFlag(RsLocationPosition location, int plane, int flag) {
         addFlag(location.toLocation(), plane, flag);
     }
 
-    private void addFlag(Location location, int plane, int flag){
+    private void addFlag(Location location, int plane, int flag) {
         RegionMap regionMap = RsEnvironment.getRsMap().getRegion(location).orElse(null);
-        if (regionMap == null){
+        if (regionMap == null) {
             log.warn("Failed to add flag to {}.", location);
             return;
         }
         regionMap.addFlag(new Location(location.getX(), location.getY(), plane), flag);
     }
 
-    private RegionMap createRegionInfo(RsRegion rsRegion){
+    private RegionMap createRegionInfo(RsRegion rsRegion) {
         RegionMap regionMap = new RegionMap();
         regionMap.setKey(String.valueOf(rsRegion.getRegionID()));
         regionMap.setBaseX(rsRegion.getBaseX());
@@ -97,14 +120,15 @@ public class XteaService {
             for (int[] axisFlags : planeFlags) {
                 Arrays.fill(axisFlags, 1);
             }
-        };
+        }
+        ;
         regionMap.setFlags(flags);
         return regionMap;
     }
 
-    public void applySettings(int regionId){
+    public void applySettings(int regionId) {
         RsRegion rsRegion = getRegion(regionId).orElse(null);
-        if (rsRegion == null){
+        if (rsRegion == null) {
             log.warn("Failed to load rsRegion {}. Skipping applying flags to rsRegion.", regionId);
             return;
         }
@@ -119,8 +143,7 @@ public class XteaService {
                     if (!bridge && setting == 1) {
                         //blocked
                         regionMap.addFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING);
-                    }
-                    else {
+                    } else {
                         //walkable
                         regionMap.addFlag(regionX, regionY, plane, MapFlags.OPEN_SETTINGS);
                     }
@@ -132,7 +155,7 @@ public class XteaService {
 
     public void applyLocations(int regionId) {
         RsRegion rsRegion = getRegion(regionId).orElse(null);
-        if (rsRegion == null){
+        if (rsRegion == null) {
             log.warn("Failed to load rsRegion {}. Skipping applying locations to rsRegion.", regionId);
             return;
         }
@@ -256,8 +279,7 @@ public class XteaService {
                                     //addBoundaryDecoration ignore
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             if (baseDefinition.getProjectileClipped() && baseDefinition.getItemSupport() == 1) {
                                 //addObject blocks walking
 
@@ -265,11 +287,10 @@ public class XteaService {
                                 int length;
 
                                 int orientation = location.getOrientation();
-                                if(orientation != 1 && orientation != 3) {
+                                if (orientation != 1 && orientation != 3) {
                                     width = baseDefinition.getSizeX();
                                     length = baseDefinition.getSizeY();
-                                }
-                                else {
+                                } else {
                                     width = baseDefinition.getSizeY();
                                     length = baseDefinition.getSizeX();
                                 }
@@ -280,7 +301,8 @@ public class XteaService {
                                 for (int xOff = 0; xOff < width; xOff++) {
                                     for (int yOff = 0; yOff < length; yOff++) {
                                         addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.BLOCKED_SCENE_OBJECT);
-                                        if (custom) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_SCENE_OBJECT_OVERRIDE);
+                                        if (custom)
+                                            addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_SCENE_OBJECT_OVERRIDE);
                                     }
                                 }
                             }

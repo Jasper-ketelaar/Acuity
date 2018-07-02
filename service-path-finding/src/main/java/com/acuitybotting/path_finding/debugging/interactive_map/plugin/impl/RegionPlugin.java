@@ -6,8 +6,8 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.RegionUtils;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.xtea.XteaService;
-import com.acuitybotting.path_finding.xtea.domain.RsRegion;
-import com.acuitybotting.path_finding.xtea.domain.RsLocation;
+import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
+import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsLocation;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;

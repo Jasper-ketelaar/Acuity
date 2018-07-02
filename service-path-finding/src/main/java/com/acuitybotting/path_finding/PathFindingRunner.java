@@ -111,18 +111,6 @@ public class PathFindingRunner implements CommandLineRunner {
         hpaPlugin.setGraph(graph);
     }
 
-    public void printXteas() {
-        Set<Map.Entry<String, Set<Xtea>>> keySets = xteaService.findUnique(171).entrySet();
-
-        for (Map.Entry<String, Set<Xtea>> keySetEntry : keySets) {
-            StringBuilder result = new StringBuilder(keySetEntry.getKey());
-            for (Xtea xtea : keySetEntry.getValue()) {
-                result.append(" ").append(Arrays.stream(xtea.getKeys()).mapToObj(String::valueOf).collect(Collectors.joining(",")));
-            }
-            System.out.println(result);
-        }
-    }
-
     private void saveDefs() throws IOException {
         xteaService.getDefinitionRepository().deleteAll();
         Gson gson = new Gson();
@@ -183,7 +171,6 @@ public class PathFindingRunner implements CommandLineRunner {
 
         for (RegionMap regionMap : RsEnvironment.getRsMap().getRegions().values()) {
             RegionMap save = xteaService.getRegionMapRepository().save(regionMap);
-            log.info("Saved {}.", save);
         }
 
         log.info("Finished RegionMap dump with {} regions.", RsEnvironment.getRsMap().getRegions().size());
@@ -197,13 +184,16 @@ public class PathFindingRunner implements CommandLineRunner {
         log.info("Finished loading RsMap with {} regions.", RsEnvironment.getRsMap().getRegions().size());
     }
 
+    private void exportXteas(){
+        xteaService.exportXteas(171, new File(RsEnvironment.INFO_BASE, "xteas.txt"));
+    }
+
     @Override
     public void run(String... args) {
         try {
 
-            loadRsMap();
-            buildHpa(2);
-            //lo    adHpa(2);
+            dumpRegionInfo();
+            dumpRegionImages();
 
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);

@@ -5,7 +5,7 @@ import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
-import com.acuitybotting.path_finding.xtea.domain.RsRegion;
+import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

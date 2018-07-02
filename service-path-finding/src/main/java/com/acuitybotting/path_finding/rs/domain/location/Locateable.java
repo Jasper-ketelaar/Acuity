@@ -6,5 +6,4 @@ package com.acuitybotting.path_finding.rs.domain.location;
 public interface Locateable {
 
     Location getLocation();
-
 }

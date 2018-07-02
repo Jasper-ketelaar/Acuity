@@ -16,7 +16,7 @@ import java.util.Map;
 @Slf4j
 public class RsEnvironment {
 
-    public static final File INFO_BASE = new File("C:\\Users\\S3108772\\Desktop\\Map Info");
+    public static final File INFO_BASE = new File("C:\\Users\\zgher\\Desktop\\Map Info");
 
     public static final int PLANE_PENALTY = 25;
     public static final int CACHE_AREA = 15;

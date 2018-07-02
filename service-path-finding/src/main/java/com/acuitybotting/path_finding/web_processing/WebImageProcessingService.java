@@ -3,7 +3,7 @@ package com.acuitybotting.path_finding.web_processing;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.xtea.XteaService;
-import com.acuitybotting.path_finding.xtea.domain.RsRegion;
+import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

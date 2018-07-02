@@ -1,4 +1,4 @@
-package com.acuitybotting.path_finding.xtea.domain;
+package com.acuitybotting.path_finding.xtea.domain.rs.cache;
 
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import lombok.Getter;
