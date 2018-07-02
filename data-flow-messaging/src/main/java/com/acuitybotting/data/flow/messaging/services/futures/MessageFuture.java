@@ -1,4 +1,7 @@
-package com.acuitybotting.data.flow.messaging.services.client.message;
+package com.acuitybotting.data.flow.messaging.services.futures;
+
+
+import com.acuitybotting.data.flow.messaging.services.Message;
 
 import java.util.concurrent.CompletableFuture;
 

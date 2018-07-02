@@ -32,11 +32,6 @@ public class BotControlAPI {
         return register;
     }
 
-    @RequestMapping(value = "/update-queue-policy", method = RequestMethod.POST)
-    public boolean requestQueuePolicyUpdate(@RequestBody String instanceKey, HttpServletRequest request){
-        return managementService.updateQueuePolicy(AcuityPrincipalContext.getPrincipalKey(), instanceKey, request.getRemoteAddr());
-    }
-
     @RequestMapping(value = "/heartbeat", method = RequestMethod.POST)
     private boolean heartbeat(@RequestBody String id){
         return managementService.heartbeat(id);

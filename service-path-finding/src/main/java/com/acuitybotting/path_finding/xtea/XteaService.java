@@ -1,6 +1,6 @@
 package com.acuitybotting.path_finding.xtea;
 
-import com.acuitybotting.data.flow.messaging.services.client.MessagingClientService;
+
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
@@ -41,16 +41,14 @@ public class XteaService {
     private final XteaRepository xteaRepository;
 
     private final RegionMapRepository regionMapRepository;
-    private final MessagingClientService clientService;
 
     private Gson gson = new Gson();
 
     @Autowired
-    public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionMapRepository regionMapRepository, MessagingClientService clientService) {
+    public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionMapRepository regionMapRepository) {
         this.definitionRepository = definitionRepository;
         this.xteaRepository = xteaRepository;
         this.regionMapRepository = regionMapRepository;
-        this.clientService = clientService;
     }
 
     public Map<String, Set<Xtea>> findUnique(int rev) {
@@ -295,7 +293,6 @@ public class XteaService {
                                     length = baseDefinition.getSizeX();
                                 }
 
-
                                 boolean custom = "Wilderness ditch".equalsIgnoreCase(baseDefinition.getName());
 
                                 for (int xOff = 0; xOff < width; xOff++) {
@@ -314,7 +311,7 @@ public class XteaService {
     }
 
     public void consumeQueue() {
-        int[] emptyKeys = {0, 0, 0, 0};
+       /* int[] emptyKeys = {0, 0, 0, 0};
 
         clientService.setDeleteMessageOnConsume(false).consumeQueue(QUEUE_URL, message -> {
             try {
@@ -328,6 +325,6 @@ public class XteaService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        });
+        });*/
     }
 }
