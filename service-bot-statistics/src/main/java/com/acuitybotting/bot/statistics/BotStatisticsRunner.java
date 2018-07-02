@@ -22,5 +22,10 @@ public class BotStatisticsRunner implements CommandLineRunner{
     @Override
     public void run(String... strings) throws Exception {
         influxDBTemplate.createDatabase();
+
+        Point build = Point.measurement("testmes")
+                .addField("value", 10).build();
+
+        influxDBTemplate.write(build);
     }
 }
