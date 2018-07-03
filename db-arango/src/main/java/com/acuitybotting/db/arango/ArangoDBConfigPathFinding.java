@@ -4,12 +4,13 @@ import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDB.Builder;
 import com.arangodb.springframework.annotation.EnableArangoRepositories;
 import com.arangodb.springframework.config.AbstractArangoConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango.path_finding" })
+@PropertySource("classpath:arango.credentials")
 public class ArangoDBConfigPathFinding extends AbstractArangoConfiguration{
 
     @Value("${arango.host}")

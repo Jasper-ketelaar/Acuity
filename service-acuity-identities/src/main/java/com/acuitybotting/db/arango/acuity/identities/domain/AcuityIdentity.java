@@ -33,6 +33,8 @@ public class AcuityIdentity {
 
     private Map<String, Object> properties;
 
+    private String botAuthKey;
+
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;

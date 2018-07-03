@@ -21,7 +21,7 @@ public class SqsMessageConsumer implements MessageConsumer {
     private String queue;
     private List<Consumer<Message>> messageCallbacks = new ArrayList<>();
 
-    private boolean deleteMessageOnConsume = true;
+    private boolean deleteMessageOnConsume = false;
     private int maxMessages = 3;
     private int messageTimeout = 20;
     private int visibilityTimeout = 20;

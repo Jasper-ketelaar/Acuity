@@ -199,17 +199,13 @@ public class PathFindingRunner implements CommandLineRunner {
     public void run(String... args) {
         try {
             SqsClientService sqsClientService = new SqsClientService();
-
-
+            sqsClientService.start("tempauth123123123");
             MessageConsumer consumer = sqsClientService
-                    .consume("")
+                    .consume("https://sqs.us-east-1.amazonaws.com/604080725100/acuitybotting-xtea-dump.fifo")
                     .withCallback(message -> {
-
+                        System.out.println(message);
                     })
                     .start();
-
-
-            System.out.println("Send: " + sqsClientService.send("https://sqs.us-east-1.amazonaws.com/604080725100/test.fifo", "Test message"));
 
         /*    loadRsMap();
             buildHpa(1);
