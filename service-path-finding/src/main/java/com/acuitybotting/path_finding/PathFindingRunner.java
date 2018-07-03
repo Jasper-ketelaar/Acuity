@@ -1,10 +1,10 @@
 package com.acuitybotting.path_finding;
 
 import com.acuitybotting.common.utils.ExecutorUtil;
+import com.acuitybotting.data.flow.messaging.services.interfaces.MessageConsumer;
 import com.acuitybotting.data.flow.messaging.services.sqs.client.SqsClientService;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
-import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.db.arango.utils.ArangoUtils;
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
@@ -12,9 +12,7 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.PathFindingSupplier;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.HpaPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PathPlugin;
-import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PositionPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.RegionPlugin;
-import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapFrame;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -33,7 +31,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -174,8 +175,7 @@ public class PathFindingRunner implements CommandLineRunner {
         for (RegionMap regionMap : RsEnvironment.getRsMap().getRegions().values()) {
             try {
                 xteaService.getRegionMapRepository().save(regionMap);
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 log.error("Error during save. " + regionMap, e);
             }
         }
@@ -183,7 +183,7 @@ public class PathFindingRunner implements CommandLineRunner {
         log.info("Finished RegionMap dump with {} regions.", RsEnvironment.getRsMap().getRegions().size());
     }
 
-    private void loadRsMap(){
+    private void loadRsMap() {
         log.info("Started loading RsMap this may take a few moments..");
         for (RegionMap regionMap : xteaService.getRegionMapRepository().findAll()) {
             RsEnvironment.getRsMap().getRegions().put(Integer.valueOf(regionMap.getKey()), regionMap);
@@ -191,7 +191,7 @@ public class PathFindingRunner implements CommandLineRunner {
         log.info("Finished loading RsMap with {} regions.", RsEnvironment.getRsMap().getRegions().size());
     }
 
-    private void exportXteas(){
+    private void exportXteas() {
         xteaService.exportXteas(171, new File(RsEnvironment.INFO_BASE, "xteas.txt"));
     }
 
@@ -199,6 +199,16 @@ public class PathFindingRunner implements CommandLineRunner {
     public void run(String... args) {
         try {
             SqsClientService sqsClientService = new SqsClientService();
+
+
+            MessageConsumer consumer = sqsClientService
+                    .consume("")
+                    .withCallback(message -> {
+
+                    })
+                    .start();
+
+
             System.out.println("Send: " + sqsClientService.send("https://sqs.us-east-1.amazonaws.com/604080725100/test.fifo", "Test message"));
 
         /*    loadRsMap();

@@ -14,5 +14,12 @@ public interface MessageConsumer {
 
     List<Consumer<Message>> getMessageCallbacks();
 
-    void cancel();
+    default MessageConsumer withCallback(Consumer<Message> callback){
+        getMessageCallbacks().add(callback);
+        return this;
+    }
+
+    MessageConsumer start();
+
+    MessageConsumer cancel();
 }

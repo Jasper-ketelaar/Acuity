@@ -24,10 +24,10 @@ public class RabbitMessageConsumer extends DefaultConsumer implements MessageCon
     private static final Gson gson = new Gson();
 
     private final String queue;
-    private final MessagingClient messagingClient;
+    private final RabbitClientService messagingClient;
     private final List<Consumer<Message>> messageCallbacks = new ArrayList<>();
 
-    public RabbitMessageConsumer(String queue, MessagingClient messagingClient, Channel channel) {
+    public RabbitMessageConsumer(String queue, RabbitClientService messagingClient, Channel channel) {
         super(channel);
         this.queue = queue;
         this.messagingClient = messagingClient;
@@ -58,11 +58,22 @@ public class RabbitMessageConsumer extends DefaultConsumer implements MessageCon
     }
 
     @Override
-    public void cancel() {
+    public MessageConsumer start() {
+        try {
+            messagingClient.getChannel().basicConsume(queue, this);
+        } catch (IOException e) {
+            messagingClient.getExceptionHandler().accept(e);
+        }
+        return this;
+    }
+
+    @Override
+    public MessageConsumer cancel() {
         try {
             getChannel().basicCancel(getConsumerTag());
         } catch (IOException e) {
             messagingClient.getExceptionHandler().accept(e);
         }
+        return this;
     }
 }

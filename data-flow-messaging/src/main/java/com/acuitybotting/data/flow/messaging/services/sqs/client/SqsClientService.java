@@ -67,7 +67,7 @@ public class SqsClientService implements MessagingClient {
     }
 
     @Override
-    public SqsMessageConsumer consume(String queue, Consumer<Message> callback) {
+    public SqsMessageConsumer consume(String queue) {
         return new SqsMessageConsumer(this, queue);
     }
 

@@ -44,11 +44,7 @@ public interface MessagingClient {
 
     Optional<MessageFuture> send(String targetExchange, String targetQueue, String localQueue, String futureId, String body);
 
-    default MessageConsumer consume(String queue){
-        return consume(queue, null);
-    }
-
-    SqsMessageConsumer consume(String queue, Consumer<Message> callback);
+    MessageConsumer consume(String queue);
 
     boolean delete(Message message);
 

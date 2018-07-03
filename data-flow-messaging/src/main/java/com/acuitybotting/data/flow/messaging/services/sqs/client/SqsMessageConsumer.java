@@ -31,10 +31,9 @@ public class SqsMessageConsumer implements MessageConsumer {
     public SqsMessageConsumer(SqsClientService sqsClientService, String queue) {
         this.sqsClientService = sqsClientService;
         this.queue = queue;
-        executorService.submit(this::execute);
     }
 
-    private void execute(){
+    private void execute() {
         try {
             List<Message> messages = read().orElse(Collections.emptyList());
 
@@ -42,7 +41,7 @@ public class SqsMessageConsumer implements MessageConsumer {
                 message.setSource(queue);
 
                 String futureId = message.getAttributes().get(MessagingClient.FUTURE_ID);
-                if (futureId != null){
+                if (futureId != null) {
                     MessageFuture messageFuture = sqsClientService.getMessageFuture(futureId);
                     if (messageFuture != null) messageFuture.complete(message);
                 }
@@ -51,8 +50,7 @@ public class SqsMessageConsumer implements MessageConsumer {
                     try {
                         messageCallback.accept(message);
                         if (deleteMessageOnConsume) sqsClientService.delete(message);
-                    }
-                    catch (Exception e){
+                    } catch (Exception e) {
                         sqsClientService.getExceptionHandler().accept(e);
                     }
                 }
@@ -70,8 +68,15 @@ public class SqsMessageConsumer implements MessageConsumer {
     }
 
     @Override
-    public void cancel() {
+    public MessageConsumer start() {
+        executorService.submit(this::execute);
+        return this;
+    }
+
+    @Override
+    public MessageConsumer cancel() {
         executorService.shutdownNow();
+        return this;
     }
 
     private Optional<List<Message>> read() throws Exception {
