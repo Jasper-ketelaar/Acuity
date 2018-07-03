@@ -70,7 +70,7 @@ public class BotControlManagementService {
         BotInstance botInstance = new BotInstance();
 
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put("connectIp", remoteIp);
+        if (remoteIp != null) attributes.put("connectIp", remoteIp);
 
         botInstance.setAttributes(attributes);
         botInstance.setPrincipalKey(acuityPrincipal.getKey());

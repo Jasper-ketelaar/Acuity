@@ -19,5 +19,4 @@ public class JwtTokenFilterConfigurer extends SecurityConfigurerAdapter<DefaultS
     JwtTokenFilter customFilter = new JwtTokenFilter(acuityJwtService);
     http.addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class);
   }
-
 }

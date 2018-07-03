@@ -3,6 +3,8 @@ package com.acuitybotting.security.acuity.jwt.domain;
 
 import lombok.Data;
 
+import java.util.Objects;
+
 /**
  * Created by Zachary Herridge on 6/6/2018.
  */
@@ -16,7 +18,10 @@ public class AcuityPrincipal  {
     private String[] roles;
 
     public String getKey(){
-        if (username == null || realm == null) return null;
+        Objects.requireNonNull(username);
+        Objects.requireNonNull(realm);
+        Objects.requireNonNull(sub);
+
         return username + "_" + sub + "_" + realm;
     }
 }

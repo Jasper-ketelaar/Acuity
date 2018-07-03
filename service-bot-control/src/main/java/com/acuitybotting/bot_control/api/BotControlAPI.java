@@ -5,6 +5,8 @@ import com.acuitybotting.db.arango.acuity.bot_control.domain.BotInstance;
 import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
 import com.acuitybotting.security.acuity.spring.AcuityPrincipalContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Created by Zachary Herridge on 6/1/2018.
  */
-@PreAuthorize("hasAuthority('BASIC_USER')")
 @RestController
 @RequestMapping("/api/bot/control")
 public class BotControlAPI {
@@ -25,12 +26,17 @@ public class BotControlAPI {
         this.managementService = managementService;
     }
 
+    @PreAuthorize("hasAuthority('BASIC_USER')")
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public BotInstance registerInstance(HttpServletRequest request){
+    public ResponseEntity registerInstance(HttpServletRequest request){
         AcuityPrincipal acuityPrincipal = AcuityPrincipalContext.getPrincipal().orElse(null);
-        if (acuityPrincipal == null) throw new RuntimeException("Acuity principal is null");
-        BotInstance register = managementService.register(acuityPrincipal, request.getRemoteAddr());
-        if (register == null) throw new RuntimeException("Failed to register bot instance. " + acuityPrincipal + ", " + request.getRemoteAddr());
-        return register;
+        if (acuityPrincipal == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
+        try {
+            return new ResponseEntity<>(managementService.register(acuityPrincipal, request.getRemoteAddr()), HttpStatus.OK);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
