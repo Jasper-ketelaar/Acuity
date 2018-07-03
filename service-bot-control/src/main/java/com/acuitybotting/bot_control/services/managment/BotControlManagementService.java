@@ -27,17 +27,12 @@ public class BotControlManagementService {
         BotInstance botInstance = new BotInstance();
 
         Map<String, Object> attributes = new HashMap<>();
-        attributes.put("connectIP", remoteIp);
+        attributes.put("connectIp", remoteIp);
 
         botInstance.setAttributes(attributes);
         botInstance.setPrincipalKey(principalKey);
         botInstance.setConnectionTime(System.currentTimeMillis());
 
         return botInstanceRepository.save(botInstance);
-    }
-
-    public boolean heartbeat(String id) {
-        botInstanceRepository.updateHeartbeat(id, System.currentTimeMillis());
-        return true;
     }
 }

@@ -40,7 +40,7 @@ public class HttpUtil {
         return response.toString();
     }
 
-    public static String encode(Object param) {
+    private static String encode(Object param) {
         try {
             return URLEncoder.encode(String.valueOf(param), "UTF-8");
         } catch (Exception e) {

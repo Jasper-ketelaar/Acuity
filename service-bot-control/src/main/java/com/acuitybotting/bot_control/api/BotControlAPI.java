@@ -31,9 +31,4 @@ public class BotControlAPI {
         if (register == null) throw new RuntimeException("Failed to register bot instance. " + principalKey + ", " + request.getRemoteAddr());
         return register;
     }
-
-    @RequestMapping(value = "/heartbeat", method = RequestMethod.POST)
-    private boolean heartbeat(@RequestBody String id){
-        return managementService.heartbeat(id);
-    }
 }

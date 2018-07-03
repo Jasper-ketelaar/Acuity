@@ -73,13 +73,18 @@ public class SqsClientService implements MessagingClient {
 
     @Override
     public boolean delete(Message message) {
-        String request = message.getSource() + "?Action=DeleteMessage" + "&Version=" + "2012-11-05" + "&ReceiptHandle=" + HttpUtil.encode(message.getDeliveryTag());
         try {
-            HttpUtil.get(getHeaders(), request, null);
+            TreeMap<String, String> params = new TreeMap<>();
+            params.put("Action", "DeleteMessage");
+            params.put("Version", "2012-11-05");
+            params.put("ReceiptHandle", message.getDeliveryTag());
+
+            HttpUtil.get(getHeaders(), message.getSource(), params);
             return true;
         } catch (Exception e) {
             getExceptionHandler().accept(e);
         }
+
         return false;
     }
 
