@@ -2,6 +2,7 @@ package com.acuitybotting.data.flow.messaging.services.interfaces;
 
 import com.acuitybotting.data.flow.messaging.services.Message;
 import com.acuitybotting.data.flow.messaging.services.futures.MessageFuture;
+import com.acuitybotting.data.flow.messaging.services.sqs.client.SqsMessageConsumer;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,11 +45,13 @@ public interface MessagingClient {
         return consume(queue, null);
     }
 
-    MessageConsumer consume(String queue, Consumer<Message> callback);
+    SqsMessageConsumer consume(String queue, Consumer<Message> callback);
 
     boolean delete(Message message);
 
-    void start(String vHost, String host, int port, String username, String password);
+    default void start(String vHost, String host, int port, String username, String password) {}
+
+    default void start(String authHeader) {}
 
     MessageFuture getMessageFuture(String id);
 

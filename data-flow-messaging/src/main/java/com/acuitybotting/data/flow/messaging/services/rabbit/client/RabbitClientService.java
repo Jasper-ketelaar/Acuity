@@ -4,15 +4,14 @@ import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.data.flow.messaging.services.Message;
 import com.acuitybotting.data.flow.messaging.services.futures.EmptyMessageFuture;
 import com.acuitybotting.data.flow.messaging.services.futures.MessageFuture;
-import com.acuitybotting.data.flow.messaging.services.interfaces.MessageConsumer;
 import com.acuitybotting.data.flow.messaging.services.interfaces.MessagingClient;
+import com.acuitybotting.data.flow.messaging.services.sqs.client.SqsMessageConsumer;
 import com.google.gson.Gson;
 import com.rabbitmq.client.*;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.sql.Time;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
@@ -100,9 +99,9 @@ public class RabbitClientService implements MessagingClient {
     }
 
     @Override
-    public MessageConsumer consume(String queue, Consumer<Message> callback) {
+    public SqsMessageConsumer consume(String queue, Consumer<Message> callback) {
         try {
-            RabbitMessageConsumer rabbitMessageConsumer = new RabbitMessageConsumer(this, channel);
+            RabbitMessageConsumer rabbitMessageConsumer = new RabbitMessageConsumer(queue, this, channel);
             if (callback != null) rabbitMessageConsumer.getMessageCallbacks().add(callback);
             channel.basicConsume(queue, rabbitMessageConsumer);
         } catch (IOException e) {

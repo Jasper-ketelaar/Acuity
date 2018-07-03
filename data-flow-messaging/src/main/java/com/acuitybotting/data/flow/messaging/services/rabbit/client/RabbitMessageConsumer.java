@@ -23,11 +23,13 @@ public class RabbitMessageConsumer extends DefaultConsumer implements MessageCon
 
     private static final Gson gson = new Gson();
 
+    private final String queue;
     private final MessagingClient messagingClient;
     private final List<Consumer<Message>> messageCallbacks = new ArrayList<>();
 
-    public RabbitMessageConsumer(MessagingClient messagingClient, Channel channel) {
+    public RabbitMessageConsumer(String queue, MessagingClient messagingClient, Channel channel) {
         super(channel);
+        this.queue = queue;
         this.messagingClient = messagingClient;
     }
 
@@ -36,6 +38,7 @@ public class RabbitMessageConsumer extends DefaultConsumer implements MessageCon
         String bodyJson = new String(body);
 
         Message message = gson.fromJson(bodyJson, Message.class);
+        message.setSource(queue);
         message.setDeliveryTag(String.valueOf(envelope.getDeliveryTag()));
 
         String futureId = message.getAttributes().get(MessagingClient.FUTURE_ID);

@@ -8,6 +8,7 @@ import java.util.Map;
 public class Message {
 
     private String id;
+    private String source;
     private String deliveryTag;
     private String body;
     private Map<String, String> attributes;
@@ -45,6 +46,15 @@ public class Message {
 
     public Message setDeliveryTag(String deliveryTag) {
         this.deliveryTag = deliveryTag;
+        return this;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public Message setSource(String source) {
+        this.source = source;
         return this;
     }
 
