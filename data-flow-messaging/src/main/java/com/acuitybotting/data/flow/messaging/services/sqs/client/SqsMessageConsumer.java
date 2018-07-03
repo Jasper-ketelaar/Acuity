@@ -2,7 +2,11 @@ package com.acuitybotting.data.flow.messaging.services.sqs.client;
 
 import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.data.flow.messaging.services.Message;
+import com.acuitybotting.data.flow.messaging.services.futures.MessageFuture;
 import com.acuitybotting.data.flow.messaging.services.interfaces.MessageConsumer;
+import com.acuitybotting.data.flow.messaging.services.interfaces.MessagingClient;
+import com.acuitybotting.data.flow.messaging.services.sqs.client.util.HttpUtil;
+import com.acuitybotting.data.flow.messaging.services.sqs.client.util.MessageParser;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -35,6 +39,12 @@ public class SqsMessageConsumer implements MessageConsumer {
             List<Message> messages = read().orElse(Collections.emptyList());
 
             for (Message message : messages) {
+                String futureId = message.getAttributes().get(MessagingClient.FUTURE_ID);
+                if (futureId != null){
+                    MessageFuture messageFuture = sqsClientService.getMessageFuture(futureId);
+                    if (messageFuture != null) messageFuture.complete(message);
+                }
+
                 for (Consumer<Message> messageCallback : messageCallbacks) {
                     try {
                         messageCallback.accept(message);

@@ -1,4 +1,4 @@
-package com.acuitybotting.data.flow.messaging.services.sqs.client;
+package com.acuitybotting.data.flow.messaging.services.sqs.client.util;
 
 import com.acuitybotting.data.flow.messaging.services.Message;
 import org.xml.sax.Attributes;

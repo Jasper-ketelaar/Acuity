@@ -3,6 +3,7 @@ package com.acuitybotting.data.flow.messaging.services.sqs.client;
 import com.acuitybotting.data.flow.messaging.services.Message;
 import com.acuitybotting.data.flow.messaging.services.futures.MessageFuture;
 import com.acuitybotting.data.flow.messaging.services.interfaces.MessagingClient;
+import com.acuitybotting.data.flow.messaging.services.sqs.client.util.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
