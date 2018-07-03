@@ -2,11 +2,11 @@ package com.acuitybotting.bot_control.services.managment;
 
 import com.acuitybotting.db.arango.acuity.bot_control.domain.BotInstance;
 import com.acuitybotting.db.arango.acuity.bot_control.repositories.BotInstanceRepository;
-import com.acuitybotting.security.acuity.aws.secrets.AwsSecretService;
-import com.acuitybotting.security.acuity.aws.secrets.domain.AccessKeyCredentials;
-import com.amazonaws.services.cognitoidentity.model.Credentials;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Zachary Herridge on 6/1/2018.
@@ -15,19 +15,21 @@ import org.springframework.stereotype.Service;
 public class BotControlManagementService {
 
     private final BotInstanceRepository botInstanceRepository;
-    private final AwsSecretService secretService;
 
     @Autowired
-    public BotControlManagementService(BotInstanceRepository botInstanceRepository, AwsSecretService secretService) {
+    public BotControlManagementService(BotInstanceRepository botInstanceRepository) {
         this.botInstanceRepository = botInstanceRepository;
-
-        this.secretService = secretService;
     }
 
     public BotInstance register(String principalKey, String remoteIp) {
         if (principalKey == null) return null;
 
         BotInstance botInstance = new BotInstance();
+
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("connectIP", remoteIp);
+
+        botInstance.setAttributes(attributes);
         botInstance.setPrincipalKey(principalKey);
         botInstance.setConnectionTime(System.currentTimeMillis());
 
