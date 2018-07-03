@@ -26,6 +26,8 @@ public class AStarImplementation {
     private Map<Node, Double> costCache = new HashMap<>();
     private PriorityQueue<AStarStore> open = new PriorityQueue<>();
 
+    private boolean ignoreStartBlocked = false;
+
     public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end) {
         Objects.requireNonNull(heuristicSupplier);
         Objects.requireNonNull(start);
@@ -60,7 +62,7 @@ public class AStarImplementation {
                 return Optional.ofNullable(path);
             }
 
-            for (Edge edge : current.getNode().getNeighbors()) {
+            for (Edge edge : current.getNode().getNeighbors(ignoreStartBlocked && current.getNode().equals(start))) {
                 if (edgePredicate != null && !edgePredicate.test(edge)) continue;
                 if (!edge.evaluate()) continue;
 
@@ -117,6 +119,11 @@ public class AStarImplementation {
 
     public AStarImplementation setSuccessEvaluator(Function<Node, Boolean> successEvaluator) {
         this.successEvaluator = successEvaluator;
+        return this;
+    }
+
+    public AStarImplementation setIgnoreStartBlocked(boolean ignoreStartBlocked) {
+        this.ignoreStartBlocked = ignoreStartBlocked;
         return this;
     }
 }

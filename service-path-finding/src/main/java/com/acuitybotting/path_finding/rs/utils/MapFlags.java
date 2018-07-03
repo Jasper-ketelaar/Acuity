@@ -33,9 +33,14 @@ public class MapFlags {
     public static final int PILLAR_SOUTH_WEST = 1 << 14;
     public static final int PILLAR_SOUTH_EAST = 1 << 15;
 
-    public static final int OPEN_SCENE_OBJECT_OVERRIDE = 1 << 18;
+    public static final int OPEN_OVERRIDE = 1 << 21;
+    public static final int OPEN_OVERRIDE_START = 1 << 18;
+    public static final int OPEN_OVERRIDE_END = 1 << 20;
 
     public static final int NO_OVERLAY = 1 << 19;
+
+    public static final int PLANE_CHANGE_UP = 1 << 22;
+    public static final int PLANE_CHANGE_DOWN = 1 << 23;
 
     public static int add(int flag, int value){
         return flag | value;
@@ -50,7 +55,7 @@ public class MapFlags {
     }
 
     public static boolean isBlocked(int flag){
-        return check(flag, BLOCKED_22 | BLOCKED_SETTING | BLOCKED_ROOF) || (check(flag, BLOCKED_SCENE_OBJECT) && !check(flag, OPEN_SCENE_OBJECT_OVERRIDE));
+        return check(flag, BLOCKED_22 | BLOCKED_SETTING | BLOCKED_ROOF | BLOCKED_SCENE_OBJECT);
     }
 
     public static String toString(int flag){

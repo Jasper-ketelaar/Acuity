@@ -32,7 +32,7 @@ public class HPANode implements Node, Locateable {
     }
 
     @Override
-    public List<Edge> getNeighbors() {
+    public List<Edge> getNeighbors(boolean ignoreSelfBlocked) {
         return edges;
     }
 

@@ -120,7 +120,7 @@ public class WebImageProcessingService {
                     }
 
                     if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SCENE_OBJECT)){
-                        Color color = regionMap.checkFlag(regionX, regionY, plane, MapFlags.OPEN_SCENE_OBJECT_OVERRIDE) ?
+                        Color color = regionMap.checkFlag(regionX, regionY, plane, MapFlags.PLANE_CHANGE_UP | MapFlags.PLANE_CHANGE_DOWN) ?
                                 new Color(33, 189, 151, 198):
                                 new Color(51, 189, 20, 198);
 

@@ -10,7 +10,6 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANod
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.TemporaryNode;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
-import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 

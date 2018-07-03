@@ -44,6 +44,15 @@ public class XteaService {
 
     private Gson gson = new Gson();
 
+    private static List<String> stairNames = new ArrayList<>();
+
+    static {
+        stairNames.add("stairs");
+        stairNames.add("ladder");
+        stairNames.add("stair");
+    }
+
+
     @Autowired
     public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionMapRepository regionMapRepository) {
         this.definitionRepository = definitionRepository;
@@ -297,13 +306,22 @@ public class XteaService {
                                     length = baseDefinition.getSizeX();
                                 }
 
-                                boolean custom = "Wilderness ditch".equalsIgnoreCase(baseDefinition.getName());
+                                boolean override = "Wilderness ditch".equalsIgnoreCase(baseDefinition.getName());
+
+                                boolean planeChange = stairNames.contains(baseDefinition.getName().toLowerCase());
+
+                                boolean up = planeChange && Arrays.stream(baseDefinition.getActions()).anyMatch(s -> s != null && s.contains("-up"));
+                                boolean down = planeChange && Arrays.stream(baseDefinition.getActions()).anyMatch(s -> s != null && s.contains("-down"));
 
                                 for (int xOff = 0; xOff < width; xOff++) {
                                     for (int yOff = 0; yOff < length; yOff++) {
                                         addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.BLOCKED_SCENE_OBJECT);
-                                        if (custom)
-                                            addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_SCENE_OBJECT_OVERRIDE);
+
+                                        if (override) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_OVERRIDE);
+
+                                        if (planeChange) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_OVERRIDE_END);
+                                        if (up) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.PLANE_CHANGE_UP);
+                                        if (down) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.PLANE_CHANGE_DOWN);
                                     }
                                 }
                             }

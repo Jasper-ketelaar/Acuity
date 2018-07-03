@@ -21,12 +21,12 @@ public class AStarService {
     private boolean debugMode;
     private int maxAttempts = 50000;
 
-    public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end) {
-        return findPath(heuristicSupplier, start, end, null);
+    public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, boolean ignoreStartBlocked) {
+        return findPath(heuristicSupplier, start, end, null, ignoreStartBlocked);
     }
 
-    public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Predicate<Edge> edgePredicate) {
-        return build().setEdgePredicate(edgePredicate).findPath(heuristicSupplier, start, end);
+    public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Predicate<Edge> edgePredicate, boolean ignoreStartBlocked) {
+        return build().setEdgePredicate(edgePredicate).setIgnoreStartBlocked(ignoreStartBlocked).findPath(heuristicSupplier, start, end);
     }
 
     public AStarImplementation build(){

@@ -13,7 +13,9 @@ import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
+import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
+import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -34,7 +36,6 @@ public class HPAGraph {
     private int customNodesAddedCount = 0;
     private int externalConnectionsCount = 0;
     private int internalConnectionCount = 0;
-    private int stairNodesAddedCount = 0;
     private int stairNodeConnectionsAddedCount = 0;
 
     private PathFindingSupplier pathFindingSupplier;
@@ -60,6 +61,13 @@ public class HPAGraph {
         log.info("Initiated with {} regions.", regions.size());
 
         ExecutorUtil.run(20, executor -> {
+            for (HPARegion hpaRegion : regions.values()) {
+                executor.execute(() -> addStairConnections(hpaRegion));
+            }
+        });
+        log.info("Found {} stair connections.", stairNodeConnectionsAddedCount);
+
+        ExecutorUtil.run(20, executor -> {
             for (HPARegion internalHPARegion : regions.values()) {
                 executor.execute(() -> {
                     List<LocationPair> externalConnections = findExternalConnections(internalHPARegion, pathFindingSupplier);
@@ -78,17 +86,7 @@ public class HPAGraph {
                 });
             }
         });
-
         log.info("Found {} external connections.", externalConnectionsCount);
-
-
-        ExecutorUtil.run(20, executor -> {
-            for (HPARegion hpaRegion : regions.values()) {
-                executor.execute(() -> addStairConnections(hpaRegion));
-            }
-        });
-
-        log.info("Found {} stair nodes with {} connections.", stairNodesAddedCount, stairNodeConnectionsAddedCount);
 
         ExecutorUtil.run(20, executor -> {
             for (HPARegion region : regions.values()) {
@@ -99,7 +97,6 @@ public class HPAGraph {
                 });
             }
         });
-
         log.info("Found {} internal connections.", internalConnectionCount);
 
         log.info("Finished creating HPA graph in {} seconds.", (System.currentTimeMillis() - startTimestamp) / 1000);
@@ -154,10 +151,13 @@ public class HPAGraph {
                 continue;
             }
 
+            boolean ignoreStartBlocked = startNode.getType() == HPANode.STAIR;
+
             List<Edge> path = pathFindingSupplier.findPath(
                     startNode.getLocation(),
                     endNode.getLocation(),
-                    edge -> limitToRegion(region, edge)
+                    edge -> limitToRegion(region, edge),
+                    ignoreStartBlocked
             ).orElse(null);
 
             if (path != null) {
@@ -171,49 +171,32 @@ public class HPAGraph {
     }
 
     private void addStairConnections(HPARegion region) {
-    /*    for (SceneEntity sceneEntity : RsEnvironment.getStairsWithin(region)) {
-            if (sceneEntity.getActions() == null) continue;
-            boolean up = Arrays.stream(sceneEntity.getActions()).anyMatch(s -> s.toLowerCase().contains("up"));
-            boolean down = Arrays.stream(sceneEntity.getActions()).anyMatch(s -> s.toLowerCase().contains("down"));
+        for (int plane = 0; plane < RsRegion.Z; plane++) {
+            for (int x = 0; x < RsRegion.X; x++) {
+                for (int y = 0; y < RsRegion.Y; y++) {
+                    Location location = region.getRoot().clone(x, y, plane);
 
-            if (up || down) {
-                Location stairLocation = new Location(sceneEntity.getX(), sceneEntity.getY(), sceneEntity.getPlane());
+                    Integer flag = RsEnvironment.getRsMap().getFlagAt(location).orElse(null);
+                    if (flag == null) continue;
+                    if (MapFlags.check(flag, MapFlags.PLANE_CHANGE_UP)){
+                        if (plane + 1 >= RsRegion.Z) continue;
 
-                HPANode stairNodeBase = createStairNode(stairLocation);
-                if (stairNodeBase == null) continue;
-                stairNodesAddedCount++;
+                        HPANode start = region.getOrCreateNode(location, HPANode.STAIR);
+                        HPANode end = region.getOrCreateNode(location.clone(0, 0, 1), HPANode.STAIR);
+                        start.addConnection(end, HPANode.STAIR);
+                        stairNodeConnectionsAddedCount++;
+                    }
 
-                if (up){
-                    HPANode stairNodeUpper = createStairNode(stairLocation.clone(0, 0, 1));
-                    if (stairNodeUpper != null){
-                        stairNodeBase.addConnection(stairNodeUpper, HPANode.STAIR);
-                        stairNodesAddedCount++;
+                    if (MapFlags.check(flag, MapFlags.PLANE_CHANGE_DOWN)){
+                        if (plane - 1 < 0) continue;
+                        HPANode start = region.getOrCreateNode(location, HPANode.STAIR);
+                        HPANode end = region.getOrCreateNode(location.clone(0, 0, -1), HPANode.STAIR);
+                        start.addConnection(end, HPANode.STAIR);
                         stairNodeConnectionsAddedCount++;
                     }
                 }
-
-                if (down){
-                    HPANode stairNodeUpper = createStairNode(stairLocation.clone(0, 0, -1));
-                    if (stairNodeUpper != null){
-                        stairNodeBase.addConnection(stairNodeUpper, HPANode.STAIR);
-                        stairNodesAddedCount++;
-                        stairNodeConnectionsAddedCount++;
-                    }
-                }
-
-                System.out.println("Adding stairs. make this better.");
             }
-        }*/
-    }
-
-    private HPANode createStairNode(Location stairLocation){
-        TileNode connectionPoint = (TileNode) new TileNode(stairLocation).getNeighbors(true).stream().map(Edge::getEnd).findAny().orElse(null);
-        if (connectionPoint == null) return null;
-
-        HPARegion regionContaining = getRegionContaining(connectionPoint);
-        if (regionContaining == null) return null;
-
-        return regionContaining.getOrCreateNode(connectionPoint.getLocation(), HPANode.STAIR);
+        }
     }
 
     public HPARegion getRegionContaining(Locateable locateable) {

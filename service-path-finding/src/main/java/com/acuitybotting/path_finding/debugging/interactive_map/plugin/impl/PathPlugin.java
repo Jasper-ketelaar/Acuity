@@ -83,8 +83,7 @@ public class PathPlugin extends Plugin {
         return currentSearch.findPath(
                 new LocateableHeuristic(),
                 RsEnvironment.getRsMap().getNode(start.getLocation()),
-                RsEnvironment.getRsMap().getNode(end.getLocation())
-        );
+                RsEnvironment.getRsMap().getNode(end.getLocation()));
     }
 
     @Override

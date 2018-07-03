@@ -4,6 +4,10 @@ import java.util.Collection;
 
 public interface Node {
 
-    Collection<Edge> getNeighbors();
+    default Collection<Edge> getNeighbors() {
+        return getNeighbors(false);
+    }
+
+    Collection<Edge> getNeighbors(boolean ignoreSelfBlocked);
 
 }

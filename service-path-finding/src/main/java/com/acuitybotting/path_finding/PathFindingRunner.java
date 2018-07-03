@@ -61,12 +61,13 @@ public class PathFindingRunner implements CommandLineRunner {
     private PathFindingSupplier getPathFindingSupplier() {
         return new PathFindingSupplier() {
             @Override
-            public Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate) {
+            public Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate, boolean ignoreStartBlocked) {
                 return aStarService.findPath(
                         new LocateableHeuristic(),
                         RsEnvironment.getRsMap().getNode(start),
                         RsEnvironment.getRsMap().getNode(end),
-                        predicate
+                        predicate,
+                        ignoreStartBlocked
                 );
             }
 
@@ -198,7 +199,7 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
 
             loadRsMap();
-            loadHpa(1);
+            buildHpa(1);
 
             MapFrame mapFrame = new MapFrame();
             regionPlugin.setXteaService(xteaService);

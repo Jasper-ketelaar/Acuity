@@ -10,7 +10,11 @@ import java.util.function.Predicate;
 
 public interface PathFindingSupplier {
 
-    Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate);
+    default Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate){
+        return findPath(start, end, predicate, false);
+    }
+
+    Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate, boolean ignoreStartBlocked);
 
     boolean isDirectlyConnected(Location start, Location end);
 }

@@ -23,6 +23,7 @@ public class HPARegion {
         this.root = root;
         this.width = width;
         this.height = height;
+        this.root.setPlane(0);
     }
 
     @Override

@@ -45,25 +45,20 @@ public class TileNode implements Node, Locateable {
         return getLocation().getPlane();
     }
 
-    public Collection<Edge> getNeighbors(boolean ignoreSelf) {
+    public Collection<Edge> getNeighbors(boolean ignoreSelfBlocked) {
         Set<Edge> edges = new HashSet<>(8);
-        boolean east = addEdge(edges,EAST, ignoreSelf);
-        boolean west = addEdge(edges,WEST, ignoreSelf);
-        if (addEdge(edges, NORTH, ignoreSelf)) {
-            if (east) addEdge(edges, NORTH_EAST, ignoreSelf);
-            if (west) addEdge(edges, NORTH_WEST, ignoreSelf);
+        boolean east = addEdge(edges,EAST, ignoreSelfBlocked);
+        boolean west = addEdge(edges,WEST, ignoreSelfBlocked);
+        if (addEdge(edges, NORTH, ignoreSelfBlocked)) {
+            if (east) addEdge(edges, NORTH_EAST, ignoreSelfBlocked);
+            if (west) addEdge(edges, NORTH_WEST, ignoreSelfBlocked);
         }
 
-        if (addEdge(edges, SOUTH, ignoreSelf)) {
-            if (east) addEdge(edges, SOUTH_EAST, ignoreSelf);
-            if (west) addEdge(edges, SOUTH_WEST, ignoreSelf);
+        if (addEdge(edges, SOUTH, ignoreSelfBlocked)) {
+            if (east) addEdge(edges, SOUTH_EAST, ignoreSelfBlocked);
+            if (west) addEdge(edges, SOUTH_WEST, ignoreSelfBlocked);
         }
         return edges;
-    }
-
-    @Override
-    public Collection<Edge> getNeighbors() {
-        return getNeighbors(false);
     }
 
     private boolean containsDoor(Location location){

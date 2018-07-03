@@ -43,12 +43,16 @@ public class RsMap {
         Integer endFlag = getFlagAt(end).orElse(null);
         if (endFlag == null) return false;
 
-        if (start.getPlane() > 0) if (MapFlags.check(endFlag, MapFlags.NO_OVERLAY) || (!ignoreStartBlocked && MapFlags.check(endFlag, MapFlags.NO_OVERLAY))) return false;
 
-        if (MapFlags.isBlocked(endFlag) || (!ignoreStartBlocked && MapFlags.isBlocked(startFlag))) return false;
+        if (!MapFlags.check(endFlag, MapFlags.OPEN_OVERRIDE | MapFlags.OPEN_OVERRIDE_END)){
+            if (start.getPlane() > 0 && MapFlags.check(endFlag, MapFlags.NO_OVERLAY)) return false;
+            if (MapFlags.isBlocked(endFlag)) return false;
+        }
 
-        if (!ignoreStartBlocked && MapFlags.check(startFlag, MapFlags.WALL_NORTH_EAST_TO_SOUTH_WEST | MapFlags.WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
-        if (MapFlags.check(endFlag, MapFlags.WALL_NORTH_EAST_TO_SOUTH_WEST | MapFlags.WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
+        if (!ignoreStartBlocked && !MapFlags.check(startFlag, MapFlags.OPEN_OVERRIDE | MapFlags.OPEN_OVERRIDE_START)){
+            if (start.getPlane() > 0 && MapFlags.check(startFlag, MapFlags.NO_OVERLAY)) return false;
+            if (MapFlags.isBlocked(startFlag)) return false;
+        }
 
         switch (direction) {
             case NORTH:
