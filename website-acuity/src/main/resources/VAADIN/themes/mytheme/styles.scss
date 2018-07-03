@@ -1,8 +1,0 @@
-@import "variables";
-@import "addons.scss";
-@import "mytheme.scss";
-
-.mytheme {
-  @include addons;
-  @include mytheme;
-}

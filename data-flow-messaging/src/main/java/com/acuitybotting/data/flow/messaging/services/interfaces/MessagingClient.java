@@ -1,6 +1,7 @@
 package com.acuitybotting.data.flow.messaging.services.interfaces;
 
 import com.acuitybotting.data.flow.messaging.services.Message;
+import com.acuitybotting.data.flow.messaging.services.futures.EmptyMessageFuture;
 import com.acuitybotting.data.flow.messaging.services.futures.MessageFuture;
 import com.acuitybotting.data.flow.messaging.services.sqs.client.SqsMessageConsumer;
 
@@ -16,6 +17,8 @@ public interface MessagingClient {
     String FUTURE_ID = "futureId";
     String RESPONSE_ID = "responseId";
     String RESPONSE_QUEUE = "responseQueue";
+
+    EmptyMessageFuture EMPTY_MESSAGE_FUTURE = new EmptyMessageFuture();
 
     default boolean send(String queue, String body){
         return send("", queue, body);

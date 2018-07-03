@@ -23,8 +23,6 @@ import java.util.function.Consumer;
 @Getter
 public class RabbitClientService implements MessagingClient {
 
-    private EmptyMessageFuture EMPTY_MESSAGE_FUTURE = new EmptyMessageFuture();
-
     private Consumer<Throwable> exceptionHandler = throwable -> log.error("Error in Rabbit", throwable);
     private ExecutorService executorService = ExecutorUtil.newExecutorPool(1, exceptionHandler);
 

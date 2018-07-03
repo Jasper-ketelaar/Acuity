@@ -29,7 +29,7 @@ public class SqsClientService implements MessagingClient {
             attributeValueMap.put(FUTURE_ID, futureId);
         }
 
-        MessageFuture future = null;
+        MessageFuture future = EMPTY_MESSAGE_FUTURE;
         if (localQueue != null) {
             String id = UUID.randomUUID().toString().replaceAll("\\.", "-");
             future = new MessageFuture();
@@ -60,6 +60,7 @@ public class SqsClientService implements MessagingClient {
             HttpUtil.get(getHeaders(), targetQueue, params);
         } catch (Exception e) {
             getExceptionHandler().accept(e);
+            future = null;
         }
 
         return Optional.ofNullable(future);
