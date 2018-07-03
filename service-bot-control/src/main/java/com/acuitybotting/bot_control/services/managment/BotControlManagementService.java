@@ -19,9 +19,11 @@ import com.amazonaws.services.sqs.model.CreateQueueResult;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -31,11 +33,14 @@ import java.util.UUID;
  * Created by Zachary Herridge on 6/1/2018.
  */
 @Service
-@PropertySource("classpath:sqs.credentials")
+@PropertySource("classpath:arango.credentials")
 public class BotControlManagementService {
 
     private final AcuityIdentityService acuityIdentityService;
     private final BotInstanceRepository botInstanceRepository;
+
+    @Value("${sqs.region}")
+    private String region;
 
     @Value("${sqs.access}")
     private String accessKey;
@@ -49,8 +54,12 @@ public class BotControlManagementService {
     public BotControlManagementService(AcuityIdentityService acuityIdentityService, BotInstanceRepository botInstanceRepository) {
         this.acuityIdentityService = acuityIdentityService;
         this.botInstanceRepository = botInstanceRepository;
+    }
 
+    @PostConstruct
+    private void init(){
         AmazonSQSClientBuilder builder = AmazonSQSClientBuilder.standard();
+        builder.setRegion(region);
         builder.setCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
         sqs = builder.build();
     }
@@ -118,7 +127,7 @@ public class BotControlManagementService {
         return queueAttributes;
     }
 
-    public CreateQueueResult createQueue(String name, String authHeader) {
+    private CreateQueueResult createQueue(String name, String authHeader) {
         return sqs.createQueue(
                 new CreateQueueRequest()
                         .withQueueName(name)
