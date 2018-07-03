@@ -8,6 +8,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -20,11 +21,13 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Zachary Herridge on 6/5/2018.
  */
 @Service
+@Slf4j
 public class AcuityJwtService {
 
     public Optional<AcuityPrincipal> getPrincipal(String token){
@@ -42,11 +45,11 @@ public class AcuityJwtService {
     private Optional<DecodedJWT> decodeAndVerify(String token){
         if (token == null) return Optional.empty();
         try {
-            JWTVerifier verifier = JWT.require(getRSA256()).acceptLeeway(Long.MAX_VALUE).build();
-            return Optional.ofNullable(verifier.verify(token));
+            JWTVerifier verifier = JWT.require(getRSA256()).acceptLeeway(TimeUnit.DAYS.toMillis(365)).build();
+            return Optional.of(verifier.verify(token));
         }
         catch (Exception exception){
-            exception.printStackTrace();
+            log.info("Failed to decode jwt with reason {}.", exception.getMessage());
         }
 
         return Optional.empty();

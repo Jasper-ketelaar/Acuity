@@ -1,7 +1,5 @@
 package com.acuitybotting.data.flow.messaging.services.interfaces;
 
-
-
 import com.acuitybotting.data.flow.messaging.services.Message;
 
 import java.util.List;

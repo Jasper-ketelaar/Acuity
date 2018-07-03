@@ -24,11 +24,11 @@ public class BotControlRunner implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
-        AcuityPrincipal acuityPrincipal = new AcuityPrincipal();
+ /*       AcuityPrincipal acuityPrincipal = new AcuityPrincipal();
         acuityPrincipal.setUsername("c247fa6b-5676-4012-9473-a7b2f60c8115");
         acuityPrincipal.setSub("c247fa6b-5676-4012-9473-a7b2f60c8115");
         acuityPrincipal.setRealm("https://cognito-idp.us-east-1.amazonaws.com/us-east-1_aVWAQrVQG");
         BotInstance instance = managementService.register(acuityPrincipal, "testip");
-        System.out.println(instance);
+        System.out.println(instance);*/
     }
 }

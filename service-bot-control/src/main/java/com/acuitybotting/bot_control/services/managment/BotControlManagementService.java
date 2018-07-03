@@ -7,10 +7,7 @@ import com.acuitybotting.db.arango.acuity.identities.service.AcuityIdentityServi
 import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.policy.Policy;
-import com.amazonaws.auth.policy.Principal;
-import com.amazonaws.auth.policy.Statement;
-import com.amazonaws.auth.policy.actions.SQSActions;
+import com.amazonaws.auth.policy.*;
 import com.amazonaws.auth.policy.conditions.StringCondition;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
@@ -19,21 +16,17 @@ import com.amazonaws.services.sqs.model.CreateQueueResult;
 import com.amazonaws.services.sqs.model.QueueAttributeName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by Zachary Herridge on 6/1/2018.
  */
 @Service
-@PropertySource("classpath:arango.credentials")
+@PropertySource("classpath:sqs.credentials")
 public class BotControlManagementService {
 
     private final AcuityIdentityService acuityIdentityService;
@@ -96,42 +89,43 @@ public class BotControlManagementService {
             botAuthKey = acuityIdentityService.getIdentityRepository().save(acuityIdentity).getBotAuthKey();
         }
 
-        CreateQueueResult result = createQueue(queueName, botAuthKey);
-        if (result == null || result.getQueueUrl() == null) throw new RuntimeException("Failed to setup queue.");
+        String queueUrl = createQueue(queueName, botAuthKey);
+        if (queueUrl == null) throw new RuntimeException("Failed to setup queue.");
 
-        botInstance.setQueueUrl(result.getQueueUrl());
+        botInstance.setQueueUrl(queueUrl);
         botInstance.setQueueAuth(botAuthKey);
     }
 
-    private Map<String, String> getQueuePolicies(boolean fifo, String authHeader) {
-        Objects.requireNonNull(authHeader);
-
-        Statement statement = new Statement(Statement.Effect.Allow)
-                .withPrincipals(Principal.AllUsers)
-                .withActions(
-                        SQSActions.GetQueueUrl,
-                        SQSActions.ReceiveMessage,
-                        SQSActions.ChangeMessageVisibility,
-                        SQSActions.ChangeMessageVisibilityBatch,
-                        SQSActions.DeleteMessage,
-                        SQSActions.DeleteMessageBatch);
-
-        statement.withConditions(new StringCondition(StringCondition.StringComparisonType.StringEquals, "aws:UserAgent", authHeader));
-
+    private Map<String, String> getQueuePolicies(String queueArn, boolean fifo, String authHeader) {
         Map<String, String> queueAttributes = new HashMap<>();
-        queueAttributes.put(QueueAttributeName.Policy.toString(), new Policy().withStatements(statement).toJson());
+
+        if (authHeader != null && queueArn != null){
+            Statement statement = new Statement(Statement.Effect.Allow)
+                    .withPrincipals(Principal.All)
+                    .withResources(new Resource(queueArn))
+                    .withActions((Action) () -> "SQS:*");
+            statement.withConditions(new StringCondition(StringCondition.StringComparisonType.StringEquals, "aws:UserAgent", authHeader));
+            queueAttributes.put(QueueAttributeName.Policy.toString(), new Policy().withStatements(statement).toJson());
+        }
+
         queueAttributes.put(QueueAttributeName.FifoQueue.toString(), String.valueOf(fifo));
-        queueAttributes.getOrDefault(QueueAttributeName.ReceiveMessageWaitTimeSeconds, "20");
+        queueAttributes.put(QueueAttributeName.ReceiveMessageWaitTimeSeconds.toString(), "20");
         queueAttributes.put(QueueAttributeName.ContentBasedDeduplication.toString(), "true");
 
         return queueAttributes;
     }
 
-    private CreateQueueResult createQueue(String name, String authHeader) {
-        return sqs.createQueue(
-                new CreateQueueRequest()
-                        .withQueueName(name)
-                        .withAttributes(getQueuePolicies(name.endsWith(".fifo"), authHeader))
-        );
+    private String createQueue(String name, String authHeader) {
+        boolean fifo = name.endsWith(".fifo");
+
+        Map<String, String> attributes = getQueuePolicies(null, fifo, null);
+
+        String queueUrl = sqs.createQueue(new CreateQueueRequest().withQueueName(name).withAttributes(attributes)).getQueueUrl();
+        String queueArn = sqs.getQueueAttributes(queueUrl, Collections.singletonList("QueueArn")).getAttributes().get("QueueArn");
+
+        attributes = getQueuePolicies(queueArn, fifo, authHeader);
+        if (sqs.setQueueAttributes(queueUrl, attributes) != null) return queueUrl;
+
+        return null;
     }
 }

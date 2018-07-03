@@ -9,7 +9,6 @@ import org.springframework.context.annotation.PropertySource;
  * Created by Zachary Herridge on 6/1/2018.
  */
 @SpringBootApplication()
-@PropertySource("classpath:sqs.credentials")
 @ComponentScan("com.acuitybotting")
 public class BotControlApplication {
 

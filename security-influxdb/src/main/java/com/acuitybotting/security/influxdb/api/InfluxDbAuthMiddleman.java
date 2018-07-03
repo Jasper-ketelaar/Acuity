@@ -41,7 +41,7 @@ public class InfluxDbAuthMiddleman {
 
         boolean authed = false;
         if (request.getRemoteHost().equals("0:0:0:0:0:0:0:1")) authed = true;
-        else if (request.getRemoteHost().equals("68.46.70.47")) authed = true;
+        else if (request.getRemoteHost().equals("68.46.70.47") || request.getRemoteHost().equals("139.225.128.101")) authed = true;
         else if (influxUsername.equals(username) && influxPassword.equals(password)) authed = true;
 
         if (!authed){
