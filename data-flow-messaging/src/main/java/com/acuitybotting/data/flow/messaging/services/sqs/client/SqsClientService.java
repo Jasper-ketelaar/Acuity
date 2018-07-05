@@ -33,6 +33,7 @@ public class SqsClientService implements MessagingClient {
         if (localQueue != null) {
             String id = UUID.randomUUID().toString().replaceAll("\\.", "-");
             future = new MessageFuture();
+            future.whenComplete((message, throwable) -> messageCallbacks.remove(futureId));
             messageCallbacks.put(id, future);
             attributeValueMap.put(RESPONSE_ID, id);
             attributeValueMap.put(RESPONSE_QUEUE, localQueue);

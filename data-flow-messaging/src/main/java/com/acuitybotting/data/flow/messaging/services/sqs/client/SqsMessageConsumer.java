@@ -43,7 +43,9 @@ public class SqsMessageConsumer implements MessageConsumer {
                 String futureId = message.getAttributes().get(MessagingClient.FUTURE_ID);
                 if (futureId != null) {
                     MessageFuture messageFuture = sqsClientService.getMessageFuture(futureId);
-                    if (messageFuture != null) messageFuture.complete(message);
+                    if (messageFuture != null) {
+                        messageFuture.complete(message);
+                    }
                 }
 
                 for (Consumer<Message> messageCallback : messageCallbacks) {
