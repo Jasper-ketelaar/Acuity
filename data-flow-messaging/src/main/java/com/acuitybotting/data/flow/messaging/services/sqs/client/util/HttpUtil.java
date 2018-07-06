@@ -38,13 +38,26 @@ public class HttpUtil {
             con.getOutputStream().write(body.getBytes("UTF8"));
         }
 
+        int responseCode = con.getResponseCode();
+
         StringBuilder response = new StringBuilder();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))){
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
+        if (responseCode == 200){
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))){
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
             }
         }
+        else {
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getErrorStream()))){
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+            }
+        }
+
 
         return response.toString();
     }

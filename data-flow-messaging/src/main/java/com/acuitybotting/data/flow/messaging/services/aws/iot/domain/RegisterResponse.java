@@ -1,4 +1,4 @@
-package com.acuitybotting.data.flow.messaging.services.aws.iot;
+package com.acuitybotting.data.flow.messaging.services.aws.iot.domain;
 
 /**
  * Created by Zachary Herridge on 7/6/2018.

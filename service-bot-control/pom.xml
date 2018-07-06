@@ -36,15 +36,6 @@
             <version>5.0.6.RELEASE</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.acuitybotting</groupId>
-            <artifactId>security-web-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>com.acuitybotting</groupId>
             <artifactId>data-flow-messaging</artifactId>
             <version>1.0-SNAPSHOT</version>

@@ -52,6 +52,8 @@ public interface MessagingClient {
 
     default void start(String authHeader) {}
 
+    default void start(String endpoint, String clientId, String access, String secret, String sessionToken) {}
+
     MessageFuture getMessageFuture(String id);
 
     List<Consumer<Message>> getMessageAppenders();
