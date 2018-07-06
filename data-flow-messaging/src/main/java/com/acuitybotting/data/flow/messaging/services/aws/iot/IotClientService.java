@@ -29,7 +29,9 @@ public class IotClientService implements MessagingClient {
 
     @Override
     public void start(String endpoint, String clientId, String access, String secret, String sessionToken) {
-        client = new AWSIotMqttClient(endpoint, clientId, access, secret, sessionToken);
+        if (sessionToken != null) client = new AWSIotMqttClient(endpoint, clientId, access, secret, sessionToken);
+        else client = new AWSIotMqttClient(endpoint, clientId, access, secret);
+
         try {
             client.connect();
         } catch (AWSIotException e) {

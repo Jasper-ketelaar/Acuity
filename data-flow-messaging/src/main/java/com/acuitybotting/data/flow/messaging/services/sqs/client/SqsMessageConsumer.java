@@ -5,7 +5,7 @@ import com.acuitybotting.data.flow.messaging.services.Message;
 import com.acuitybotting.data.flow.messaging.services.futures.MessageFuture;
 import com.acuitybotting.data.flow.messaging.services.interfaces.MessageConsumer;
 import com.acuitybotting.data.flow.messaging.services.interfaces.MessagingClient;
-import com.acuitybotting.data.flow.messaging.services.sqs.client.util.HttpUtil;
+import com.acuitybotting.data.flow.messaging.services.utils.HttpUtil;
 import com.acuitybotting.data.flow.messaging.services.sqs.client.util.MessageParser;
 
 import java.util.*;

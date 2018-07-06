@@ -58,11 +58,13 @@ public class IotMessageConsumer extends AWSIotTopic implements MessageConsumer {
             Message message = iotClientService.getGson().fromJson(stringPayload, Message.class);
             message.setSource(awsIotMessage.getTopic());
 
-            String futureId = message.getAttributes().get(MessagingClient.FUTURE_ID);
-            if (futureId != null) {
-                MessageFuture messageFuture = iotClientService.getMessageFuture(futureId);
-                if (messageFuture != null) {
-                    messageFuture.complete(message);
+            if (message.getAttributes() != null){
+                String futureId = message.getAttributes().get(MessagingClient.FUTURE_ID);
+                if (futureId != null) {
+                    MessageFuture messageFuture = iotClientService.getMessageFuture(futureId);
+                    if (messageFuture != null) {
+                        messageFuture.complete(message);
+                    }
                 }
             }
 
