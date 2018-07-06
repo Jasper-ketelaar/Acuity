@@ -2,7 +2,6 @@ package com.acuitybotting.path_finding;
 
 import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.data.flow.messaging.services.interfaces.MessageConsumer;
-import com.acuitybotting.data.flow.messaging.services.sqs.client.SqsClientService;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.utils.ArangoUtils;
@@ -198,14 +197,6 @@ public class PathFindingRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            SqsClientService sqsClientService = new SqsClientService();
-            sqsClientService.start("tempauth123123123");
-            MessageConsumer consumer = sqsClientService
-                    .consume("https://sqs.us-east-1.amazonaws.com/604080725100/acuitybotting-xtea-dump.fifo")
-                    .withCallback(message -> {
-                        System.out.println(message);
-                    })
-                    .start();
 
         /*    loadRsMap();
             buildHpa(1);

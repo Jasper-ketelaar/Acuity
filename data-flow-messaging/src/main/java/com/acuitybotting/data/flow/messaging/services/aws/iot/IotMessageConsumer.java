@@ -31,22 +31,14 @@ public class IotMessageConsumer extends AWSIotTopic implements MessageConsumer {
     }
 
     @Override
-    public MessageConsumer start() {
-        try {
-            iotClientService.getClient().subscribe(this);
-        } catch (AWSIotException e) {
-            iotClientService.getExceptionHandler().accept(e);
-        }
+    public MessageConsumer start() throws AWSIotException {
+        iotClientService.getClient().subscribe(this);
         return this;
     }
 
     @Override
-    public MessageConsumer cancel() {
-        try {
-            iotClientService.getClient().unsubscribe(this);
-        } catch (AWSIotException e) {
-            iotClientService.getExceptionHandler().accept(e);
-        }
+    public MessageConsumer cancel() throws AWSIotException {
+        iotClientService.getClient().unsubscribe(this);
         return this;
     }
 

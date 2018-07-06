@@ -1,9 +1,11 @@
 package com.acuitybotting.data.flow.messaging.services.aws.iot;
 
 import com.acuitybotting.data.flow.messaging.services.Message;
+import com.acuitybotting.data.flow.messaging.services.aws.iot.client.IotClient;
 import com.acuitybotting.data.flow.messaging.services.futures.MessageFuture;
 import com.acuitybotting.data.flow.messaging.services.interfaces.MessageConsumer;
 import com.acuitybotting.data.flow.messaging.services.interfaces.MessagingClient;
+import com.acuitybotting.data.flow.messaging.services.interfaces.MessagingClientListener;
 import com.amazonaws.services.iot.client.AWSIotException;
 import com.amazonaws.services.iot.client.AWSIotMessage;
 import com.amazonaws.services.iot.client.AWSIotMqttClient;
@@ -21,64 +23,75 @@ import java.util.function.Consumer;
 public class IotClientService implements MessagingClient {
 
     private Consumer<Throwable> exceptionHandler = throwable -> log.error("Error in Iot", throwable);
-    private List<Consumer<Message>> appenders = new ArrayList<>();
-    private Map<String, MessageFuture> messageCallbacks = new HashMap<>();
     private Gson gson = new Gson();
 
-    private AWSIotMqttClient client;
+    private IotClient client;
+
+    private List<MessagingClientListener> listeners = new ArrayList<>();
+    private Map<String, MessageFuture> messageCallbacks = new HashMap<>();
 
     @Override
-    public void start(String endpoint, String clientId, String access, String secret, String sessionToken) {
-        if (sessionToken != null) client = new AWSIotMqttClient(endpoint, clientId, access, secret, sessionToken);
-        else client = new AWSIotMqttClient(endpoint, clientId, access, secret);
-
-        try {
-            client.connect();
-        } catch (AWSIotException e) {
-            getExceptionHandler().accept(e);
+    public void auth(String endpoint, String clientId, String access, String secret, String sessionToken)  {
+        if (client == null){
+            if (sessionToken != null) client = new IotClient(endpoint, clientId, access, secret, sessionToken);
+            else client = new IotClient(endpoint, clientId, access, secret);
+        }
+        else {
+            client.updateCredentials(access, secret, sessionToken);
         }
     }
 
     @Override
-    public Optional<MessageFuture> send(String targetExchange, String targetQueue, String localQueue, String futureId, String body) {
-        Map<String, String> attributeValueMap = new HashMap<>();
+    public void connect() throws Exception {
+        client.connect();
+    }
 
-        if (futureId != null) {
-            attributeValueMap.put(FUTURE_ID, futureId);
-        }
+    @Override
+    public Optional<MessageFuture> send(String targetTopic, String localTopic, String futureId, String body) {
+        Map<String, String> messageAttributes = new HashMap<>();
 
-        MessageFuture future = EMPTY_MESSAGE_FUTURE;
-        if (localQueue != null) {
-            String id = UUID.randomUUID().toString().replaceAll("\\.", "-");
+        String generatedId = null;
+
+        if (futureId != null) messageAttributes.put(FUTURE_ID, futureId);
+
+        MessageFuture future = null;
+        if (localTopic != null) {
+            generatedId = generateId();
             future = new MessageFuture();
             future.whenComplete((message, throwable) -> messageCallbacks.remove(futureId));
-            messageCallbacks.put(id, future);
-            attributeValueMap.put(RESPONSE_ID, id);
-            attributeValueMap.put(RESPONSE_QUEUE, localQueue);
+            messageCallbacks.put(generatedId, future);
+            messageAttributes.put(RESPONSE_ID, generatedId);
+            messageAttributes.put(RESPONSE_TOPIC, localTopic);
         }
 
         try {
             Message message = new Message();
-            message.setAttributes(attributeValueMap);
+            message.setId(generateId());
+            message.setAttributes(messageAttributes);
             message.setBody(body);
 
-            client.publish(new AWSIotMessage(targetQueue, AWSIotQos.QOS0, gson.toJson(message)));
+            for (MessagingClientListener listener : listeners) {
+                listener.onMessageSend(message);
+            }
+
+            client.publish(new AWSIotMessage(targetTopic, AWSIotQos.QOS0, gson.toJson(message)));
+
+            return Optional.ofNullable(future);
         } catch (AWSIotException e) {
             exceptionHandler.accept(e);
-            future = null;
         }
 
-        return Optional.ofNullable(future);
+        if (generatedId != null) messageCallbacks.remove(generatedId);
+        return Optional.empty();
+    }
+
+    private String generateId(){
+        return UUID.randomUUID().toString().replaceAll("\\.", "");
     }
 
     @Override
-    public MessageConsumer consume(String queue) {
-        return new IotMessageConsumer(this, queue);
-    }
-
-    @Override
-    public boolean delete(Message message) {
-        return false;
+    public MessageConsumer consume(String topic) {
+        return new IotMessageConsumer(this, topic);
     }
 
     @Override
@@ -87,8 +100,8 @@ public class IotClientService implements MessagingClient {
     }
 
     @Override
-    public List<Consumer<Message>> getMessageAppenders() {
-        return appenders;
+    public List<MessagingClientListener> getListeners() {
+        return listeners;
     }
 
     @Override
@@ -96,7 +109,7 @@ public class IotClientService implements MessagingClient {
         return exceptionHandler;
     }
 
-    public AWSIotMqttClient getClient() {
+    public IotClient getClient() {
         return client;
     }
 

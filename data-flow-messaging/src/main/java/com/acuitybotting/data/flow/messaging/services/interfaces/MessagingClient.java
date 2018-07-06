@@ -1,9 +1,7 @@
 package com.acuitybotting.data.flow.messaging.services.interfaces;
 
 import com.acuitybotting.data.flow.messaging.services.Message;
-import com.acuitybotting.data.flow.messaging.services.futures.EmptyMessageFuture;
 import com.acuitybotting.data.flow.messaging.services.futures.MessageFuture;
-import com.acuitybotting.data.flow.messaging.services.sqs.client.SqsMessageConsumer;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,47 +14,37 @@ public interface MessagingClient {
 
     String FUTURE_ID = "futureId";
     String RESPONSE_ID = "responseId";
-    String RESPONSE_QUEUE = "responseQueue";
+    String RESPONSE_TOPIC = "responseTopic";
 
-    EmptyMessageFuture EMPTY_MESSAGE_FUTURE = new EmptyMessageFuture();
-
-    default boolean send(String queue, String body){
-        return send("", queue, body);
+    default void send(String topic, String body){
+        send(topic, null, null, body);
     }
 
-    default boolean send(String targetExchange, String targetQueue, String body){
-        return send(targetExchange, targetQueue, null, null, body).isPresent();
+    default Optional<MessageFuture> send(String topic, String localQueue, String body){
+        return send(topic, localQueue, null, body);
     }
 
-    default Optional<MessageFuture> send(String targetExchange, String queue, String localQueue, String body){
-        return send(targetExchange, queue, localQueue, null, body);
+    default void respond(Message message, String body){
+        respond(message, null, body);
     }
 
-    default boolean respond(Message message, String body){
-        return respond(message, null, body).isPresent();
-    }
-
-    default Optional<MessageFuture> respond(Message message, String localQueue, String body){
-        String responseQueue = message.getAttributes().get(RESPONSE_QUEUE);
+    default Optional<MessageFuture> respond(Message message, String localTopic, String body){
+        String responseTopic = message.getAttributes().get(RESPONSE_TOPIC);
         String responseId = message.getAttributes().get(RESPONSE_ID);
-        return send("", responseQueue, localQueue, responseId, body);
+        return send(responseTopic, localTopic, responseId, body);
     }
 
-    Optional<MessageFuture> send(String targetExchange, String targetQueue, String localQueue, String futureId, String body);
+    Optional<MessageFuture> send(String targetTopic, String localTopic, String futureId, String body);
 
-    MessageConsumer consume(String queue);
+    MessageConsumer consume(String topic);
 
-    boolean delete(Message message);
+    void auth(String endpoint, String clientId, String access, String secret, String sessionToken);
 
-    default void start(String vHost, String host, int port, String username, String password) {}
-
-    default void start(String authHeader) {}
-
-    default void start(String endpoint, String clientId, String access, String secret, String sessionToken) {}
+    void connect() throws Exception;
 
     MessageFuture getMessageFuture(String id);
 
-    List<Consumer<Message>> getMessageAppenders();
+    List<MessagingClientListener> getListeners();
 
     Consumer<Throwable> getExceptionHandler();
 }

@@ -1,6 +1,7 @@
 package com.acuitybotting.data.flow.messaging.services.interfaces;
 
 import com.acuitybotting.data.flow.messaging.services.Message;
+import com.amazonaws.services.iot.client.AWSIotException;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -17,7 +18,7 @@ public interface MessageConsumer {
         return this;
     }
 
-    MessageConsumer start();
+    MessageConsumer start() throws Exception;
 
-    MessageConsumer cancel();
+    MessageConsumer cancel() throws Exception;
 }

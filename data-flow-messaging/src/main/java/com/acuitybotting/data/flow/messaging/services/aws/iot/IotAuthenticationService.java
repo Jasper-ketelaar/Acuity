@@ -16,18 +16,18 @@ import java.util.Optional;
 @Slf4j
 public class IotAuthenticationService {
 
+    private static final String AUTH_URL = "https://7ja4dnkku1.execute-api.us-east-1.amazonaws.com/Prod/registerIotConnection";
+
     public static Optional<RegisterResponse> authenticate(String jwt){
         try {
             Gson gson = new Gson();
-
-            String authUrl = "https://7ja4dnkku1.execute-api.us-east-1.amazonaws.com/Prod/registerIotConnection";
 
             Map<String, String> headers = new HashMap<>();
             headers.put("Accept", "application/json");
             headers.put("Content-Type", "application/json");
 
             String body = gson.toJson(Collections.singletonMap("token", jwt));
-            String response = HttpUtil.makeRequest("POST", headers, authUrl, null, body);
+            String response = HttpUtil.makeRequest("POST", headers, AUTH_URL, null, body);
             RegisterResponse registerResponse = gson.fromJson(response, RegisterResponse.class);
 
             return Optional.ofNullable(registerResponse);

@@ -46,10 +46,12 @@ public class BotControlRunner implements CommandLineRunner{
             IotClientService iotClientService = new IotClientService();
 
             iotClientService.start(clientEndpoint, clientId,
-                    registerResponse.getCredentials().getAccessKeyId(),
-                    registerResponse.getCredentials().getSecretAccessKey(),
-                    registerResponse.getCredentials().getSessionToken()
+                    null, null, null
             );
+
+            iotClientService.getClient().updateCredentials(      registerResponse.getCredentials().getAccessKeyId(),
+                    registerResponse.getCredentials().getSecretAccessKey(),
+                    registerResponse.getCredentials().getSessionToken());
 
             iotClientService.consume("user/" + userId + "/bot/" + clientId)
                     .withCallback(System.out::println)
