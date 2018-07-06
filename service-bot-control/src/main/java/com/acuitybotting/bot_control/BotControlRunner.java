@@ -1,30 +1,25 @@
 package com.acuitybotting.bot_control;
 
 import com.acuitybotting.bot_control.services.managment.BotControlManagementService;
-import com.acuitybotting.db.arango.acuity.bot_control.domain.BotInstance;
-import com.acuitybotting.db.arango.acuity.bot_control.repositories.BotInstanceRepository;
-import com.acuitybotting.security.acuity.jwt.AcuityJwtService;
-import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentity;
 import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentityClient;
-import com.amazonaws.services.cognitoidentity.AmazonCognitoIdentityClientBuilder;
-import com.amazonaws.services.cognitoidentity.model.*;
+import com.amazonaws.services.cognitoidentity.model.GetOpenIdTokenForDeveloperIdentityRequest;
+import com.amazonaws.services.cognitoidentity.model.GetOpenIdTokenForDeveloperIdentityResult;
+import com.amazonaws.services.iot.client.AWSIotException;
+import com.amazonaws.services.iot.client.AWSIotMessage;
+import com.amazonaws.services.iot.client.AWSIotMqttClient;
+import com.amazonaws.services.iot.client.AWSIotTopic;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenService;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClientBuilder;
 import com.amazonaws.services.securitytoken.model.AssumeRoleRequest;
 import com.amazonaws.services.securitytoken.model.AssumeRoleResult;
-import com.amazonaws.services.securitytoken.model.GetFederationTokenRequest;
-import com.amazonaws.services.securitytoken.model.GetFederationTokenResult;
+import com.amazonaws.services.securitytoken.model.AssumeRoleWithWebIdentityRequest;
+import com.amazonaws.services.securitytoken.model.AssumeRoleWithWebIdentityResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.HashMap;
 
 /**
  * Created by Zachary Herridge on 6/1/2018.
@@ -36,12 +31,6 @@ public class BotControlRunner implements CommandLineRunner{
             "    \"Version\": \"2012-10-17\",\n" +
             "    \"Statement\": [\n" +
             "        {\n" +
-            "            \"Sid\": \"s1\",\n" +
-            "            \"Effect\": \"Allow\",\n" +
-            "            \"Action\": \"iot:Connect\",\n" +
-            "            \"Resource\": \"*\"\n" +
-            "        },\n" +
-            "        {\n" +
             "            \"Sid\": \"s2\",\n" +
             "            \"Effect\": \"Allow\",\n" +
             "            \"Action\": [\n" +
@@ -50,8 +39,8 @@ public class BotControlRunner implements CommandLineRunner{
             "                \"iot:Publish\"\n" +
             "            ],\n" +
             "            \"Resource\": [\n" +
-            "                \"arn:aws:iot:*:*:topicfilter/user/<USER_ID>/*\",\n" +
-            "                \"arn:aws:iot:*:*:topic/user/<USER_ID>/*\"\n" +
+            "                \"arn:aws:iot:*:*:topicfilter/user/<USER_ID>/bot/*\",\n" +
+            "                \"arn:aws:iot:*:*:topic/user/<USER_ID>/bot/*\"\n" +
             "            ]\n" +
             "        }\n" +
             "    ]\n" +
@@ -69,31 +58,63 @@ public class BotControlRunner implements CommandLineRunner{
         try {
             AWSSecurityTokenService stsClient = AWSSecurityTokenServiceClientBuilder.standard()
                     .withRegion("us-east-1")
-                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("AKIAIPISVVFQRY5A2I5Q", "")))
+                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("", "")))
                     .build();
 
-            String username = "zach";
+            AmazonCognitoIdentity identityClient = AmazonCognitoIdentityClient.builder()
+                    .withRegion("us-east-1")
+                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("", "")))
+                    .build();
 
-            GetFederationTokenRequest getFederationTokenRequest = new GetFederationTokenRequest();
-            getFederationTokenRequest.setName(username);
-            getFederationTokenRequest.setDurationSeconds(3600 * 8);
+            String userId = "zach";
 
-            String localPolicy = policy
-                    .replaceAll("<USER_ID>", username);
+            GetOpenIdTokenForDeveloperIdentityRequest openIdRequest = new GetOpenIdTokenForDeveloperIdentityRequest();
+            openIdRequest.setIdentityPoolId("us-east-1:971873e2-32f4-4352-968c-283ab6bebde6");
+            openIdRequest.addLoginsEntry("login.acuitybotting", userId);
 
-            System.out.println(localPolicy);
-            getFederationTokenRequest.setPolicy(localPolicy);
 
-            GetFederationTokenResult federationToken = stsClient.getFederationToken(getFederationTokenRequest);
+            GetOpenIdTokenForDeveloperIdentityResult openId = identityClient.getOpenIdTokenForDeveloperIdentity(openIdRequest);
 
-            AssumeRoleRequest assumeRoleRequest = new AssumeRoleRequest();
-            assumeRoleRequest.withRoleArn("");
+            AssumeRoleWithWebIdentityRequest assumeRoleRequest = new AssumeRoleWithWebIdentityRequest();
+            assumeRoleRequest.setWebIdentityToken(openId.getToken());
+            assumeRoleRequest.setRoleArn("arn:aws:iam::604080725100:role/IotUserRole");
+            assumeRoleRequest.setRoleSessionName(userId);
 
-            AssumeRoleResult assumeRoleResult = stsClient.assumeRole(assumeRoleRequest);
 
-            System.out.println("id: " + federationToken.getCredentials().getAccessKeyId());
-            System.out.println("key: " + federationToken.getCredentials().getSecretAccessKey());
-            System.out.println("session: " + federationToken.getCredentials().getSessionToken());
+            AssumeRoleRequest assumeRoleRequest1 = new AssumeRoleRequest();
+            assumeRoleRequest1.setRoleArn("arn:aws:iam::604080725100:role/Iot2");
+            assumeRoleRequest1.setRoleSessionName(userId);
+
+            AssumeRoleResult assumeRoleWithWebIdentityResult = stsClient.assumeRole(assumeRoleRequest1);
+
+            System.out.println("ID: " + assumeRoleWithWebIdentityResult.getCredentials().getAccessKeyId());
+            System.out.println("KE: " + assumeRoleWithWebIdentityResult.getCredentials().getSecretAccessKey());
+            System.out.println("TO: " + assumeRoleWithWebIdentityResult.getCredentials().getSessionToken());
+
+            System.out.println("ROLE: " + assumeRoleWithWebIdentityResult.getAssumedRoleUser().getArn());
+
+            String clientEndpoint = "a2i158467e5k2v.iot.us-east-1.amazonaws.com";
+            String clientId = "testClientID";
+
+            AWSIotMqttClient client = new AWSIotMqttClient(clientEndpoint, clientId,
+                    assumeRoleWithWebIdentityResult.getCredentials().getAccessKeyId(),
+                    assumeRoleWithWebIdentityResult.getCredentials().getSecretAccessKey(),
+                    assumeRoleWithWebIdentityResult.getCredentials().getSessionToken()
+            );
+
+            try {
+                client.connect();
+
+
+                client.subscribe(new AWSIotTopic("user/zach/bot/" + clientId){
+                    @Override
+                    public void onMessage(AWSIotMessage message) {
+                        System.out.println("Got message: " + new String(message.getPayload()));
+                    }
+                });
+            } catch (AWSIotException e) {
+                e.printStackTrace();
+            }
         }
         catch (Exception e){
             e.printStackTrace();

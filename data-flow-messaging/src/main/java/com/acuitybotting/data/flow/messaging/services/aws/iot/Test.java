@@ -5,22 +5,19 @@ import com.amazonaws.services.iot.client.AWSIotMessage;
 import com.amazonaws.services.iot.client.AWSIotMqttClient;
 import com.amazonaws.services.iot.client.AWSIotTopic;
 
-import java.nio.charset.Charset;
-
 public class Test {
 
     public static void main(String[] args) {
-        String clientEndpoint = "a2i158467e5k2v.iot.us-east-1.amazonaws.com";       // replace <prefix> and <region> with your own
-        String clientId = "testKey";                              // replace with your own client ID. Use unique client IDs for concurrent connections.
+        String clientEndpoint = "a2i158467e5k2v.iot.us-east-1.amazonaws.com";
+        String clientId = "testClientID";
 
         AWSIotMqttClient client = new AWSIotMqttClient(clientEndpoint, clientId,
-                "",
                 "",
                 "");
 
         try {
             client.connect();
-            client.subscribe(new AWSIotTopic("zach/asdasd"){
+            client.subscribe(new AWSIotTopic("user/zach/bot/" + clientId){
                 @Override
                 public void onMessage(AWSIotMessage message) {
                     System.out.println("Got message: " + new String(message.getPayload()));
@@ -30,5 +27,4 @@ public class Test {
             e.printStackTrace();
         }
     }
-
 }
