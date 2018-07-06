@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
 public class HttpUtil {
 
     public static String get(Map<String, String> headers, String url, TreeMap<String, String> queryParams) throws Exception {
-        return makeRequest("GET", headers, url, queryParams);
+        return makeRequest("GET", headers, url, queryParams, null);
     }
 
-    public static String makeRequest(String method, Map<String, String> headers, String url, TreeMap<String, String> queryParams) throws Exception {
+    public static String makeRequest(String method, Map<String, String> headers, String url, TreeMap<String, String> queryParams, String body) throws Exception {
         if (queryParams != null) url += "?" + queryParams.entrySet().stream().map(entry -> entry.getKey() + "=" + encode(entry.getValue())).collect(Collectors.joining("&"));
 
         URL obj = new URL(url);
@@ -31,6 +31,11 @@ public class HttpUtil {
             for (Map.Entry<String, String> entry : headers.entrySet()) {
                 con.setRequestProperty(entry.getKey(), entry.getValue());
             }
+        }
+
+        if (body != null){
+            con.setDoOutput(true);
+            con.getOutputStream().write(body.getBytes("UTF8"));
         }
 
         StringBuilder response = new StringBuilder();

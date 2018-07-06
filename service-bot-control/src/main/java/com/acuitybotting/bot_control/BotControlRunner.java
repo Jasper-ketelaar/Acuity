@@ -18,20 +18,29 @@ import com.amazonaws.services.securitytoken.model.AssumeRoleResult;
 import com.amazonaws.services.securitytoken.model.AssumeRoleWithWebIdentityRequest;
 import com.amazonaws.services.securitytoken.model.AssumeRoleWithWebIdentityResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 /**
  * Created by Zachary Herridge on 6/1/2018.
  */
 @Component
+@PropertySource("classpath:iot.credentials")
 public class BotControlRunner implements CommandLineRunner{
 
     String policy = "{\n" +
             "    \"Version\": \"2012-10-17\",\n" +
             "    \"Statement\": [\n" +
             "        {\n" +
-            "            \"Sid\": \"s2\",\n" +
+            "            \"Sid\": \"VisualEditor0\",\n" +
+            "            \"Effect\": \"Allow\",\n" +
+            "            \"Action\": \"iot:Connect\",\n" +
+            "            \"Resource\": \"*\"\n" +
+            "        },\n" +
+            "        {\n" +
+            "            \"Sid\": \"VisualEditor1\",\n" +
             "            \"Effect\": \"Allow\",\n" +
             "            \"Action\": [\n" +
             "                \"iot:Receive\",\n" +
@@ -39,12 +48,25 @@ public class BotControlRunner implements CommandLineRunner{
             "                \"iot:Publish\"\n" +
             "            ],\n" +
             "            \"Resource\": [\n" +
-            "                \"arn:aws:iot:*:*:topicfilter/user/<USER_ID>/bot/*\",\n" +
-            "                \"arn:aws:iot:*:*:topic/user/<USER_ID>/bot/*\"\n" +
+            "                \"arn:aws:iot:*:*:topicfilter/user/<USER_ID>/*\",\n" +
+            "                \"arn:aws:iot:*:*:topic/user/<USER_ID>/*\"\n" +
             "            ]\n" +
             "        }\n" +
             "    ]\n" +
             "}";
+
+    @Value("${iot.region}")
+    private String region;
+
+    @Value("${iot.access}")
+    private String accessKey;
+
+    @Value("${iot.secret}")
+    private String secretKey;
+
+    @Value("${iot.endpoint}")
+    private String endpoint;
+
 
     private final BotControlManagementService managementService;
 
@@ -58,45 +80,26 @@ public class BotControlRunner implements CommandLineRunner{
         try {
             AWSSecurityTokenService stsClient = AWSSecurityTokenServiceClientBuilder.standard()
                     .withRegion("us-east-1")
-                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("", "")))
+                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
                     .build();
 
-            AmazonCognitoIdentity identityClient = AmazonCognitoIdentityClient.builder()
-                    .withRegion("us-east-1")
-                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials("", "")))
-                    .build();
-
+            String clientId = "client1";
             String userId = "zach";
+            String topic = "user/" + userId + "/bot/" + clientId;
+            String localPolicy = policy.replaceAll("<USER_ID>", userId);
 
-            GetOpenIdTokenForDeveloperIdentityRequest openIdRequest = new GetOpenIdTokenForDeveloperIdentityRequest();
-            openIdRequest.setIdentityPoolId("us-east-1:971873e2-32f4-4352-968c-283ab6bebde6");
-            openIdRequest.addLoginsEntry("login.acuitybotting", userId);
+            AssumeRoleRequest roleRequest = new AssumeRoleRequest();
+            roleRequest.setRoleArn("arn:aws:iam::604080725100:role/IotUserConnection");
+            roleRequest.setRoleSessionName(userId);
+            roleRequest.withPolicy(localPolicy);
 
+            AssumeRoleResult assumeRoleWithWebIdentityResult = stsClient.assumeRole(roleRequest);
 
-            GetOpenIdTokenForDeveloperIdentityResult openId = identityClient.getOpenIdTokenForDeveloperIdentity(openIdRequest);
+            System.out.println("Role: " + assumeRoleWithWebIdentityResult.getAssumedRoleUser().getArn());
+            System.out.println("Policy: " + localPolicy);
+            System.out.println("Topic: '" + topic + "'");
 
-            AssumeRoleWithWebIdentityRequest assumeRoleRequest = new AssumeRoleWithWebIdentityRequest();
-            assumeRoleRequest.setWebIdentityToken(openId.getToken());
-            assumeRoleRequest.setRoleArn("arn:aws:iam::604080725100:role/IotUserRole");
-            assumeRoleRequest.setRoleSessionName(userId);
-
-
-            AssumeRoleRequest assumeRoleRequest1 = new AssumeRoleRequest();
-            assumeRoleRequest1.setRoleArn("arn:aws:iam::604080725100:role/Iot2");
-            assumeRoleRequest1.setRoleSessionName(userId);
-
-            AssumeRoleResult assumeRoleWithWebIdentityResult = stsClient.assumeRole(assumeRoleRequest1);
-
-            System.out.println("ID: " + assumeRoleWithWebIdentityResult.getCredentials().getAccessKeyId());
-            System.out.println("KE: " + assumeRoleWithWebIdentityResult.getCredentials().getSecretAccessKey());
-            System.out.println("TO: " + assumeRoleWithWebIdentityResult.getCredentials().getSessionToken());
-
-            System.out.println("ROLE: " + assumeRoleWithWebIdentityResult.getAssumedRoleUser().getArn());
-
-            String clientEndpoint = "a2i158467e5k2v.iot.us-east-1.amazonaws.com";
-            String clientId = "testClientID";
-
-            AWSIotMqttClient client = new AWSIotMqttClient(clientEndpoint, clientId,
+            AWSIotMqttClient client = new AWSIotMqttClient(endpoint, clientId,
                     assumeRoleWithWebIdentityResult.getCredentials().getAccessKeyId(),
                     assumeRoleWithWebIdentityResult.getCredentials().getSecretAccessKey(),
                     assumeRoleWithWebIdentityResult.getCredentials().getSessionToken()
@@ -104,9 +107,7 @@ public class BotControlRunner implements CommandLineRunner{
 
             try {
                 client.connect();
-
-
-                client.subscribe(new AWSIotTopic("user/zach/bot/" + clientId){
+                client.subscribe(new AWSIotTopic(topic){
                     @Override
                     public void onMessage(AWSIotMessage message) {
                         System.out.println("Got message: " + new String(message.getPayload()));

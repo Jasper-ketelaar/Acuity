@@ -18,10 +18,7 @@ public class AcuityPrincipal  {
     private String[] roles;
 
     public String getKey(){
-        Objects.requireNonNull(username);
-        Objects.requireNonNull(realm);
         Objects.requireNonNull(sub);
-
-        return username + "_" + sub + "_" + realm;
+        return sub;
     }
 }
