@@ -6,6 +6,7 @@ import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -22,8 +23,12 @@ public class HPANode implements Node, Locateable {
     public static final int DOOR = 3;
 
     private List<Edge> edges = new ArrayList<>();
+
+    @Expose
     private Location location;
     private HPARegion hpaRegion;
+
+    @Expose
     private int type = GROUND;
 
     public HPANode(HPARegion region, Location location) {

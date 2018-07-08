@@ -1,5 +1,7 @@
 package com.acuitybotting.path_finding.rs.custom_edges.interaction;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Created by Zachary Herridge on 6/21/2018.
  */
@@ -10,16 +12,23 @@ public class Interaction {
     public static final int SPELL = 3;
     public static final int INTERFACE = 4;
 
+    @Expose
     private final int type;
 
+    @Expose
     private String queryName;
+
+    @Expose
     private String action;
+
+    @Expose
     private String[] dialogs;
 
+    @Expose
     private String spellName;
 
+    @Expose
     private int[] interfacePath;
-
 
     public Interaction(int type) {
         this.type = type;

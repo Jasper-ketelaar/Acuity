@@ -1,19 +1,28 @@
 package com.acuitybotting.path_finding.web_processing;
 
+import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
+import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.xtea.XteaService;
 import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Created by Zachary Herridge on 6/5/2018.
  */
 @Service
+@Slf4j
 public class WebImageProcessingService {
 
     private XteaService xteaService;
@@ -21,6 +30,27 @@ public class WebImageProcessingService {
     @Autowired
     public WebImageProcessingService(XteaService xteaService) {
         this.xteaService = xteaService;
+    }
+
+    public void saveImagesFromRegionMaps(Collection<RegionMap> regionMaps, File outputDir){
+        log.info("Starting region image dump.");
+
+        ExecutorUtil.run(30, executor -> {
+            for (RegionMap regionMap : regionMaps) {
+                executor.execute(() -> {
+                    BufferedImage[] tileFlagImage = createTileFlagImageFromRegionInfo(regionMap);
+                    for (int i = 0; i < tileFlagImage.length; i++) {
+                        try {
+                            ImageIO.write(tileFlagImage[i], "png", new File(outputDir, "\\img\\a_regions\\" + regionMap.getKey() + "_" + i + ".png"));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        });
+
+        log.info("Finished region image dump.");
     }
 
     public BufferedImage[] createTileFlagImageFromRegionInfo(RegionMap regionMap) {

@@ -4,6 +4,7 @@ import com.acuitybotting.data.flow.messaging.services.Message;
 import com.acuitybotting.data.flow.messaging.services.futures.MessageFuture;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -31,6 +32,10 @@ public interface MessagingClient {
     default Optional<MessageFuture> respond(Message message, String localTopic, String body){
         String responseTopic = message.getAttributes().get(RESPONSE_TOPIC);
         String responseId = message.getAttributes().get(RESPONSE_ID);
+
+        Objects.requireNonNull(responseTopic);
+        Objects.requireNonNull(responseId);
+
         return send(responseTopic, localTopic, responseId, body);
     }
 

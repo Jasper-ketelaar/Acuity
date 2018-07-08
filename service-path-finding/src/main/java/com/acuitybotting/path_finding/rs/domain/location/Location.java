@@ -1,6 +1,7 @@
 package com.acuitybotting.path_finding.rs.domain.location;
 
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
+import com.google.gson.annotations.Expose;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Location implements Locateable{
 
+    @Expose
     private int x, y, plane;
 
     public double getTraversalCost(Location other) {

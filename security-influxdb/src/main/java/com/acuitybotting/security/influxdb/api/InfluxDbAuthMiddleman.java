@@ -27,16 +27,16 @@ public class InfluxDbAuthMiddleman {
     private String influxPassword;
 
     @RequestMapping(value = "/*", method = RequestMethod.POST)
-    public ResponseEntity<String> post(HttpServletRequest request, @RequestParam(value = "u", required = false) String username, @RequestParam(value = "p",  required = false) String password) throws IOException {
-        return handle(request, username, password);
+    public ResponseEntity<String> post(HttpServletRequest request, @RequestParam(value = "u", required = false) String username, @RequestParam(value = "p",  required = false) String password, @RequestBody(required = false) String body) throws IOException {
+        return handle(request, username, password, body);
     }
 
     @RequestMapping(value = "/*", method = RequestMethod.GET)
     public ResponseEntity<String> get(HttpServletRequest request, @RequestParam(value = "u", required = false) String username, @RequestParam(value = "p", required = false) String password) throws IOException {
-        return handle(request, username, password);
+        return handle(request, username, password, null);
     }
 
-    private ResponseEntity<String> handle(HttpServletRequest request, String username, String password) throws IOException {
+    private ResponseEntity<String> handle(HttpServletRequest request, String username, String password, String body) throws IOException {
         log.info("Got request from {} {}.", request.getRemoteHost(), request.getServletPath() + "?" + request.getQueryString());
 
         boolean authed = false;
@@ -53,6 +53,12 @@ public class InfluxDbAuthMiddleman {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod(request.getMethod());
+
+        if (body != null){
+            log.info("Sending body {}.", body);
+            con.setDoOutput(true);
+            con.getOutputStream().write(body.getBytes("UTF-8"));
+        }
 
         int responseCode = con.getResponseCode();
         log.info("Sent '{}' request to {} got response {}.", request.getMethod(), url, responseCode);

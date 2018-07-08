@@ -19,6 +19,7 @@ import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -153,12 +154,12 @@ public class HPAGraph {
 
             boolean ignoreStartBlocked = startNode.getType() == HPANode.STAIR;
 
-            List<Edge> path = pathFindingSupplier.findPath(
+            List<Edge> path = findInternalPath(
                     startNode.getLocation(),
                     endNode.getLocation(),
-                    edge -> limitToRegion(region, edge),
+                    region,
                     ignoreStartBlocked
-            ).orElse(null);
+            );
 
             if (path != null) {
                 found++;
@@ -168,6 +169,15 @@ public class HPAGraph {
                 endNode.addConnection(startNode, HPANode.GROUND, path.size()).setPathKey(pathKey);
             }
         }
+    }
+
+    public List<Edge> findInternalPath(Location start, Location end, HPARegion limit, boolean ignoreStartBlocked){
+        return pathFindingSupplier.findPath(
+                start,
+                end,
+                edge -> limitToRegion(limit, edge),
+                ignoreStartBlocked
+        ).orElse(null);
     }
 
     private void addStairConnections(HPARegion region) {

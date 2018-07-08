@@ -51,5 +51,10 @@
             <version>RELEASE</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.acuitybotting</groupId>
+            <artifactId>db-influx</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

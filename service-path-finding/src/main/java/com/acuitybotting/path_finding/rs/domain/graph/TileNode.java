@@ -8,6 +8,7 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.Direction;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
+import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,7 +27,10 @@ import static com.acuitybotting.path_finding.rs.utils.Direction.*;
 @Getter
 public class TileNode implements Node, Locateable {
 
+    @Expose
     private Location location;
+
+    @Expose
     private int type;
 
     public TileNode(Location location) {

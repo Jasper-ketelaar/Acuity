@@ -3,6 +3,7 @@ package com.acuitybotting.path_finding.rs.custom_edges;
 import com.acuitybotting.path_finding.rs.custom_edges.interaction.Interaction;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.PlayerPredicate;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.google.gson.annotations.Expose;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,8 +13,11 @@ import java.util.HashSet;
  */
 public class CustomEdge {
 
+    @Expose
     private Location start, end;
     private Collection<PlayerPredicate> playerPredicates = new HashSet<>();
+
+    @Expose
     private Interaction interaction;
 
     public Location getStart() {

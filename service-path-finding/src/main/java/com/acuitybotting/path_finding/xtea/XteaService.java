@@ -1,6 +1,7 @@
 package com.acuitybotting.path_finding.xtea;
 
 
+import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
@@ -52,7 +53,6 @@ public class XteaService {
         stairNames.add("stair");
     }
 
-
     @Autowired
     public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionMapRepository regionMapRepository) {
         this.definitionRepository = definitionRepository;
@@ -60,8 +60,38 @@ public class XteaService {
         this.regionMapRepository = regionMapRepository;
     }
 
+    public void saveRegionMapsFromAfter(int revision){
+        log.info("Starting RegionMap dump.");
+
+        getRegionMapRepository().deleteAll();
+
+        Set<String> regionIds = findUnique(revision).keySet();
+
+        ExecutorUtil.run(30, executor -> {
+            for (String regionId : regionIds) {
+                executor.execute(() -> applySettings(Integer.parseInt(regionId)));
+            }
+        });
+
+        ExecutorUtil.run(30, executor -> {
+            for (String regionId : regionIds) {
+                executor.execute(() -> applyLocations(Integer.parseInt(regionId)));
+            }
+        });
+
+        for (RegionMap regionMap : RsEnvironment.getRsMap().getRegions().values()) {
+            try {
+                getRegionMapRepository().save(regionMap);
+            } catch (Exception e) {
+                log.error("Error during save. " + regionMap, e);
+            }
+        }
+
+        log.info("Finished RegionMap dump with {} regions.", RsEnvironment.getRsMap().getRegions().size());
+    }
+
     public Map<String, Set<Xtea>> findUnique(int rev) {
-        return xteaRepository.findAllByRevision(rev).stream().collect(Collectors.groupingBy(object -> String.valueOf(object.getRegion()), Collectors.toSet()));
+        return xteaRepository.findAllByRevisionGreaterThan(rev).stream().collect(Collectors.groupingBy(object -> String.valueOf(object.getRegion()), Collectors.toSet()));
     }
 
     public void exportXteas(int rev, File out) {

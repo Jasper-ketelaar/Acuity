@@ -2,6 +2,7 @@ package com.acuitybotting.path_finding.rs.domain.graph;
 
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
+import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,8 +15,12 @@ import java.util.Objects;
 @Getter
 public class TileEdge implements Edge {
 
+    @Expose
     private TileNode start, end;
+
     private double costPenalty = 0;
+
+    @Expose
     private int type;
 
     public TileEdge(TileNode start, TileNode end) {

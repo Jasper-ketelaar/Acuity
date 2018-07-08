@@ -5,6 +5,7 @@ import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.PlayerPredicate;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.abstractions.Player;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
+import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
 import java.util.Collection;
@@ -14,8 +15,12 @@ import java.util.Objects;
 @Getter
 public class HPAEdge implements Edge {
 
+    @Expose
     private HPANode start, end;
+
     private double cost;
+
+    @Expose
     private int type;
 
     private String pathKey;

@@ -32,6 +32,7 @@ public class IotMessageConsumer extends AWSIotTopic implements MessageConsumer {
 
     @Override
     public MessageConsumer start() throws AWSIotException {
+        System.out.println("Consuming: "  + getTopic());
         iotClientService.getClient().subscribe(this);
         return this;
     }
