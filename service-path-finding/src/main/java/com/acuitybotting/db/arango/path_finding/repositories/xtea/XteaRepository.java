@@ -10,7 +10,7 @@ import java.util.Collection;
  */
 public interface XteaRepository extends ArangoRepository<Xtea> {
 
-    Collection<Xtea> findAllByRevisionGreaterThan(int revision);
+    Collection<Xtea> findAllByRevisionGreaterThanEqual(int revision);
 
     Collection<Xtea> findByRegionAndRevision(int region, int revision);
 }

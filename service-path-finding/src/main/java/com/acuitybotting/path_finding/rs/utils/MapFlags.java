@@ -24,7 +24,7 @@ public class MapFlags {
     public static final int BLOCKED_SCENE_OBJECT = 1 << 16;
     public static final int BLOCKED_22 = 1 << 11;
 
-    public static final int WALL_DOOR = 1 << 9;
+    public static final int DOOR_FLAG = 1 << 9;
 
     public static final int OCCUPIED = 1 << 10;
 

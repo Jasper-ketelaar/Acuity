@@ -38,6 +38,7 @@ public class HpaPathFindingService {
         graph.findInternalConnections(endRegion, endNode, 8);
 
         TemporaryNode startNode = new TemporaryNode(startRegion, startLocation).addStartEdges();
+        //todo startNode.addStartEdges();
         graph.findInternalConnections(startRegion, startNode, 8);
 
         AStarImplementation aStarImplementation = new AStarImplementation()

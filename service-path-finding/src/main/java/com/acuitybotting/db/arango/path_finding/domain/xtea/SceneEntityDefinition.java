@@ -19,6 +19,7 @@ public class SceneEntityDefinition {
     @Key
     private String key;
 
+    private Integer mapDoorFlag;
     private Integer objectId;
     private Integer ambient;
     private Integer ambientSoundId;

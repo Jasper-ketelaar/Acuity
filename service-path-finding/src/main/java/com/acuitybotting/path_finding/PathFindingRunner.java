@@ -9,7 +9,9 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.PathFindingSupplier;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.HpaPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PathPlugin;
+import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PositionPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.RegionPlugin;
+import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapFrame;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -95,8 +97,8 @@ public class PathFindingRunner implements CommandLineRunner {
         graph.init(
                 new Location(RsEnvironment.getRsMap().getLowestX(), RsEnvironment.getRsMap().getLowestY(), 0),
                 new Location(RsEnvironment.getRsMap().getHighestX(), RsEnvironment.getRsMap().getHighestY(), 3),
-                30,
-                30
+                15,
+                15
         );
         graph.setPathFindingSupplier(getPathFindingSupplier());
         return graph;
@@ -105,7 +107,7 @@ public class PathFindingRunner implements CommandLineRunner {
     private HPAGraph loadHpa(int version) {
         HPAGraph graph = initGraph();
         hpaWebService.loadInto(graph, version, false);
-        graph.addCustomNodes();
+        //todo graph.addCustomNodes();
         return graph;
     }
 
@@ -200,10 +202,28 @@ public class PathFindingRunner implements CommandLineRunner {
 
     }
 
+    private void dump(){
+        xteaService.saveRegionMapsFromAfter(171);
+        webImageProcessingService.saveImagesFromRegionMaps(RsEnvironment.getRsMap().getRegions().values(), new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\a2_regions"));
+    }
+
+    private void openUi() throws Exception {
+        MapFrame mapFrame = new MapFrame();
+        mapFrame.getMapPanel().addPlugin(new PositionPlugin());
+        mapFrame.getMapPanel().addPlugin(hpaPlugin);
+        mapFrame.show();
+
+    }
+
     @Override
     public void run(String... args) {
         try {
             consumeJobs();
+
+/*            loadRsMap();
+            HPAGraph hpaGraph = loadHpa(1);
+            hpaPlugin.setGraph(hpaGraph);
+            openUi();*/
         } catch (Exception e) {
             e.printStackTrace();
         }

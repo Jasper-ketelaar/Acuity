@@ -41,7 +41,7 @@ public class WebImageProcessingService {
                     BufferedImage[] tileFlagImage = createTileFlagImageFromRegionInfo(regionMap);
                     for (int i = 0; i < tileFlagImage.length; i++) {
                         try {
-                            ImageIO.write(tileFlagImage[i], "png", new File(outputDir, "\\img\\a_regions\\" + regionMap.getKey() + "_" + i + ".png"));
+                            ImageIO.write(tileFlagImage[i], "png", new File(outputDir, regionMap.getKey() + "_" + i + ".png"));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -66,7 +66,7 @@ public class WebImageProcessingService {
                 for (int regionY = 0; regionY < RsRegion.Y; regionY++) {
                     int drawX = regionX * tilePixelSize;
                     int drawY = (RsRegion.Y - 1 - regionY) * tilePixelSize;
-                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.NO_OVERLAY)){
+                    if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.DOOR_FLAG)){
                         fillTile(mapImages[plane], drawX, drawY, tilePixelSize, new Color(149, 233, 255, 223));
                     }
                     else if(regionMap.checkFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING)){

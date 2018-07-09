@@ -91,7 +91,7 @@ public class XteaService {
     }
 
     public Map<String, Set<Xtea>> findUnique(int rev) {
-        return xteaRepository.findAllByRevisionGreaterThan(rev).stream().collect(Collectors.groupingBy(object -> String.valueOf(object.getRegion()), Collectors.toSet()));
+        return xteaRepository.findAllByRevisionGreaterThanEqual(rev).stream().collect(Collectors.groupingBy(object -> String.valueOf(object.getRegion()), Collectors.toSet()));
     }
 
     public void exportXteas(int rev, File out) {
@@ -194,6 +194,8 @@ public class XteaService {
 
     }
 
+    public static Set<String> doorActions = new HashSet<>();
+
     public void applyLocations(int regionId) {
         RsRegion rsRegion = getRegion(regionId).orElse(null);
         if (rsRegion == null) {
@@ -220,6 +222,13 @@ public class XteaService {
 
                     SceneEntityDefinition baseDefinition = getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load " + location.getId() + "."));
 
+                    boolean doorFlag = locationType >= 0 && locationType <= 3 && baseDefinition.getMapDoorFlag() != 0;
+
+                    if (doorFlag){
+                        doorActions.addAll(Arrays.asList(baseDefinition.getActions()));
+                        addFlag(location.getPosition(), plane, MapFlags.DOOR_FLAG);
+                    }
+
                     Integer clipType = baseDefinition.getClipType();
                     if (locationType == 22) {
                         if (clipType == 1) {
@@ -237,7 +246,7 @@ public class XteaService {
                                 }
                             }
 
-                            if (baseDefinition.getItemSupport() == 1) {
+                            if (!doorFlag && baseDefinition.getItemSupport() == 1) {
                                 if (locationType == 0 || locationType == 2) {
                                     if (rotation == 0) {
                                         //West wall
@@ -254,12 +263,12 @@ public class XteaService {
                                     }
                                 }
 
-                                if (locationType == 1) {
+                                if (!doorFlag && locationType == 1) {
                                     //Wall interconnecting ignore
                                     addFlag(location.getPosition(), plane, MapFlags.WALL_TYPE_1);
                                 }
 
-                                if (locationType == 2) {
+                                if (!doorFlag && locationType == 2) {
                                     if (rotation == 3) {
                                         //West wall
                                         addFlag(location.getPosition(), plane, MapFlags.WALL_WEST);
@@ -275,7 +284,7 @@ public class XteaService {
                                     }
                                 }
 
-                                if (locationType == 3) {
+                                if (!doorFlag && locationType == 3) {
                                     if (rotation == 0) {
                                         //Pillar North-West
                                         addFlag(location.getPosition(), plane, MapFlags.PILLAR_NORTH_WEST);
@@ -291,7 +300,7 @@ public class XteaService {
                                     }
                                 }
 
-                                if (locationType == 9) {
+                                if (!doorFlag && locationType == 9) {
                                     int hash = (regionX << 7) + regionY + (location.getId() << 14) + 0x4000_0000;
                                     if ((hash >> 29 & 3) != 2) {
                                         continue; //Idk works

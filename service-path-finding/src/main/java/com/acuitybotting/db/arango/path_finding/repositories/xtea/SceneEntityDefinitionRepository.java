@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 public interface SceneEntityDefinitionRepository extends ArangoRepository<SceneEntityDefinition>{
 
-    default void loadFrom(File file) throws IOException {
+    default int loadFrom(File file) throws IOException {
         deleteAll();
         Gson gson = new Gson();
         File[] files = file.listFiles();
@@ -30,5 +30,6 @@ public interface SceneEntityDefinitionRepository extends ArangoRepository<SceneE
         }
 
         ArangoUtils.saveAll(this, 400, sceneEntityDefinitions);
+        return sceneEntityDefinitions.size();
     }
 }
