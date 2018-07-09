@@ -15,4 +15,14 @@
 
 .acuity-nav-button span {
     vertical-align: middle;
+    font-size: 17px;
+}
+
+.acuity-nav-button iron-icon {
+    height: 32px;
+    width: 32px;
+}
+
+.vaadin-button-container {
+    justify-content: flex-start; !important;
 }
