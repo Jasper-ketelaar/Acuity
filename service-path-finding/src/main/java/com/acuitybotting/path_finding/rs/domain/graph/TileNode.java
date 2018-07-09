@@ -65,10 +65,6 @@ public class TileNode implements Node, Locateable {
         return edges;
     }
 
-    private boolean containsDoor(Location location){
-        return false;
-    }
-
     private boolean addEdge(Set<Edge> edges, Direction direction, boolean ignoreStartBlocked) {
         Location startLocation = getLocation();
         Location endLocation = startLocation.clone(direction.getXOff(), direction.getYOff());
@@ -77,14 +73,7 @@ public class TileNode implements Node, Locateable {
             edges.add(new TileEdge(this, RsEnvironment.getRsMap().getNode(endLocation)));
             return true;
         }
-        else if (containsDoor(endLocation)){
-            TileEdge tileEdge = new TileEdge(this, RsEnvironment.getRsMap().getNode(endLocation), 1);
-            tileEdge.setType(HPANode.DOOR);
-            edges.add(tileEdge);
 
-            //Possibly return false when contains door to replicate previous performance.
-            return true;
-        }
         return false;
     }
 
