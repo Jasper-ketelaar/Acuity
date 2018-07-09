@@ -6,6 +6,7 @@ import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.BodySize;
@@ -61,7 +62,10 @@ public class RootLayout extends VerticalLayout implements RouterLayout {
         leftMenu.setSpacing(false);
         leftMenu.setPadding(false);
 
-        leftMenu.add(new RouterLink("Profile", Profile.class));
+        Button profile = new Button("Profile", VaadinIcon.HOME.create());
+        profile.setWidth("100%");
+        profile.getClassNames().add("acuity-nav-button");
+        leftMenu.add(profile);
 
         return leftMenu;
     }
