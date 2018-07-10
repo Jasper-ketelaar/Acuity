@@ -1,5 +1,6 @@
 package com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl;
 
+import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
@@ -24,8 +25,13 @@ public class PositionPlugin extends Plugin {
         String flags = "";
         if (mouseLocation != null){
             flags = MapFlags.toString(RsEnvironment.getRsMap().getFlagAt(mouseLocation).orElse(0));
-            getPaintUtil().markLocation(graphics, mouseLocation, Color.BLACK);
+            getPaintUtil().markLocation(graphics, mouseLocation, Color.BLUE);
+
+            for (Edge edge : RsEnvironment.getRsMap().getNode(mouseLocation).getNeighbors()) {
+                getPaintUtil().markLocation(graphics, edge.getEnd(), Color.BLACK);
+            }
             getPaintUtil().connectLocations(graphics, RsEnvironment.getRsMap().getNode(mouseLocation).getNeighbors(), Color.BLACK);
+
         }
         getPaintUtil().debug("Flags: " + flags);
     }

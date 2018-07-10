@@ -54,6 +54,9 @@ public class RsMap {
             if (MapFlags.isBlocked(startFlag)) return false;
         }
 
+        if (MapFlags.check(startFlag, MapFlags.WALL_NORTH_EAST_TO_SOUTH_WEST | MapFlags.WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
+        if (MapFlags.check(endFlag, MapFlags.WALL_NORTH_EAST_TO_SOUTH_WEST | MapFlags.WALL_NORTH_WEST_TO_SOUTH_EAST)) return false;
+
         switch (direction) {
             case NORTH:
                 return !(MapFlags.check(startFlag, MapFlags.WALL_NORTH) || MapFlags.check(endFlag, MapFlags.WALL_SOUTH));

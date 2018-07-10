@@ -111,15 +111,13 @@ public class PathFindingRunner implements CommandLineRunner {
         return graph;
     }
 
-    private void buildHpa(int version) {
+    private HPAGraph buildHpa(int version) {
         HPAGraph graph = initGraph();
-
         graph.build();
 
         hpaWebService.deleteVersion(version);
         hpaWebService.save(graph, version);
-
-        hpaPlugin.setGraph(graph);
+        return graph;
     }
 
     private void loadRsMap() {
@@ -218,12 +216,9 @@ public class PathFindingRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            consumeJobs();
-
-/*            loadRsMap();
-            HPAGraph hpaGraph = loadHpa(1);
-            hpaPlugin.setGraph(hpaGraph);
-            openUi();*/
+            loadRsMap();
+            hpaPlugin.setGraph(loadHpa(1));
+            openUi();
         } catch (Exception e) {
             e.printStackTrace();
         }

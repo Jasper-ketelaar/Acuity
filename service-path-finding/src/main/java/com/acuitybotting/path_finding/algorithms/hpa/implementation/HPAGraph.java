@@ -239,18 +239,19 @@ public class HPAGraph {
     }
 
     private List<LocationPair> filterEdgeConnections(List<LocationPair> connections, PathFindingSupplier pathFindingSupplier) {
+        List<LocationPair> goodConnections = new ArrayList<>();
         boolean lastPairConnected = false;
-        for (LocationPair connection : new ArrayList<>(connections)) {
+        for (LocationPair connection : connections) {
             if (getRegionContaining(connection.getEnd()) == null) {
-                connections.remove(connection);
                 continue;
             }
 
             boolean directlyConnected = pathFindingSupplier.isDirectlyConnected(connection.getStart(), connection.getEnd());
-            if (lastPairConnected || !directlyConnected) connections.remove(connection);
+
+            if (!lastPairConnected && directlyConnected) goodConnections.add(connection);
             lastPairConnected = directlyConnected;
         }
-        return connections;
+        return goodConnections;
     }
 
     private Map<String, HPARegion> findRegions() {
