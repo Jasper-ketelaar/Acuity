@@ -35,7 +35,7 @@ import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static com.acuitybotting.data.flow.messaging.services.interfaces.MessagingClient.RESPONSE_TOPIC;
+import static com.acuitybotting.data.flow.messaging.services.client.MessagingClient.RESPONSE_QUEUE;
 
 @Component
 @Slf4j
@@ -168,7 +168,7 @@ public class PathFindingRunner implements CommandLineRunner {
                                         }
 
                                         String json = outGson.toJson(pathResult);
-                                        log.info("Responding. {} {}", message.getAttributes().get(RESPONSE_TOPIC), json);
+                                        log.info("Responding. {} {}", message.getAttributes().get(RESPONSE_QUEUE), json);
                                         iotClientService.respond(message, json);
                                     }
                                     catch (Throwable e){

@@ -21,10 +21,10 @@ public class ExecutorUtil {
         return new ScheduledThreadPoolExecutor(size) {
             @Override
             protected void afterExecute(Runnable r, Throwable t) {
-                super.afterExecute(r, t);
                 if (t != null) {
                     exceptionHandler.accept(t);
                 }
+                super.afterExecute(r, t);
             }
         };
     }

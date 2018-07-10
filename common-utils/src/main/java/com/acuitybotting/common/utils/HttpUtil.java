@@ -1,4 +1,4 @@
-package com.acuitybotting.data.flow.messaging.services.utils;
+package com.acuitybotting.common.utils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

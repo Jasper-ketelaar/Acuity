@@ -12,4 +12,7 @@ public class MessageFuture extends CompletableFuture<Message> {
 
     private long creationTime = System.currentTimeMillis();
 
+    public long getCreationTime() {
+        return creationTime;
+    }
 }
