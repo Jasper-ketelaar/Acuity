@@ -10,7 +10,7 @@ import org.springframework.context.annotation.PropertySource;
  */
 @SpringBootApplication()
 @ComponentScan("com.acuitybotting")
-@PropertySource("classpath:rabbit.credentials")
+@PropertySource("classpath:auth-rabbit.credentials")
 public class RabbitMqSecurityApplication {
 
     public static void main(String[] args) {

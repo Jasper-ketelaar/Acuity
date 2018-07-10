@@ -43,7 +43,7 @@ public class RabbitSecurityService {
                 consumer = rabbitClient
                         .consume()
                         .withCallback(new SecurityHandler(new AuthBackendImpl(acuityJwtService)))
-                        .withAutoAcknowledge(false)
+                        .withAutoAcknowledge(true)
                         .start()
                         .bind("authentication", "*");
             }

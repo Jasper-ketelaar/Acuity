@@ -54,6 +54,7 @@ public class AuthBackendImpl implements AuthBackend {
     @Override
     public boolean checkTopic(String username, String vhost, String resourceName, ResourceType resourceType, ResourcePermission permission, String routingKey) {
         log.info("Topic check {} {} {} {} {} {}.", username, vhost, resourceName, resourceType, permission, routingKey);
+
         if (permission == ResourcePermission.CONFIGURE) return false;
         return resourceType == ResourceType.TOPIC && resourceName.equals("acuitybotting.general") && routingKey.startsWith("user." + username + ".");
     }

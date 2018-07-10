@@ -1,7 +1,8 @@
 package com.acuitybotting.path_finding;
 
-import com.acuitybotting.data.flow.messaging.services.aws.iot.IotClientService;
-import com.acuitybotting.data.flow.messaging.services.aws.iot.client.IotClientListener;
+import com.acuitybotting.data.flow.messaging.services.client.MessageConsumer;
+import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitClient;
+import com.acuitybotting.data.flow.messaging.services.client.listener.MessagingClientAdapter;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
@@ -32,14 +33,15 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.acuitybotting.data.flow.messaging.services.client.MessagingClient.RESPONSE_QUEUE;
 
 @Component
 @Slf4j
-@PropertySource("classpath:iot.credentials")
+@PropertySource("classpath:general-worker-rabbit.credentials")
 public class PathFindingRunner implements CommandLineRunner {
 
     private final WebImageProcessingService webImageProcessingService;
@@ -52,11 +54,14 @@ public class PathFindingRunner implements CommandLineRunner {
     private final HpaWebService hpaWebService;
     private RegionPlugin regionPlugin = new RegionPlugin();
 
-    @Value("${iot.access}")
-    private String access;
+    @Value("${rabbit.host}")
+    private String host;
 
-    @Value("${iot.secret}")
-    private String secret;
+    @Value("${rabbit.username}")
+    private String username;
+
+    @Value("${rabbit.password}")
+    private String password;
 
     @Autowired
     public PathFindingRunner(WebImageProcessingService webImageProcessingService, AStarService aStarService, PathPlugin pathPlugin, XteaService xteaService, HpaPathFindingService hpaPathFindingService, HpaWebService hpaWebService) {
@@ -140,64 +145,46 @@ public class PathFindingRunner implements CommandLineRunner {
 
             Gson outGson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Gson inGson = new Gson();
-            String clientEndpoint = "a2i158467e5k2v.iot.us-east-1.amazonaws.com";
-            String clientId = "pathing-worker-1";
 
-            IotClientService iotClientService = new IotClientService();
-
-            iotClientService.auth(clientEndpoint, clientId, access, secret, null);
-            iotClientService.getClient().getListeners().add(new IotClientListener() {
+            RabbitClient rabbitClient = new RabbitClient();
+            rabbitClient.setVirtualHost("AcuityBotting");
+            rabbitClient.auth(host, username, password);
+            rabbitClient.getListeners().add(new MessagingClientAdapter(){
                 @Override
                 public void onConnect() {
-                    try {
-                        log.info("Consuming web-find-path queue.");
-                        iotClientService.consume("user/+/connection/+/services/webFindPath")
-                                .withCallback(message -> {
-                                    try {
-                                        PathRequest pathRequest = inGson.fromJson(message.getBody(), PathRequest.class);
-                                        PathResult pathResult = new PathResult();
+                    MessageConsumer consume = rabbitClient.consume("acuitybotting.work.find-path", false);
+                    consume.withAutoAcknowledge(true);
+                    consume.withCallback((messageConsumer, message) -> {
+                        try {
+                            PathRequest pathRequest = inGson.fromJson(message.getBody(), PathRequest.class);
+                            PathResult pathResult = new PathResult();
 
-                                        try {
-                                            log.info("Finding path. {}", pathRequest);
-                                            List<Edge> path = hpaPathFindingService.findPath(pathRequest.getStart(), pathRequest.getEnd());
-                                            log.info("Found path. {}", path);
-                                            pathResult.setPath(path);
-                                        } catch (Exception e) {
-                                            log.info("Error during finding path. {}", e.getMessage());
-                                            pathResult.setError(e.getMessage());
-                                        }
+                            try {
+                                log.info("Finding path. {}", pathRequest);
+                                List<Edge> path = hpaPathFindingService.findPath(pathRequest.getStart(), pathRequest.getEnd());
+                                log.info("Found path. {}", path);
+                                pathResult.setPath(path);
+                            } catch (Exception e) {
+                                log.info("Error during finding path. {}", e.getMessage());
+                                pathResult.setError(e.getMessage());
+                            }
 
-                                        String json = outGson.toJson(pathResult);
-                                        log.info("Responding. {} {}", message.getAttributes().get(RESPONSE_QUEUE), json);
-                                        iotClientService.respond(message, json);
-                                    }
-                                    catch (Throwable e){
-                                        log.error("Error during respond.", e);
-                                    }
-                                })
-                                .start();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+                            String json = outGson.toJson(pathResult);
+                            log.info("Responding. {} {}", message.getAttributes().get(RESPONSE_QUEUE), json);
+                            rabbitClient.respond(message, json);
+                        }
+                        catch (Throwable e){
+                            log.error("Error during respond.", e);
+                        }
+                    });
 
-                @Override
-                public void onConnectionFailure() {
-
-                }
-
-                @Override
-                public void onConnectionClosed() {
-
+                    consume.start();
                 }
             });
-
-            iotClientService.connect();
-
+            rabbitClient.connect();
         } catch (Throwable e) {
             e.printStackTrace();
         }
-
     }
 
     private void dump(){
@@ -216,9 +203,11 @@ public class PathFindingRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            loadRsMap();
+            consumeJobs();
+
+        /*    loadRsMap();
             hpaPlugin.setGraph(loadHpa(1));
-            openUi();
+            openUi();*/
         } catch (Exception e) {
             e.printStackTrace();
         }

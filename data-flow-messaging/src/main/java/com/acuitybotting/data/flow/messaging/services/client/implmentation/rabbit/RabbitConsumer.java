@@ -47,8 +47,10 @@ public class RabbitConsumer extends DefaultConsumer implements MessageConsumer {
 
             message.setDeliveryTag(String.valueOf(envelope.getDeliveryTag()));
 
-            for (Map.Entry<String, Object> header : properties.getHeaders().entrySet()) {
-                message.getAttributes().put("header." + header.getKey(), String.valueOf(header.getValue()));
+            if (properties.getHeaders() != null){
+                for (Map.Entry<String, Object> header : properties.getHeaders().entrySet()) {
+                    message.getAttributes().put("header." + header.getKey(), String.valueOf(header.getValue()));
+                }
             }
 
             if (properties.getReplyTo() != null) message.getAttributes().put("properties.reply-to", properties.getReplyTo());
