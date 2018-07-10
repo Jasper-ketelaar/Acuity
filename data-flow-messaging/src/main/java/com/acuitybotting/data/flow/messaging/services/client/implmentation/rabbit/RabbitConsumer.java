@@ -11,7 +11,9 @@ import com.rabbitmq.client.Envelope;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -22,29 +24,42 @@ public class RabbitConsumer extends DefaultConsumer implements MessageConsumer {
 
     private RabbitClient rabbitClient;
     private String queue;
+    private final boolean create;
     private List<BiConsumer<MessageConsumer, Message>> consumers = new ArrayList<>();
     private String consumeId;
     private boolean autoAcknowledge = true;
 
-    public RabbitConsumer(RabbitClient rabbitClient, Channel channel, String queue) {
+    public RabbitConsumer(RabbitClient rabbitClient, Channel channel, String queue, boolean create) {
         super(channel);
         this.rabbitClient = rabbitClient;
         this.queue = queue;
+        this.create = create;
     }
 
     @Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
         try {
-            Message message = rabbitClient.getGson().fromJson(new String(body), Message.class);
+            Message message = null;
+
+            if (body != null && body.length > 0) message = rabbitClient.getGson().fromJson(new String(body), Message.class);
+            if (message == null) message = new Message();
+            if (message.getAttributes() == null) message.setAttributes(new HashMap<>());
+
             message.setDeliveryTag(String.valueOf(envelope.getDeliveryTag()));
 
-            if (message.getAttributes() != null){
-                String futureId = message.getAttributes().get(MessagingClient.FUTURE_ID);
-                if (futureId != null) {
-                    MessageFuture messageFuture = rabbitClient.getMessageFuture(futureId);
-                    if (messageFuture != null) {
-                        messageFuture.complete(message);
-                    }
+            for (Map.Entry<String, Object> header : properties.getHeaders().entrySet()) {
+                message.getAttributes().put("header." + header.getKey(), String.valueOf(header.getValue()));
+            }
+
+            if (properties.getReplyTo() != null) message.getAttributes().put("properties.reply-to", properties.getReplyTo());
+            if (properties.getCorrelationId() != null) message.getAttributes().put("properties.correlation-id", properties.getCorrelationId());
+
+
+            String futureId = message.getAttributes().get(MessagingClient.FUTURE_ID);
+            if (futureId != null) {
+                MessageFuture messageFuture = rabbitClient.getMessageFuture(futureId);
+                if (messageFuture != null) {
+                    messageFuture.complete(message);
                 }
             }
 
@@ -86,9 +101,11 @@ public class RabbitConsumer extends DefaultConsumer implements MessageConsumer {
         Channel channel = rabbitClient.getChannel();
         if (channel == null || !channel.isOpen()) throw new RuntimeException("Not connected to RabbitMQ.");
 
-        if (queue == null){
+        if (queue == null) queue = rabbitClient.generateId();
+
+        if (create){
             try {
-                queue = channel.queueDeclare(rabbitClient.generateId(), false, true, true, null).getQueue();
+                queue = channel.queueDeclare(queue, false, true, true, null).getQueue();
                 rabbitClient.getLog().accept("Declared queue '" + queue + "'.");
             } catch (IOException e) {
                 throw new RuntimeException("Exception during queue creation.", e);

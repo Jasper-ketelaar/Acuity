@@ -1,6 +1,5 @@
 package com.acuitybotting.data.flow.messaging.services;
 
-import com.acuitybotting.data.flow.messaging.services.client.MessageConsumer;
 import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitClient;
 import com.acuitybotting.data.flow.messaging.services.client.listener.MessagingClientAdapter;
 
@@ -10,25 +9,22 @@ import com.acuitybotting.data.flow.messaging.services.client.listener.MessagingC
 public class Test {
 
     public static void main(String[] args) {
-        RabbitClient rabbitClient = new RabbitClient();
-        rabbitClient.auth("68.46.70.47", "root", "");
+        String sub = "c247fa6b-5676-4012-9473-a7b2f60c8115";
+        RabbitClient rabbitClient = new RabbitClient().setVirtualHost("AcuityBotting");
+        rabbitClient.auth(
+                "68.46.70.47",
+                sub,
+                ""
+        );
 
         rabbitClient.getListeners().add(new MessagingClientAdapter(){
             @Override
             public void onConnect() {
-                MessageConsumer messageConsumer = rabbitClient.consume().withAutoAcknowledge(false).withCallback((source, message) -> {
-                    System.out.println(message);
-                    source.acknowledge(message);
-                }).start();
-                rabbitClient.send(messageConsumer.getQueue(), "{\"body\" : \"sup my dude\"}");
+                System.out.println("Connected");
+                rabbitClient.consume("user." + sub + ".queue." + rabbitClient.generateId(), true).start();
             }
         });
-
         rabbitClient.connect();
-
-        while (true){
-
-        }
     }
 
 }

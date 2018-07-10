@@ -48,10 +48,10 @@ public interface MessagingClient {
     Future<Message> send(String targetExchange, String targetRouting, String localQueue, String futureId, String body) throws RuntimeException;
 
     default MessageConsumer consume() throws RuntimeException {
-        return consume(null);
+        return consume(null, true);
     }
 
-    MessageConsumer consume(String queue) throws RuntimeException;
+    MessageConsumer consume(String queue, boolean create) throws RuntimeException;
 
     void auth(String endpoint, String username, String password);
 

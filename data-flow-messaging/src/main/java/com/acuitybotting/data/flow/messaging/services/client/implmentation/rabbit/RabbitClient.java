@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 public class RabbitClient implements MessagingClient {
 
     private String endpoint;
+    private String virtualHost;
     private String username;
     private String password;
 
@@ -105,8 +106,8 @@ public class RabbitClient implements MessagingClient {
     }
 
     @Override
-    public MessageConsumer consume(String queueName) {
-        return new RabbitConsumer(this, channel, queueName);
+    public MessageConsumer consume(String queueName, boolean create) {
+        return new RabbitConsumer(this, channel, queueName, create);
     }
 
     @Override
@@ -121,7 +122,7 @@ public class RabbitClient implements MessagingClient {
         factory.setHost(endpoint);
         factory.setUsername(username);
         factory.setPassword(password);
-        factory.setVirtualHost("AcuityBotting");
+        if (virtualHost != null) factory.setVirtualHost(virtualHost);
 
         executor.execute(this::open);
     }
@@ -179,6 +180,11 @@ public class RabbitClient implements MessagingClient {
         }
 
         executor.execute(this::open);
+    }
+
+    public RabbitClient setVirtualHost(String virtualHost) {
+        this.virtualHost = virtualHost;
+        return this;
     }
 
     @Override
