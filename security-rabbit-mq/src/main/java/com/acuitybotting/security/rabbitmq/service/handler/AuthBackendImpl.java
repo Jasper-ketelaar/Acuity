@@ -1,10 +1,11 @@
-package com.acuitybotting.security.rabbitmq.domain;
+package com.acuitybotting.security.rabbitmq.service.handler;
 
 import com.acuitybotting.security.acuity.jwt.AcuityJwtService;
 import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
+import com.acuitybotting.security.rabbitmq.domain.LoginResult;
+import com.acuitybotting.security.rabbitmq.domain.ResourcePermission;
+import com.acuitybotting.security.rabbitmq.domain.ResourceType;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Optional;
 
 @Slf4j
 public class AuthBackendImpl implements AuthBackend {
@@ -43,12 +44,17 @@ public class AuthBackendImpl implements AuthBackend {
     @Override
     public boolean checkResource(String username, String vhost, String resourceName, ResourceType resourceType, ResourcePermission permission) {
         log.info("Resource check {} {} {} {} {}.", username, vhost, resourceName, resourceType, permission);
-        return resourceType == ResourceType.QUEUE && resourceName.startsWith("user." + username + ".queue.");
+
+        if (resourceType == ResourceType.QUEUE && resourceName.startsWith("user." + username + ".queue.")) return true;
+        else if (resourceType == ResourceType.EXCHANGE  && permission != ResourcePermission.CONFIGURE && resourceName.equals("acuitybotting.general")) return true;
+
+        return false;
     }
 
     @Override
     public boolean checkTopic(String username, String vhost, String resourceName, ResourceType resourceType, ResourcePermission permission, String routingKey) {
         log.info("Topic check {} {} {} {} {} {}.", username, vhost, resourceName, resourceType, permission, routingKey);
-        return false;
+        if (permission == ResourcePermission.CONFIGURE) return false;
+        return resourceType == ResourceType.TOPIC && resourceName.equals("acuitybotting.general") && routingKey.startsWith("user." + username + ".");
     }
 }

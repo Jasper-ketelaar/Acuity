@@ -4,7 +4,7 @@ import com.acuitybotting.data.flow.messaging.services.client.MessageConsumer;
 import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitClient;
 import com.acuitybotting.data.flow.messaging.services.client.listener.MessagingClientAdapter;
 import com.acuitybotting.security.acuity.jwt.AcuityJwtService;
-import com.acuitybotting.security.rabbitmq.domain.AuthBackendImpl;
+import com.acuitybotting.security.rabbitmq.service.handler.AuthBackendImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

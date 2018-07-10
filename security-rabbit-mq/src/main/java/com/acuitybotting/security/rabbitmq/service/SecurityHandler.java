@@ -3,7 +3,7 @@ package com.acuitybotting.security.rabbitmq.service;
 import com.acuitybotting.data.flow.messaging.services.Message;
 import com.acuitybotting.data.flow.messaging.services.client.MessageConsumer;
 import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitClient;
-import com.acuitybotting.security.rabbitmq.domain.AuthBackend;
+import com.acuitybotting.security.rabbitmq.service.handler.AuthBackend;
 import com.acuitybotting.security.rabbitmq.domain.ResourcePermission;
 import com.acuitybotting.security.rabbitmq.domain.ResourceType;
 import com.rabbitmq.client.AMQP;

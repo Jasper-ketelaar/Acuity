@@ -22,6 +22,8 @@ public class Test {
             public void onConnect() {
                 System.out.println("Connected");
                 rabbitClient.consume("user." + sub + ".queue." + rabbitClient.generateId(), true).start();
+
+                rabbitClient.send("acuitybotting.general", "user." + sub + ".services.walking", "hey");
             }
         });
         rabbitClient.connect();
