@@ -1,5 +1,6 @@
 package com.acuitybotting.db.arango.path_finding.domain.hpa;
 
+import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
 import com.arangodb.springframework.annotation.Document;
 import com.arangodb.springframework.annotation.Key;
@@ -24,5 +25,5 @@ public class SavedPath {
 
     private String edgeKey;
     private Integer webVersion;
-    private List<LocationPair> path;
+    private List<Location> path;
 }

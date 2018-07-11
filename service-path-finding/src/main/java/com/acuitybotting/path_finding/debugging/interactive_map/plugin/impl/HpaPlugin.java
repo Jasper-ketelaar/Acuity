@@ -16,6 +16,7 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -61,9 +62,11 @@ public class HpaPlugin extends Plugin {
                 for (Edge edge : hpaNode.getEdges()) {
                     if (edge instanceof HPAEdge) {
                         Color color = ((HPAEdge) edge).getPathKey() != null ? Color.BLUE : Color.ORANGE;
-                        java.util.List<Edge> path = ((HPAEdge) edge).getPath();
+                        List<Location> path = ((HPAEdge) edge).getPath();
                         if (path != null){
-                            getPaintUtil().connectLocations(graphics, path, color);
+                            for (Location location : path) {
+                                getPaintUtil().markLocation(graphics, path, color);
+                            }
                         }
                         else {
                             getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), color);
@@ -84,7 +87,7 @@ public class HpaPlugin extends Plugin {
 
         if (path != null) {
             for (Edge edge : path) {
-                getPaintUtil().connectLocations(graphics, ((HPAEdge) edge).getPath(), Color.MAGENTA);
+                getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), Color.MAGENTA);
             }
         }
 

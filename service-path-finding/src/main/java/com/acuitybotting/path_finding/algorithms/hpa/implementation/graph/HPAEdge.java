@@ -4,6 +4,7 @@ package com.acuitybotting.path_finding.algorithms.hpa.implementation.graph;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.PlayerPredicate;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.abstractions.Player;
+import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
@@ -71,7 +72,7 @@ public class HPAEdge implements Edge {
         this.playerPredicates = playerPredicates;
     }
 
-    public List<Edge> getPath() {
+    public List<Location> getPath() {
         return RsEnvironment.getRsMap().getPath(this);
     }
 }

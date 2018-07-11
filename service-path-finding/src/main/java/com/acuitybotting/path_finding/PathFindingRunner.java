@@ -8,11 +8,13 @@ import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.PathFindingSupplier;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.HpaPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PathPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PositionPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.RegionPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapFrame;
+import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -33,6 +35,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -111,12 +115,13 @@ public class PathFindingRunner implements CommandLineRunner {
 
     private HPAGraph loadHpa(int version) {
         HPAGraph graph = initGraph();
-        hpaWebService.loadInto(graph, version, false);
+        hpaWebService.loadInto(graph, version, true);
         //todo graph.addCustomNodes();
         return graph;
     }
 
     private HPAGraph buildHpa(int version) {
+        loadRsMap();
         HPAGraph graph = initGraph();
         graph.build();
 
@@ -164,6 +169,20 @@ public class PathFindingRunner implements CommandLineRunner {
                                 List<Edge> path = hpaPathFindingService.findPath(pathRequest.getStart(), pathRequest.getEnd());
                                 log.info("Found path. {}", path);
                                 pathResult.setPath(path);
+                                pathResult.setSubPaths(new HashMap<>());
+
+                                if (path != null){
+                                    for (Edge edge : path) {
+                                        if (edge instanceof HPAEdge){
+                                            String pathKey = ((HPAEdge) edge).getPathKey();
+                                            List<Location> subPath = RsEnvironment.getRsMap().getPathMap().get(pathKey);
+                                            if (subPath != null){
+                                                pathResult.getSubPaths().put(pathKey, subPath);
+                                            }
+                                        }
+                                    }
+                                }
+
                             } catch (Exception e) {
                                 log.info("Error during finding path. {}", e.getMessage());
                                 pathResult.setError(e.getMessage());
@@ -205,7 +224,7 @@ public class PathFindingRunner implements CommandLineRunner {
         try {
             consumeJobs();
 
-        /*    loadRsMap();
+       /*     loadRsMap();
             hpaPlugin.setGraph(loadHpa(1));
             openUi();*/
         } catch (Exception e) {

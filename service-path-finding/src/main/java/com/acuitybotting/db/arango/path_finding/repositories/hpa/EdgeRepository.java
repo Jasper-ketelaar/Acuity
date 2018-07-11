@@ -5,12 +5,14 @@ import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedEdge;
 import com.arangodb.ArangoCursor;
 import com.arangodb.springframework.repository.ArangoRepository;
 
+import java.util.Collection;
+
 /**
  * Created by Zachary Herridge on 6/21/2018.
  */
 public interface EdgeRepository extends ArangoRepository<SavedEdge> {
 
-    ArangoCursor<SavedEdge> findAllByWebVersion(int version);
+    Collection<SavedEdge> findAllByWebVersion(int version);
 
     void deleteAllByWebVersion(int version);
 }

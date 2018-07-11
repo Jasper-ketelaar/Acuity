@@ -18,6 +18,7 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAReg
 import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
+import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.arangodb.ArangoCursor;
@@ -81,34 +82,26 @@ public class HpaWebService {
 
         if (loadPaths){
             for (SavedPath savedPath : pathRepository.findAllByWebVersion(version)) {
-                String key = savedPath.getKey();
-                List<Edge> path = savedPath.getPath().stream().map(locationPair -> new TileEdge(new TileNode(locationPair.getStart()), new TileNode(locationPair.getEnd()))).collect(Collectors.toList());
-                RsEnvironment.getRsMap().getPathMap().put(key, path);
+                RsEnvironment.getRsMap().getPathMap().put(savedPath.getKey(), savedPath.getPath());
             }
             log.info("Loaded {} SavedPath(s).", RsEnvironment.getRsMap().getPathMap().size());
         }
 
-        ArangoCursor<SavedEdge> allByWebVersion = edgeRepository.findAllByWebVersion(version);
-        Integer count = allByWebVersion.getCount();
-        ExecutorUtil.run(30, executorService -> {
-            while (allByWebVersion.hasNext()){
-                SavedEdge savedEdge = allByWebVersion.next();
-                executorService.execute(() -> {
-                    SavedNode startSavedNode = nodeMap.get(savedEdge.getStartKey());
-                    SavedNode endSavedNode = nodeMap.get(savedEdge.getEndKey());
+        int edgeCount = 0;
+        for (SavedEdge savedEdge : edgeRepository.findAllByWebVersion(version)) {
+            SavedNode startSavedNode = nodeMap.get(savedEdge.getStartKey());
+            SavedNode endSavedNode = nodeMap.get(savedEdge.getEndKey());
 
-                    HPARegion startRegion = graph.getRegionContaining(startSavedNode.getLocation());
-                    HPARegion endRegion = graph.getRegionContaining(endSavedNode.getLocation());
+            HPARegion startRegion = graph.getRegionContaining(startSavedNode.getLocation());
+            HPARegion endRegion = graph.getRegionContaining(endSavedNode.getLocation());
 
-                    HPANode startNode = startRegion.getOrCreateNode(startSavedNode.getLocation(), startSavedNode.getType());
-                    HPANode endNode = endRegion.getOrCreateNode(endSavedNode.getLocation(), endSavedNode.getType());
+            HPANode startNode = startRegion.getOrCreateNode(startSavedNode.getLocation(), startSavedNode.getType());
+            HPANode endNode = endRegion.getOrCreateNode(endSavedNode.getLocation(), endSavedNode.getType());
 
-                    startNode.addConnection(endNode, HPANode.GROUND, savedEdge.getCost()).setPathKey(savedEdge.getPathKey());
-                });
-            }
-        });
-
-        log.info("Loaded {} SavedEdge(s).", count);
+            startNode.addConnection(endNode, HPANode.GROUND, savedEdge.getCost()).setPathKey(savedEdge.getPathKey());
+            edgeCount++;
+        }
+        log.info("Loaded {} SavedEdge(s).", edgeCount);
 
         log.info("Finished loading HPA graph version {} into {}.", version, graph);
 
@@ -157,16 +150,9 @@ public class HpaWebService {
                 SavedEdge savedEdge = createSavedEdge(keySupplier.get(), hpaEdge, startNode, endNode);
                 savedEdge.setWebVersion(version);
 
-                List<Edge> edgePath = RsEnvironment.getRsMap().getPath(hpaEdge);
+                List<Location> edgePath = RsEnvironment.getRsMap().getPath(hpaEdge);
                 if (edgePath != null){
-                    List<LocationPair> path = edgePath.stream().map(subEdge -> {
-                        LocationPair locationPair = new LocationPair();
-                        locationPair.setStart(((Locateable) subEdge.getStart()).getLocation());
-                        locationPair.setEnd(((Locateable) subEdge.getEnd()).getLocation());
-                        return locationPair;
-                    }).collect(Collectors.toList());
-
-                    SavedPath savedPath = createSavedPath(keySupplier.get(), savedEdge, path);
+                    SavedPath savedPath = createSavedPath(keySupplier.get(), savedEdge, edgePath);
                     savedPath.setWebVersion(version);
                     savedEdge.setPathKey(savedPath.getKey());
                     savedPaths.add(savedPath);
@@ -197,7 +183,7 @@ public class HpaWebService {
         log.info("Finished saving of {} as version {} with {} regions, {} edges, {} paths, and {} nodes in {} seconds.", graph, version, savedRegions.size(), savedEdges.size(), savedPaths.size(), nodeMap.size(), (System.currentTimeMillis() - saveStartTime) / 1000);
     }
 
-    private SavedPath createSavedPath(String key, SavedEdge edge, List<LocationPair> path){
+    private SavedPath createSavedPath(String key, SavedEdge edge, List<Location> path){
         SavedPath savedPath = new SavedPath();
         savedPath.setKey(key);
         savedPath.setPath(path);

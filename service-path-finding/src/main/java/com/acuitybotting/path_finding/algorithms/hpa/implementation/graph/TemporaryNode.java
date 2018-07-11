@@ -1,5 +1,6 @@
 package com.acuitybotting.path_finding.algorithms.hpa.implementation.graph;
 
+import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.rs.custom_edges.CustomEdge;
 import com.acuitybotting.path_finding.rs.custom_edges.edges.PlayerTiedEdges;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.abstractions.Player;
@@ -12,6 +13,14 @@ public class TemporaryNode extends HPANode {
 
     public TemporaryNode(HPARegion region, Location location) {
         super(region, location);
+
+        HPANode hpaNode = region.getNodes().get(location);
+        if (hpaNode != null) {
+            for (Edge edge : hpaNode.getEdges()) {
+                HPAEdge hpaEdge = (HPAEdge) edge;
+                addConnection(hpaEdge.getEnd(), hpaEdge.getType(), hpaEdge.getCost());
+            }
+        }
     }
 
     public TemporaryNode addStartEdges(){
@@ -26,5 +35,11 @@ public class TemporaryNode extends HPANode {
                     .setPredicates(new Player() {}, customEdge.getPlayerPredicates());
         }
         return this;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object.getClass().equals(TemporaryNode.class))) return false;
+        return super.equals(object);
     }
 }

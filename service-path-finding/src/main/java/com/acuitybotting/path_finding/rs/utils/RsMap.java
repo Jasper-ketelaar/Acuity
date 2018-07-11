@@ -4,12 +4,14 @@ import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
+import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zachary Herridge on 6/29/2018.
@@ -19,7 +21,8 @@ import java.util.*;
 public class RsMap {
 
     private Map<Integer, RegionMap> regions = new HashMap<>();
-    private Map<String, List<Edge>> pathMap = new HashMap<>();
+
+    private Map<String, List<Location>> pathMap = new HashMap<>();
 
     private Integer lowestX, lowestY, highestX, highestY;
 
@@ -89,16 +92,26 @@ public class RsMap {
     }
 
     public String addPath(List<Edge> path){
-        String id = UUID.randomUUID().toString();
-        pathMap.put(id, path);
-        return id;
+        return addPath(null, path);
+    }
+
+    public String addPath(String key, List<Edge> path){
+        if (key == null) key = UUID.randomUUID().toString();
+
+        List<Location> locationPath = path.stream().map(edge -> {
+            if (edge.getEnd() instanceof Locateable) return ((Locateable) edge.getEnd()).getLocation();
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        pathMap.put(key, locationPath);
+        return key;
     }
 
     public TileNode getNode(Location location) {
         return new TileNode(location);
     }
 
-    public List<Edge> getPath(HPAEdge hpaEdge){
+    public List<Location> getPath(HPAEdge hpaEdge){
         String pathKey = hpaEdge.getPathKey();
         if (pathKey != null) return pathMap.get(pathKey);
         return null;

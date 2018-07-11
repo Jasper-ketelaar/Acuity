@@ -9,7 +9,6 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAReg
 import com.acuitybotting.path_finding.rs.custom_edges.CustomEdge;
 import com.acuitybotting.path_finding.rs.custom_edges.edges.LocationTiedEdges;
 import com.acuitybotting.path_finding.rs.custom_edges.edges.PlayerTiedEdges;
-import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
@@ -19,7 +18,6 @@ import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -139,7 +137,7 @@ public class HPAGraph {
 
     public void findInternalConnections(HPARegion region, HPANode startNode, int limit) {
         List<HPANode> endNodes = region.getNodes().values().stream()
-                .filter(hpaNode -> !hpaNode.equals(startNode))
+                .filter(hpaNode -> !startNode.equals(hpaNode)) //Order of this statement matters do not change it.
                 .sorted(Comparator.comparingDouble(o -> o.getLocation().getTraversalCost(startNode.getLocation())))
                 .collect(Collectors.toList());
 
