@@ -19,11 +19,13 @@ public class HPAEdge implements Edge {
     @Expose
     private HPANode start, end;
 
+    @Expose
     private double cost;
 
     @Expose
     private int type;
 
+    @Expose
     private String pathKey;
 
     private Collection<PlayerPredicate> playerPredicates;
