@@ -1,6 +1,5 @@
 package com.acuitybotting.path_finding.web_processing;
 
-import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedEdge;
 import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedNode;
 import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedPath;
@@ -15,13 +14,8 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
-import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
-import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
-import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
-import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
-import com.arangodb.ArangoCursor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +23,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Created by Zachary Herridge on 6/21/2018.
@@ -98,7 +91,7 @@ public class HpaWebService {
             HPANode startNode = startRegion.getOrCreateNode(startSavedNode.getLocation(), startSavedNode.getType());
             HPANode endNode = endRegion.getOrCreateNode(endSavedNode.getLocation(), endSavedNode.getType());
 
-            startNode.addConnection(endNode, HPANode.GROUND, savedEdge.getCost()).setPathKey(savedEdge.getPathKey());
+            startNode.addHpaEdge(endNode, HPANode.GROUND, savedEdge.getCost()).setPathKey(savedEdge.getPathKey());
             edgeCount++;
         }
         log.info("Loaded {} SavedEdge(s).", edgeCount);
@@ -136,7 +129,7 @@ public class HpaWebService {
         }
 
         for (Map.Entry<HPANode, SavedNode> entry : nodeMap.entrySet()) {
-            for (Edge edge : entry.getKey().getEdges()) {
+            for (Edge edge : entry.getKey().getHpaEdges()) {
                 HPAEdge hpaEdge = (HPAEdge) edge;
 
                 if (hpaEdge.getType() == HPANode.CUSTOM) continue;

@@ -5,7 +5,7 @@ import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
-import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.TemporaryNode;
+import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.TerminatingNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import lombok.Getter;
@@ -34,19 +34,26 @@ public class HpaPathFindingService {
             if (internalPath != null) return internalPath;
         }
 
-        TemporaryNode endNode = new TemporaryNode(endRegion, endLocation);
-        graph.findInternalConnections(endRegion, endNode, 8);
+        TerminatingNode endNode = new TerminatingNode(endRegion, endLocation);
+        endNode.connectToGraph();
 
-        TemporaryNode startNode = new TemporaryNode(startRegion, startLocation).addStartEdges();
+
+        TerminatingNode startNode = new TerminatingNode(startRegion, startLocation).addStartEdges();
         //todo startNode.addStartEdges();
-        graph.findInternalConnections(startRegion, startNode, 8);
+        startNode.connectToGraph();
 
-        AStarImplementation aStarImplementation = new AStarImplementation()
-                .setEdgePredicate(edge -> {
-                    Node end = edge.getEnd();
-                    return !(edge instanceof TemporaryNode) || end.equals(endNode);
-                });
+        try {
+            AStarImplementation aStarImplementation = new AStarImplementation()
+                    .setEdgePredicate(edge -> {
+                        Node end = edge.getEnd();
+                        return !(edge instanceof TerminatingNode) || end.equals(endNode);
+                    });
 
-        return aStarImplementation.findPath(new LocateableHeuristic(), startNode, endNode).orElse(null);
+            return aStarImplementation.findPath(new LocateableHeuristic(), startNode, endNode).orElse(null);
+        }
+        finally {
+            startNode.disconnectFromGraph();
+            endNode.disconnectFromGraph();
+        }
     }
 }

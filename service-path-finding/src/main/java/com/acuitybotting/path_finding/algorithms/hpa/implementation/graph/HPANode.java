@@ -9,10 +9,9 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Getter
 public class HPANode implements Node, Locateable {
@@ -22,7 +21,8 @@ public class HPANode implements Node, Locateable {
     public static final int CUSTOM = 2;
     public static final int DOOR = 3;
 
-    private List<Edge> edges = new ArrayList<>();
+    private Set<Edge> hpaEdges = new HashSet<>();
+    private Set<Edge> temporaryEdges = new CopyOnWriteArraySet<>();
 
     @Expose
     private Location location;
@@ -37,26 +37,24 @@ public class HPANode implements Node, Locateable {
     }
 
     @Override
-    public List<Edge> getNeighbors(boolean ignoreSelfBlocked) {
-        return edges;
+    public Set<Edge> getNeighbors(boolean ignoreSelfBlocked) {
+        if (temporaryEdges.size() == 0) return hpaEdges;
+
+        Set<Edge> combined = new HashSet<>(hpaEdges);
+        combined.addAll(temporaryEdges);
+
+        return combined;
     }
 
-    public void unlink() {
-        for (Edge edge : edges) {
-            ((HPANode) edge.getEnd()).getEdges().removeIf(edge1 -> edge1.getEnd().equals(this));
-        }
-        edges.clear();
+    public HPAEdge addHpaEdge(HPANode other, int edgeType){
+        return addHpaEdge(other, edgeType, 1);
     }
 
-    public HPAEdge addConnection(HPANode other, int edgeType){
-        return addConnection(other, edgeType, 1);
-    }
-
-    public HPAEdge addConnection(HPANode other, int edgeType, double cost){
+    public HPAEdge addHpaEdge(HPANode other, int edgeType, double cost){
         HPAEdge hpaEdge = new HPAEdge(this, other);
         hpaEdge.setCost(cost);
         hpaEdge.setType(edgeType);
-        edges.add(hpaEdge);
+        hpaEdges.add(hpaEdge);
         return hpaEdge;
     }
 

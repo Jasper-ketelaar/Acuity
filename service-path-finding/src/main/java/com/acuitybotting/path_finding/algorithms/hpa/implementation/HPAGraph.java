@@ -15,6 +15,8 @@ import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -77,8 +79,8 @@ public class HPAGraph {
                         HPANode internalNode = internalHPARegion.getOrCreateNode(externalConnection.getStart());
                         HPANode externalNode = externalHPARegion.getOrCreateNode(externalConnection.getEnd());
 
-                        internalNode.addConnection(externalNode, HPANode.GROUND);
-                        externalNode.addConnection(internalNode, HPANode.GROUND);
+                        internalNode.addHpaEdge(externalNode, HPANode.GROUND);
+                        externalNode.addHpaEdge(internalNode, HPANode.GROUND);
 
                         externalConnectionsCount++;
                     }
@@ -91,7 +93,7 @@ public class HPAGraph {
             for (HPARegion region : regions.values()) {
                 executor.execute(() -> {
                     for (HPANode startNode : region.getNodes().values()) {
-                        findInternalConnections(region, startNode);
+                        addInternalConnections(region, startNode);
                     }
                 });
             }
@@ -104,38 +106,30 @@ public class HPAGraph {
     }
 
     public HPAGraph addCustomNodes(){
-        for (CustomEdge customEdge : PlayerTiedEdges.getEdges()) {
-            HPARegion endRegion = getRegionContaining(customEdge.getEnd());
-            if (endRegion == null) continue;
-            findInternalConnections(endRegion, endRegion.getOrCreateNode(customEdge.getEnd(), HPANode.CUSTOM));
-            customNodesAddedCount++;
-        }
-
-        for (CustomEdge customEdge : LocationTiedEdges.getEdges()) {
-            HPARegion startRegion = getRegionContaining(customEdge.getStart());
-            HPARegion endRegion = getRegionContaining(customEdge.getEnd());
-            if (startRegion == null || endRegion == null) continue;
-            HPANode startNode = startRegion.getOrCreateNode(customEdge.getStart(), HPANode.CUSTOM);
-            HPANode endNode = endRegion.getOrCreateNode(customEdge.getEnd(), HPANode.CUSTOM);
-
-            findInternalConnections(startRegion, startNode);
-            findInternalConnections(endRegion, endNode);
-
-            startNode.addConnection(endNode, HPANode.CUSTOM);
-
-            customNodesAddedCount += 2;
-        }
-
-        log.info("Added {} custom nodes.", customNodesAddedCount);
-
+        //TODO
         return this;
     }
 
-    public void findInternalConnections(HPARegion region, HPANode startNode) {
-        findInternalConnections(region, startNode, internalNodeConnectionLimit);
+    private void addInternalConnections(HPARegion region, HPANode startNode) {
+        for (InternalConnection internalConnection : findInternalConnections(region, startNode, internalNodeConnectionLimit)) {
+            String pathKey = RsEnvironment.getRsMap().addPath(internalConnection.getPath());
+            internalConnection.getStart().addHpaEdge(internalConnection.getEnd(), HPANode.GROUND, internalConnection.getPath().size()).setPathKey(pathKey);
+        }
     }
 
-    public void findInternalConnections(HPARegion region, HPANode startNode, int limit) {
+
+    @Getter
+    @Setter
+    public static class InternalConnection {
+
+        private HPANode start, end;
+        private List<Edge> path;
+
+    }
+
+    public Set<InternalConnection> findInternalConnections(HPARegion region, HPANode startNode, int limit) {
+        Set<InternalConnection> internalConnections = new HashSet<>();
+
         List<HPANode> endNodes = region.getNodes().values().stream()
                 .filter(hpaNode -> !startNode.equals(hpaNode)) //Order of this statement matters do not change it.
                 .sorted(Comparator.comparingDouble(o -> o.getLocation().getTraversalCost(startNode.getLocation())))
@@ -145,7 +139,7 @@ public class HPAGraph {
         for (HPANode endNode : endNodes) {
             if (limit != 0 && found >= limit) break;
 
-            if (startNode.getEdges().stream().anyMatch(edge -> edge.getEnd().equals(endNode))) {
+            if (startNode.getHpaEdges().stream().anyMatch(edge -> edge.getEnd().equals(endNode))) {
                 found++;
                 continue;
             }
@@ -162,11 +156,16 @@ public class HPAGraph {
             if (path != null) {
                 found++;
                 internalConnectionCount++;
-                String pathKey = RsEnvironment.getRsMap().addPath(path);
-                startNode.addConnection(endNode, HPANode.GROUND, path.size()).setPathKey(pathKey);
-                endNode.addConnection(startNode, HPANode.GROUND, path.size()).setPathKey(pathKey);
+
+                InternalConnection internalConnection = new InternalConnection();
+                internalConnection.setPath(path);
+                internalConnection.setStart(startNode);
+                internalConnection.setEnd(endNode);
+                internalConnections.add(internalConnection);
             }
         }
+
+        return internalConnections;
     }
 
     public List<Edge> findInternalPath(Location start, Location end, HPARegion limit, boolean ignoreStartBlocked){
@@ -191,7 +190,7 @@ public class HPAGraph {
 
                         HPANode start = region.getOrCreateNode(location, HPANode.STAIR);
                         HPANode end = region.getOrCreateNode(location.clone(0, 0, 1), HPANode.STAIR);
-                        start.addConnection(end, HPANode.STAIR);
+                        start.addHpaEdge(end, HPANode.STAIR);
                         stairNodeConnectionsAddedCount++;
                     }
 
@@ -199,7 +198,7 @@ public class HPAGraph {
                         if (plane - 1 < 0) continue;
                         HPANode start = region.getOrCreateNode(location, HPANode.STAIR);
                         HPANode end = region.getOrCreateNode(location.clone(0, 0, -1), HPANode.STAIR);
-                        start.addConnection(end, HPANode.STAIR);
+                        start.addHpaEdge(end, HPANode.STAIR);
                         stairNodeConnectionsAddedCount++;
                     }
                 }

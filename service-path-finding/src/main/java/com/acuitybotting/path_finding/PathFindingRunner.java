@@ -175,8 +175,8 @@ public class PathFindingRunner implements CommandLineRunner {
                                     for (Edge edge : path) {
                                         if (edge instanceof HPAEdge){
                                             String pathKey = ((HPAEdge) edge).getPathKey();
-                                            List<Location> subPath = RsEnvironment.getRsMap().getPathMap().get(pathKey);
-                                            if (subPath != null){
+                                            List<Location> subPath = ((HPAEdge) edge).getPath();
+                                            if (pathKey != null && subPath != null){
                                                 pathResult.getSubPaths().put(pathKey, subPath);
                                             }
                                         }
@@ -184,7 +184,7 @@ public class PathFindingRunner implements CommandLineRunner {
                                 }
 
                             } catch (Exception e) {
-                                log.info("Error during finding path. {}", e.getMessage());
+                                log.error("Error during finding path. {}", e);
                                 pathResult.setError(e.getMessage());
                             }
 
@@ -222,9 +222,9 @@ public class PathFindingRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            consumeJobs();
 
-       /*     loadRsMap();
+            consumeJobs();
+      /*      loadRsMap();
             hpaPlugin.setGraph(loadHpa(1));
             openUi();*/
         } catch (Exception e) {
