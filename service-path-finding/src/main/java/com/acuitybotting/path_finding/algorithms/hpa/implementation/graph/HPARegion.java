@@ -4,6 +4,7 @@ package com.acuitybotting.path_finding.algorithms.hpa.implementation.graph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
+import com.acuitybotting.path_finding.rs.utils.EdgeType;
 import lombok.Getter;
 
 import java.util.*;
@@ -78,7 +79,7 @@ public class HPARegion {
     }
 
     public HPANode getOrCreateNode(Location location){
-        return getOrCreateNode(location, HPANode.GROUND);
+        return getOrCreateNode(location, EdgeType.BASIC);
     }
 
     public HPANode getOrCreateNode(Location location, int type){

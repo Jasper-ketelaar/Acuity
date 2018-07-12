@@ -12,6 +12,7 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.Termin
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.utils.EdgeType;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -49,7 +50,7 @@ public class HpaPlugin extends Plugin {
         if (startNode != null){
             for (Edge edge : startNode.getNeighbors()) {
                 if (edge instanceof HPAEdge){
-                    if (((HPAEdge) edge).getType() == HPANode.CUSTOM){
+                    if (((HPAEdge) edge).getType() == EdgeType.CUSTOM){
                         getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), Color.BLACK);
                     }
                 }

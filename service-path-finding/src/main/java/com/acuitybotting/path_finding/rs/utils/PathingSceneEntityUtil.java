@@ -5,6 +5,7 @@ import com.acuitybotting.path_finding.rs.domain.location.Location;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by Zachary Herridge on 7/12/2018.
@@ -31,12 +32,22 @@ public class PathingSceneEntityUtil {
 
     public static boolean isNegativePlaneChange(String name, String[] actions, Integer objectId) {
         if (!isPlaneChange(name, actions, objectId)) return false;
-        return Arrays.stream(actions).anyMatch(s -> s != null && s.toLowerCase().contains("down"));
+        return getPlaneChangeAction(false, actions).size() > 0;
     }
 
     public static boolean isPositivePlaneChange(String name, String[] actions, Integer objectId) {
         if (!isPlaneChange(name, actions, objectId)) return false;
-        return Arrays.stream(actions).anyMatch(s -> s != null && s.toLowerCase().contains("up"));
+        return getPlaneChangeAction(true, actions).size() > 0;
+    }
+
+    public static Set<String> getPlaneChangeAction(boolean positiveLevelChange, String[] actions){
+        if (positiveLevelChange) return Arrays.stream(actions).filter(s -> s != null && s.toLowerCase().contains("up")).collect(Collectors.toSet());
+        return Arrays.stream(actions).filter(s -> s != null && s.toLowerCase().contains("down")).collect(Collectors.toSet());
+    }
+
+    public static boolean isPlaneChange(boolean positiveLevelChange, String name, String[] actions, Integer objectId) {
+        if (positiveLevelChange) return isPositivePlaneChange(name, actions, objectId);
+        else return isNegativePlaneChange(name, actions, objectId);
     }
 
     public static boolean isDoor(Location position, String name, String[] actions, Integer mapDoorFlag) {

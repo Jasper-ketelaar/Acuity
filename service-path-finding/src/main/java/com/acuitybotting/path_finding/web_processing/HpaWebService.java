@@ -15,6 +15,7 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdg
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.utils.EdgeType;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +92,7 @@ public class HpaWebService {
             HPANode startNode = startRegion.getOrCreateNode(startSavedNode.getLocation(), startSavedNode.getType());
             HPANode endNode = endRegion.getOrCreateNode(endSavedNode.getLocation(), endSavedNode.getType());
 
-            startNode.addHpaEdge(endNode, HPANode.GROUND, savedEdge.getCost()).setPathKey(savedEdge.getPathKey());
+            startNode.addHpaEdge(endNode, EdgeType.BASIC, savedEdge.getCost()).setPathKey(savedEdge.getPathKey());
             edgeCount++;
         }
         log.info("Loaded {} SavedEdge(s).", edgeCount);
@@ -118,7 +119,7 @@ public class HpaWebService {
             savedRegions.add(savedRegion);
 
             for (HPANode hpaNode : hpaRegion.getNodes().values()) {
-                if (hpaNode.getType() == HPANode.CUSTOM) continue;
+                if (hpaNode.getType() == EdgeType.CUSTOM) continue;
 
                 SavedNode savedNode = createSavedNode(keySupplier.get(), savedRegion, hpaNode);
                 savedNode.setWebVersion(version);
@@ -131,9 +132,6 @@ public class HpaWebService {
         for (Map.Entry<HPANode, SavedNode> entry : nodeMap.entrySet()) {
             for (Edge edge : entry.getKey().getHpaEdges()) {
                 HPAEdge hpaEdge = (HPAEdge) edge;
-
-                if (hpaEdge.getType() == HPANode.CUSTOM) continue;
-                if (hpaEdge.getStart().getType() == HPANode.CUSTOM || hpaEdge.getEnd().getType() == HPANode.CUSTOM) continue;
 
                 SavedNode startNode = nodeMap.get(hpaEdge.getStart());
                 SavedNode endNode = nodeMap.get(hpaEdge.getEnd());

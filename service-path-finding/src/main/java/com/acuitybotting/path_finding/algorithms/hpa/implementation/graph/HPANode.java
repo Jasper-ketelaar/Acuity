@@ -6,6 +6,7 @@ import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.utils.EdgeType;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 
@@ -16,11 +17,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @Getter
 public class HPANode implements Node, Locateable {
 
-    public static final int GROUND = 0;
-    public static final int STAIR = 1;
-    public static final int CUSTOM = 2;
-    public static final int DOOR = 3;
-
     private Set<Edge> hpaEdges = new HashSet<>();
     private Set<Edge> temporaryEdges = new CopyOnWriteArraySet<>();
 
@@ -29,7 +25,7 @@ public class HPANode implements Node, Locateable {
     private HPARegion hpaRegion;
 
     @Expose
-    private int type = GROUND;
+    private int type = EdgeType.BASIC;
 
     public HPANode(HPARegion region, Location location) {
         this.location = location;

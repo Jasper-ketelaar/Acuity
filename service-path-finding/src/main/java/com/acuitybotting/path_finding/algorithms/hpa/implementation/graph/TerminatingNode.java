@@ -6,6 +6,7 @@ import com.acuitybotting.path_finding.rs.custom_edges.CustomEdge;
 import com.acuitybotting.path_finding.rs.custom_edges.edges.PlayerTiedEdges;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.abstractions.Player;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.utils.EdgeType;
 
 import java.util.*;
 
@@ -21,23 +22,13 @@ public class TerminatingNode extends HPANode {
     }
 
     public TerminatingNode addStartEdges(){
-        for (CustomEdge customEdge : PlayerTiedEdges.getEdges()) {
-            HPARegion endRegion = getHpaRegion().getHpaGraph().getRegionContaining(customEdge.getEnd());
-            if (endRegion == null) continue;
-            HPANode endNode = endRegion.getNodes().get(customEdge.getEnd());
-            if (endNode == null) continue;
-
-            addHpaEdge(endNode, HPANode.CUSTOM)
-                    .setCost(30)
-                    .setPredicates(new Player() {}, customEdge.getPlayerPredicates());
-        }
         return this;
     }
 
     private void connectTemporarily(HPANode start, HPANode end, List<Edge> path, boolean reverse){
         TerminatingEdge edge = new TerminatingEdge(start, end);
         if (path != null) edge.setPath(path, reverse);
-        edge.setType(HPANode.GROUND);
+        edge.setType(EdgeType.BASIC);
         edge.setCost(path == null ? 1 : path.size());
         start.getTemporaryEdges().add(edge);
         connections.add(edge);

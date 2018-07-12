@@ -12,6 +12,7 @@ import com.acuitybotting.path_finding.rs.custom_edges.edges.PlayerTiedEdges;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
+import com.acuitybotting.path_finding.rs.utils.EdgeType;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
@@ -79,8 +80,8 @@ public class HPAGraph {
                         HPANode internalNode = internalHPARegion.getOrCreateNode(externalConnection.getStart());
                         HPANode externalNode = externalHPARegion.getOrCreateNode(externalConnection.getEnd());
 
-                        internalNode.addHpaEdge(externalNode, HPANode.GROUND);
-                        externalNode.addHpaEdge(internalNode, HPANode.GROUND);
+                        internalNode.addHpaEdge(externalNode, EdgeType.BASIC);
+                        externalNode.addHpaEdge(internalNode, EdgeType.BASIC);
 
                         externalConnectionsCount++;
                     }
@@ -113,7 +114,7 @@ public class HPAGraph {
     private void addInternalConnections(HPARegion region, HPANode startNode) {
         for (InternalConnection internalConnection : findInternalConnections(region, startNode, internalNodeConnectionLimit)) {
             String pathKey = RsEnvironment.getRsMap().addPath(internalConnection.getPath());
-            internalConnection.getStart().addHpaEdge(internalConnection.getEnd(), HPANode.GROUND, internalConnection.getPath().size()).setPathKey(pathKey);
+            internalConnection.getStart().addHpaEdge(internalConnection.getEnd(), EdgeType.BASIC, internalConnection.getPath().size()).setPathKey(pathKey);
         }
     }
 
@@ -144,7 +145,7 @@ public class HPAGraph {
                 continue;
             }
 
-            boolean ignoreStartBlocked = startNode.getType() == HPANode.STAIR;
+            boolean ignoreStartBlocked = startNode.getType() == EdgeType.PLANE_CHANGE;
 
             List<Edge> path = findInternalPath(
                     startNode.getLocation(),
@@ -188,17 +189,17 @@ public class HPAGraph {
                     if (MapFlags.check(flag, MapFlags.PLANE_CHANGE_UP)){
                         if (plane + 1 >= RsRegion.Z) continue;
 
-                        HPANode start = region.getOrCreateNode(location, HPANode.STAIR);
-                        HPANode end = region.getOrCreateNode(location.clone(0, 0, 1), HPANode.STAIR);
-                        start.addHpaEdge(end, HPANode.STAIR);
+                        HPANode start = region.getOrCreateNode(location, EdgeType.PLANE_CHANGE);
+                        HPANode end = region.getOrCreateNode(location.clone(0, 0, 1), EdgeType.PLANE_CHANGE);
+                        start.addHpaEdge(end, EdgeType.PLANE_CHANGE);
                         stairNodeConnectionsAddedCount++;
                     }
 
                     if (MapFlags.check(flag, MapFlags.PLANE_CHANGE_DOWN)){
                         if (plane - 1 < 0) continue;
-                        HPANode start = region.getOrCreateNode(location, HPANode.STAIR);
-                        HPANode end = region.getOrCreateNode(location.clone(0, 0, -1), HPANode.STAIR);
-                        start.addHpaEdge(end, HPANode.STAIR);
+                        HPANode start = region.getOrCreateNode(location, EdgeType.PLANE_CHANGE);
+                        HPANode end = region.getOrCreateNode(location.clone(0, 0, -1), EdgeType.PLANE_CHANGE);
+                        start.addHpaEdge(end, EdgeType.PLANE_CHANGE);
                         stairNodeConnectionsAddedCount++;
                     }
                 }
