@@ -10,6 +10,7 @@ import com.acuitybotting.db.arango.path_finding.repositories.xtea.SceneEntityDef
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
+import com.acuitybotting.path_finding.rs.utils.PathingSceneEntityUtil;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsLocationPosition;
 import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
@@ -222,7 +223,7 @@ public class XteaService {
 
                     SceneEntityDefinition baseDefinition = getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load " + location.getId() + "."));
 
-                    boolean doorFlag = locationType >= 0 && locationType <= 3 && baseDefinition.getMapDoorFlag() != 0;
+                    boolean doorFlag = locationType >= 0 && locationType <= 3 && PathingSceneEntityUtil.isDoor(location.getPosition().toLocation(), baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getMapDoorFlag());
 
                     if (doorFlag){
                         doorActions.addAll(Arrays.asList(baseDefinition.getActions()));
@@ -263,12 +264,12 @@ public class XteaService {
                                     }
                                 }
 
-                                if (!doorFlag && locationType == 1) {
+                                if (locationType == 1) {
                                     //Wall interconnecting ignore
                                     addFlag(location.getPosition(), plane, MapFlags.WALL_TYPE_1);
                                 }
 
-                                if (!doorFlag && locationType == 2) {
+                                if (locationType == 2) {
                                     if (rotation == 3) {
                                         //West wall
                                         addFlag(location.getPosition(), plane, MapFlags.WALL_WEST);
@@ -284,7 +285,7 @@ public class XteaService {
                                     }
                                 }
 
-                                if (!doorFlag && locationType == 3) {
+                                if (locationType == 3) {
                                     if (rotation == 0) {
                                         //Pillar North-West
                                         addFlag(location.getPosition(), plane, MapFlags.PILLAR_NORTH_WEST);
@@ -300,7 +301,7 @@ public class XteaService {
                                     }
                                 }
 
-                                if (!doorFlag && locationType == 9) {
+                                if (locationType == 9) {
                                     int hash = (regionX << 7) + regionY + (location.getId() << 14) + 0x4000_0000;
                                     if ((hash >> 29 & 3) != 2) {
                                         continue; //Idk works
@@ -347,10 +348,9 @@ public class XteaService {
 
                                 boolean override = "Wilderness ditch".equalsIgnoreCase(baseDefinition.getName());
 
-                                boolean planeChange = stairNames.contains(baseDefinition.getName().toLowerCase());
 
-                                boolean up = planeChange && Arrays.stream(baseDefinition.getActions()).anyMatch(s -> s != null && s.contains("-up"));
-                                boolean down = planeChange && Arrays.stream(baseDefinition.getActions()).anyMatch(s -> s != null && s.contains("-down"));
+                                boolean up = PathingSceneEntityUtil.isNegativePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
+                                boolean down = PathingSceneEntityUtil.isPositivePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
 
                                 for (int xOff = 0; xOff < width; xOff++) {
                                     for (int yOff = 0; yOff < length; yOff++) {
@@ -358,7 +358,7 @@ public class XteaService {
 
                                         if (override) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_OVERRIDE);
 
-                                        if (planeChange) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_OVERRIDE_END);
+                                        if (up || down) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_OVERRIDE_END);
                                         if (up) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.PLANE_CHANGE_UP);
                                         if (down) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.PLANE_CHANGE_DOWN);
                                     }

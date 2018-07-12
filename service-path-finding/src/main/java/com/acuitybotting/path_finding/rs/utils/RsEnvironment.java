@@ -16,14 +16,14 @@ import java.util.Map;
 @Slf4j
 public class RsEnvironment {
 
-    public static final File INFO_BASE = new File("C:\\Users\\zgher\\Desktop\\Map Info\\");
+    public static final File INFO_BASE = new File("C:\\Users\\S3108772\\Desktop\\Map Info\\");
 
     public static final int PLANE_PENALTY = 25;
     public static final int CACHE_AREA = 15;
 
     private static RsMap rsMap = new RsMap();
 
-    private static int regionImageBase = 2;
+    private static int regionImageBase = 0;
     private static File[] regionImageBases = new File[]{new File(INFO_BASE, "\\img\\a2_regions\\"), new File(INFO_BASE, "\\img\\regions\\"), new File(INFO_BASE, "\\img\\a_regions\\")};
 
     private static Map<String, BufferedImage> regionImageMap = new HashMap<>();

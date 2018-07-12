@@ -14,6 +14,10 @@ import java.util.stream.Collectors;
 
 public interface SceneEntityDefinitionRepository extends ArangoRepository<SceneEntityDefinition>{
 
+    Set<SceneEntityDefinition> findAllByActionsContaining(String action);
+
+    Set<SceneEntityDefinition> findAllByNameLike(String name);
+
     default int loadFrom(File file) throws IOException {
         deleteAll();
         Gson gson = new Gson();

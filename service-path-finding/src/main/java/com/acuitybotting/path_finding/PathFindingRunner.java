@@ -4,6 +4,7 @@ import com.acuitybotting.data.flow.messaging.services.client.MessageConsumer;
 import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitClient;
 import com.acuitybotting.data.flow.messaging.services.client.listener.MessagingClientAdapter;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
+import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
@@ -14,7 +15,6 @@ import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.Path
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PositionPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.RegionPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapFrame;
-import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -35,10 +35,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 import static com.acuitybotting.data.flow.messaging.services.client.MessagingClient.RESPONSE_QUEUE;
@@ -208,7 +205,7 @@ public class PathFindingRunner implements CommandLineRunner {
 
     private void dump(){
         xteaService.saveRegionMapsFromAfter(171);
-        webImageProcessingService.saveImagesFromRegionMaps(RsEnvironment.getRsMap().getRegions().values(), new File("C:\\Users\\zgher\\Desktop\\Map Info\\img\\a2_regions"));
+        webImageProcessingService.saveImagesFromRegionMaps(RsEnvironment.getRsMap().getRegions().values(), new File(RsEnvironment.INFO_BASE + "\\img\\a2_regions"));
     }
 
     private void openUi() throws Exception {
@@ -216,17 +213,45 @@ public class PathFindingRunner implements CommandLineRunner {
         mapFrame.getMapPanel().addPlugin(new PositionPlugin());
         mapFrame.getMapPanel().addPlugin(hpaPlugin);
         mapFrame.show();
+    }
 
+    private void getFindStairDefs(){
+        String[] actionsSearch = new String[]{"Climb-up", "Climb-Up", "Climb-down", "Climb-Down", "Climb"};
+        String[] namesSearch = new String[]{"Stair", "Stairs", "Ladder", "Staircase"};
+
+        Set<SceneEntityDefinition> results = new HashSet<>();
+        for (String search : actionsSearch) {
+            results.addAll(xteaService.getDefinitionRepository().findAllByActionsContaining(search));
+        }
+        for (String search : namesSearch) {
+            results.addAll(xteaService.getDefinitionRepository().findAllByNameLike(search));
+        }
+
+        Set<String> names = new HashSet<>();
+        Set<String> actions = new HashSet<>();
+
+        for (SceneEntityDefinition result : results) {
+            if (result.getName() == null || result.getActions() == null) continue;
+            names.add(result.getName());
+            for (String action : result.getActions()) {
+                if (action == null) continue;
+                actions.add(action);
+            }
+        }
+
+        System.out.println(names);
+        System.out.println(actions);
     }
 
     @Override
     public void run(String... args) {
         try {
+            //consumeJobs();
 
-            consumeJobs();
-      /*      loadRsMap();
-            hpaPlugin.setGraph(loadHpa(1));
-            openUi();*/
+            dump();
+ /*           buildHpa(1);
+            hpaPlugin.setGraph(loadHpa(1));*/
+            openUi();
         } catch (Exception e) {
             e.printStackTrace();
         }
