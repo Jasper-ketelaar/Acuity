@@ -8,7 +8,7 @@ Acuity is a project that handles the backend infastructure of Runescape botting 
 Basic utility classes used throughout the modules.
 
 ## data-flow-messaging
-Services related to communication. Currently uses AWS Iot connections.
+Services related to communication. Currently uses RabbitMQ connections.
 
 ## db-arango
 Spring configuration for connecting to our ArangoDB instances.
