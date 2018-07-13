@@ -111,6 +111,7 @@ public class PathFindingRunner implements CommandLineRunner {
     }
 
     private HPAGraph loadHpa(int version) {
+        loadRsMap();
         HPAGraph graph = initGraph();
         hpaWebService.loadInto(graph, version, true);
         //todo graph.addCustomNodes();
@@ -246,12 +247,9 @@ public class PathFindingRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            //consumeJobs();
-
-            dump();
- /*           buildHpa(1);
-            hpaPlugin.setGraph(loadHpa(1));*/
-            openUi();
+            consumeJobs();
+            /*hpaPlugin.setGraph(buildHpa(1));
+            openUi();*/
         } catch (Exception e) {
             e.printStackTrace();
         }

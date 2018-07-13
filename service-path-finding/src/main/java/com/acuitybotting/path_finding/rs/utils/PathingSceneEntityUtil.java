@@ -14,6 +14,7 @@ public class PathingSceneEntityUtil {
 
     private static Set<String> planeChangeNames = new HashSet<>();
     private static Set<Location> doorLocationBlacklist = new HashSet<>();
+    private static Set<Location> blockedOverride = new HashSet<>();
 
     static {
         planeChangeNames.add("ladder");
@@ -23,6 +24,8 @@ public class PathingSceneEntityUtil {
 
         blackListDoorLocation(3268, 3227, 0);
         blackListDoorLocation(3268, 3228, 0);
+
+        blockLocation(3258,3179, 0);
     }
 
     private static boolean isPlaneChange(String name, String[] actions, Integer objectId){
@@ -55,7 +58,15 @@ public class PathingSceneEntityUtil {
         return mapDoorFlag != null && mapDoorFlag != 0;
     }
 
+    public static void blockLocation(int x, int y, int z){
+        blockedOverride.add(new Location(x, y, z));
+    }
+
     public static void blackListDoorLocation(int x, int y, int plane){
         doorLocationBlacklist.add(new Location(x, y, plane));
+    }
+
+    public static boolean isBlocked(int x, int y, int z){
+        return blockedOverride.contains(new Location(x, y, z));
     }
 }

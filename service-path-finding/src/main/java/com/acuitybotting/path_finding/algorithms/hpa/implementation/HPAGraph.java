@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Getter
 public class HPAGraph {
 
     private Location lower;
@@ -33,7 +34,7 @@ public class HPAGraph {
 
     private Map<String, HPARegion> regions = new HashMap<>();
 
-    private int internalNodeConnectionLimit = 4;
+    private int internalNodeConnectionLimit = 8;
 
     private int customNodesAddedCount = 0;
     private int externalConnectionsCount = 0;
@@ -145,7 +146,7 @@ public class HPAGraph {
                 continue;
             }
 
-            boolean ignoreStartBlocked = startNode.getType() == EdgeType.PLANE_CHANGE;
+            Boolean ignoreStartBlocked = RsEnvironment.getRsMap().getFlagAt(startNode.getLocation()).map(flag -> MapFlags.check(flag, MapFlags.PLANE_CHANGE_DOWN | MapFlags.PLANE_CHANGE_UP)).orElse(false);
 
             List<Edge> path = findInternalPath(
                     startNode.getLocation(),
@@ -186,12 +187,13 @@ public class HPAGraph {
 
                     Integer flag = RsEnvironment.getRsMap().getFlagAt(location).orElse(null);
                     if (flag == null) continue;
+
                     if (MapFlags.check(flag, MapFlags.PLANE_CHANGE_UP)){
                         if (plane + 1 >= RsRegion.Z) continue;
 
                         HPANode start = region.getOrCreateNode(location, EdgeType.PLANE_CHANGE);
                         HPANode end = region.getOrCreateNode(location.clone(0, 0, 1), EdgeType.PLANE_CHANGE);
-                        start.addHpaEdge(end, EdgeType.PLANE_CHANGE);
+                        start.addHpaEdge(end, EdgeType.PLANE_CHANGE).setType(EdgeType.PLANE_CHANGE);
                         stairNodeConnectionsAddedCount++;
                     }
 
@@ -199,7 +201,7 @@ public class HPAGraph {
                         if (plane - 1 < 0) continue;
                         HPANode start = region.getOrCreateNode(location, EdgeType.PLANE_CHANGE);
                         HPANode end = region.getOrCreateNode(location.clone(0, 0, -1), EdgeType.PLANE_CHANGE);
-                        start.addHpaEdge(end, EdgeType.PLANE_CHANGE);
+                        start.addHpaEdge(end, EdgeType.PLANE_CHANGE).setType(EdgeType.PLANE_CHANGE);
                         stairNodeConnectionsAddedCount++;
                     }
                 }
@@ -227,7 +229,7 @@ public class HPAGraph {
         return true;
     }
 
-    private List<LocationPair> findExternalConnections(HPARegion region, PathFindingSupplier pathFindingSupplier) {
+    public List<LocationPair> findExternalConnections(HPARegion region, PathFindingSupplier pathFindingSupplier) {
         List<LocationPair> connections = new ArrayList<>();
         connections.addAll(filterEdgeConnections(region.getEdgeConnections(0), pathFindingSupplier));
         connections.addAll(filterEdgeConnections(region.getEdgeConnections(1), pathFindingSupplier));
@@ -238,16 +240,26 @@ public class HPAGraph {
 
     private List<LocationPair> filterEdgeConnections(List<LocationPair> connections, PathFindingSupplier pathFindingSupplier) {
         List<LocationPair> goodConnections = new ArrayList<>();
-        boolean lastPairConnected = false;
+        boolean lastConnectsOut = false;
+        LocationPair lastPair = null;
         for (LocationPair connection : connections) {
             if (getRegionContaining(connection.getEnd()) == null) {
                 continue;
             }
 
-            boolean directlyConnected = pathFindingSupplier.isDirectlyConnected(connection.getStart(), connection.getEnd());
+            boolean connectsOut = pathFindingSupplier.isDirectlyConnected(connection.getStart(), connection.getEnd());
+            boolean connectsLast = lastPair != null && pathFindingSupplier.isDirectlyConnected(connection.getStart(), lastPair.getStart());
+            lastPair = connection;
 
-            if (!lastPairConnected && directlyConnected) goodConnections.add(connection);
-            lastPairConnected = directlyConnected;
+            if (connectsOut){
+                if (!connectsLast || !lastConnectsOut){
+                    goodConnections.add(connection);
+                    lastConnectsOut = true;
+                    continue;
+                }
+            }
+
+            lastConnectsOut = connectsOut;
         }
         return goodConnections;
     }

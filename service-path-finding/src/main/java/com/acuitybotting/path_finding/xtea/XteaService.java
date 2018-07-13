@@ -177,8 +177,10 @@ public class XteaService {
                 for (int regionY = 0; regionY < RsRegion.Y; regionY++) {
                     int setting = rsRegion.getTileSettings()[plane][regionX][regionY];
 
+
+
                     boolean bridge = plane + 1 < 4 && (rsRegion.getTileSettings()[plane + 1][regionX][regionY] == 2);
-                    if (!bridge && setting == 1) {
+                    if (!bridge && setting == 1  || PathingSceneEntityUtil.isBlocked(regionMap.getBaseX() + regionX, regionMap.getBaseY() + regionY, plane)) {
                         //blocked
                         regionMap.addFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING);
                     } else {
@@ -349,8 +351,8 @@ public class XteaService {
                                 boolean override = "Wilderness ditch".equalsIgnoreCase(baseDefinition.getName());
 
 
-                                boolean up = PathingSceneEntityUtil.isNegativePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
-                                boolean down = PathingSceneEntityUtil.isPositivePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
+                                boolean up = PathingSceneEntityUtil.isPositivePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
+                                boolean down = PathingSceneEntityUtil.isNegativePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
 
                                 for (int xOff = 0; xOff < width; xOff++) {
                                     for (int yOff = 0; yOff < length; yOff++) {
@@ -358,7 +360,10 @@ public class XteaService {
 
                                         if (override) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_OVERRIDE);
 
-                                        if (up || down) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_OVERRIDE_END);
+                                        if (up || down) {
+                                            addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_OVERRIDE_END);
+                                            addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.OPEN_OVERRIDE_START);
+                                        }
                                         if (up) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.PLANE_CHANGE_UP);
                                         if (down) addFlag(location.getPosition().toLocation().clone(xOff, yOff), plane, MapFlags.PLANE_CHANGE_DOWN);
                                     }

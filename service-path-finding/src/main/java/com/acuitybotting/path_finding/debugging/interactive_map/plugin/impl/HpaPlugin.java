@@ -12,6 +12,7 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.Termin
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.Plugin;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
+import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
 import com.acuitybotting.path_finding.rs.utils.EdgeType;
 
 import java.awt.*;
@@ -57,9 +58,13 @@ public class HpaPlugin extends Plugin {
             }
         }
 
+
         for (HPARegion HPARegion : graph.getRegions().values()) {
             for (HPANode hpaNode : HPARegion.getNodes().values()) {
                 getPaintUtil().markLocation(graphics, hpaNode.getLocation(), nodeColorings[hpaNode.getType()]);
+            }
+
+            for (HPANode hpaNode : HPARegion.getNodes().values()) {
                 for (Edge edge : hpaNode.getNeighbors()) {
                     if (edge instanceof HPAEdge) {
                         getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), Color.BLUE);
@@ -69,11 +74,40 @@ public class HpaPlugin extends Plugin {
         }
 
         if (aStarImplementation != null && aStarImplementation.isDebugMode()) {
-            Map<Node, Double> costCache = aStarImplementation.getCostCache();
+            Set<Node> costCache = aStarImplementation.getEvaluated();
             if (costCache != null) {
-                for (Node node : costCache.keySet()) {
+                for (Node node : costCache) {
                     getPaintUtil().markLocation(graphics, node, Color.ORANGE);
                 }
+            }
+        }
+
+
+        Location click = getMapPanel().getMouseLocation();
+        HPARegion clickRegion = graph.getRegionContaining(click);
+        if (clickRegion != null){
+            Location l1 = clickRegion.getRoot();
+            Location l2 = clickRegion.getRoot().clone(clickRegion.getWidth() - 1, 0);
+            Location l3 = clickRegion.getRoot().clone(clickRegion.getWidth() - 1 , clickRegion.getHeight() - 1);
+            Location l4 = clickRegion.getRoot().clone(0, clickRegion.getHeight() -  1);
+
+            getPaintUtil().connectLocations(graphics, l1, l2, Color.MAGENTA);
+            getPaintUtil().connectLocations(graphics, l2, l3, Color.MAGENTA);
+            getPaintUtil().connectLocations(graphics, l3, l4, Color.MAGENTA);
+            getPaintUtil().connectLocations(graphics, l4, l1, Color.MAGENTA);
+
+
+            List<LocationPair> externalConnections = graph.findExternalConnections(clickRegion, graph.getPathFindingSupplier());
+            for (LocationPair externalConnection : externalConnections) {
+                getPaintUtil().connectLocations(graphics, externalConnection.getStart(), externalConnection.getEnd(), Color.BLUE);
+            }
+
+        }
+
+        HPANode hpaNode = clickRegion.getNodes().get(click);
+        if (hpaNode != null){
+            for (Edge edge : hpaNode.getNeighbors()) {
+                getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), Color.MAGENTA);
             }
         }
 
@@ -82,7 +116,6 @@ public class HpaPlugin extends Plugin {
                 getPaintUtil().connectLocations(graphics, edge.getStart(), edge.getEnd(), Color.MAGENTA);
             }
         }
-
         if (startNode != null) getPaintUtil().markLocation(graphics, startNode, Color.RED);
         if (endNode != null) getPaintUtil().markLocation(graphics, endNode, Color.GREEN);
     }
@@ -90,6 +123,20 @@ public class HpaPlugin extends Plugin {
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.isControlDown()) {
+
+
+            if (e.isAltDown()){
+                Location click = getMapPanel().getMouseLocation();
+                HPARegion clickRegion = graph.getRegionContaining(click);
+                HPANode hpaNode = clickRegion.getNodes().get(click);
+                if (hpaNode != null) {
+                    Set<HPAGraph.InternalConnection> internalConnections = graph.findInternalConnections(clickRegion, hpaNode, 90);
+                    System.out.println(hpaNode.getNeighbors());
+                }
+                return;
+            }
+
+
             if (e.isShiftDown()) {
                 end = getMapPanel().getMouseLocation();
                 endRegion = graph.getRegionContaining(end);

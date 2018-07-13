@@ -77,4 +77,40 @@ public class HPAEdge implements Edge {
     public List<Location> getPath() {
         return RsEnvironment.getRsMap().getPath(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof HPAEdge)) return false;
+
+        HPAEdge hpaEdge = (HPAEdge) o;
+
+        if (Double.compare(hpaEdge.getCost(), getCost()) != 0) return false;
+        if (getType() != hpaEdge.getType()) return false;
+        if (getStart() != null ? !getStart().equals(hpaEdge.getStart()) : hpaEdge.getStart() != null) return false;
+        if (getEnd() != null ? !getEnd().equals(hpaEdge.getEnd()) : hpaEdge.getEnd() != null) return false;
+        return getPathKey() != null ? getPathKey().equals(hpaEdge.getPathKey()) : hpaEdge.getPathKey() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = getStart() != null ? getStart().hashCode() : 0;
+        result = 31 * result + (getEnd() != null ? getEnd().hashCode() : 0);
+        temp = Double.doubleToLongBits(getCost());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + getType();
+        result = 31 * result + (getPathKey() != null ? getPathKey().hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "HPAEdge{" +
+                "start=" + start +
+                ", end=" + end +
+                ", type=" + type +
+                '}';
+    }
 }

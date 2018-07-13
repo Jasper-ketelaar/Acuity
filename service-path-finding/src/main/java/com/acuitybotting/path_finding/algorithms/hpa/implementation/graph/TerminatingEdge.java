@@ -26,7 +26,6 @@ public class TerminatingEdge extends HPAEdge{
             return null;
         }).filter(Objects::nonNull).collect(Collectors.toList());
         if (reverse) Collections.reverse(path);
-        System.out.println();
     }
 
     @Override

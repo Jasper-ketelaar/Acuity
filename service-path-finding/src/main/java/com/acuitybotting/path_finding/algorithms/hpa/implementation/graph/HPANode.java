@@ -54,22 +54,35 @@ public class HPANode implements Node, Locateable {
         return hpaEdge;
     }
 
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof HPANode)) return false;
-        HPANode hpaNode = (HPANode) object;
-        return Objects.equals(getLocation(), hpaNode.getLocation()) &&
-                Objects.equals(this.getHpaRegion(), this.getHpaRegion());
-    }
-
     public HPANode setType(int type) {
         this.type = type;
         return this;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof HPANode)) return false;
+
+        HPANode hpaNode = (HPANode) o;
+
+        if (getType() != hpaNode.getType()) return false;
+        if (getLocation() != null ? !getLocation().equals(hpaNode.getLocation()) : hpaNode.getLocation() != null)
+            return false;
+        return getHpaRegion() != null ? getHpaRegion().equals(hpaNode.getHpaRegion()) : hpaNode.getHpaRegion() == null;
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(getLocation(), this.getHpaRegion());
+        int result = getLocation() != null ? getLocation().hashCode() : 0;
+        result = 31 * result + (getHpaRegion() != null ? getHpaRegion().hashCode() : 0);
+        result = 31 * result + getType();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return location.toString();
     }
 }
