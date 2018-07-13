@@ -44,8 +44,10 @@ public class HPARegion {
                 location.getY() >= root.getY() && location.getY() < root.clone(0, height).getY();
     }
 
-    public List<LocationPair> getEdgeConnections(int direction) {
+    public List<LocationPair> getEdgeConnections(int direction, int plane) {
         List<LocationPair> locations = new ArrayList<>();
+        Location root = getRoot().clone();
+        root.setPlane(plane);
         if (direction == 0) {
             for (int i = 0; i < width; i++) {
                 locations.add(new LocationPair(

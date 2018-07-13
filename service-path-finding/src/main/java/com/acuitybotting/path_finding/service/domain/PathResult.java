@@ -19,7 +19,7 @@ public class PathResult {
     private String error;
 
     @Expose
-    private List<Edge> path;
+    private List<? extends Edge> path;
 
     @Expose
     private Map<String, List<Location>> subPaths;

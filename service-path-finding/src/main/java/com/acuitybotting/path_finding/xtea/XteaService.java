@@ -10,7 +10,7 @@ import com.acuitybotting.db.arango.path_finding.repositories.xtea.SceneEntityDef
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
-import com.acuitybotting.path_finding.rs.utils.PathingSceneEntityUtil;
+import com.acuitybotting.path_finding.rs.utils.HpaGenerationData;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsLocationPosition;
 import com.acuitybotting.path_finding.xtea.domain.rs.cache.RsRegion;
@@ -180,7 +180,7 @@ public class XteaService {
 
 
                     boolean bridge = plane + 1 < 4 && (rsRegion.getTileSettings()[plane + 1][regionX][regionY] == 2);
-                    if (!bridge && setting == 1  || PathingSceneEntityUtil.isBlocked(regionMap.getBaseX() + regionX, regionMap.getBaseY() + regionY, plane)) {
+                    if (!bridge && setting == 1  || HpaGenerationData.isBlocked(regionMap.getBaseX() + regionX, regionMap.getBaseY() + regionY, plane)) {
                         //blocked
                         regionMap.addFlag(regionX, regionY, plane, MapFlags.BLOCKED_SETTING);
                     } else {
@@ -225,7 +225,7 @@ public class XteaService {
 
                     SceneEntityDefinition baseDefinition = getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load " + location.getId() + "."));
 
-                    boolean doorFlag = locationType >= 0 && locationType <= 3 && PathingSceneEntityUtil.isDoor(location.getPosition().toLocation(), baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getMapDoorFlag());
+                    boolean doorFlag = locationType >= 0 && locationType <= 3 && HpaGenerationData.isDoor(location.getPosition().toLocation(), baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getMapDoorFlag());
 
                     if (doorFlag){
                         doorActions.addAll(Arrays.asList(baseDefinition.getActions()));
@@ -348,11 +348,10 @@ public class XteaService {
                                     length = baseDefinition.getSizeX();
                                 }
 
-                                boolean override = "Wilderness ditch".equalsIgnoreCase(baseDefinition.getName());
+                                boolean override = false;
 
-
-                                boolean up = PathingSceneEntityUtil.isPositivePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
-                                boolean down = PathingSceneEntityUtil.isNegativePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
+                                boolean up = HpaGenerationData.isPositivePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
+                                boolean down = HpaGenerationData.isNegativePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
 
                                 for (int xOff = 0; xOff < width; xOff++) {
                                     for (int yOff = 0; yOff < length; yOff++) {

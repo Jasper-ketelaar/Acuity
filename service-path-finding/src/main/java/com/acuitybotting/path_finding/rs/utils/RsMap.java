@@ -1,8 +1,8 @@
 package com.acuitybotting.path_finding.rs.utils;
 
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
-import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
+import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -91,17 +91,14 @@ public class RsMap {
         return Optional.of(regionMap.getFlags()[location.getPlane()][localX][localY]);
     }
 
-    public String addPath(List<Edge> path){
-        return addPath(null, path);
+    public String addPath(List<TileEdge> path, boolean reverse){
+        return addPath(null, path, reverse);
     }
 
-    public String addPath(String key, List<Edge> path){
+    public String addPath(String key, List<TileEdge> path, boolean reverse){
         if (key == null) key = UUID.randomUUID().toString();
 
-        List<Location> locationPath = path.stream().map(edge -> {
-            if (edge.getEnd() instanceof Locateable) return ((Locateable) edge.getEnd()).getLocation();
-            return null;
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        List<Location> locationPath = convertPath(path, reverse);
 
         pathMap.put(key, locationPath);
         return key;
@@ -137,5 +134,16 @@ public class RsMap {
         }
 
         log.info("Calculated RsMap bound {}, {} to {}, {}.", lowestX, lowestY, highestX, highestY);
+    }
+
+    public static List<Location> convertPath(List<TileEdge> path, boolean reverse){
+        List<Location> localPath = path.stream().map(edge -> {
+            if (edge.getEnd() instanceof Locateable) return ((Locateable) edge.getEnd()).getLocation();
+            return null;
+        }).filter(Objects::nonNull).collect(Collectors.toList());
+
+        if (reverse) Collections.reverse(localPath);
+
+        return localPath;
     }
 }

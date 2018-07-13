@@ -77,7 +77,7 @@ public class PathFindingRunner implements CommandLineRunner {
     private PathFindingSupplier getPathFindingSupplier() {
         return new PathFindingSupplier() {
             @Override
-            public Optional<List<Edge>> findPath(Location start, Location end, Predicate<Edge> predicate, boolean ignoreStartBlocked) {
+            public Optional<List<? extends Edge>> findPath(Location start, Location end, Predicate<Edge> predicate, boolean ignoreStartBlocked) {
                 return aStarService.findPath(
                         new LocateableHeuristic(),
                         RsEnvironment.getRsMap().getNode(start),
@@ -164,7 +164,7 @@ public class PathFindingRunner implements CommandLineRunner {
 
                             try {
                                 log.info("Finding path. {}", pathRequest);
-                                List<Edge> path = hpaPathFindingService.findPath(pathRequest.getStart(), pathRequest.getEnd());
+                                List<? extends Edge> path = hpaPathFindingService.findPath(pathRequest.getStart(), pathRequest.getEnd());
                                 log.info("Found path. {}", path);
                                 pathResult.setPath(path);
                                 pathResult.setSubPaths(new HashMap<>());
@@ -216,7 +216,7 @@ public class PathFindingRunner implements CommandLineRunner {
         mapFrame.show();
     }
 
-    private void getFindStairDefs(){
+    private void findStairDefs(){
         String[] actionsSearch = new String[]{"Climb-up", "Climb-Up", "Climb-down", "Climb-Down", "Climb"};
         String[] namesSearch = new String[]{"Stair", "Stairs", "Ladder", "Staircase"};
 
@@ -244,12 +244,43 @@ public class PathFindingRunner implements CommandLineRunner {
         System.out.println(actions);
     }
 
+    private void findDoorDefs(){
+        String[] actionsSearch = new String[]{"Open"};
+        String[] namesSearch = new String[]{"Door", "Gate"};
+
+        Set<SceneEntityDefinition> results = new HashSet<>();
+        for (String search : actionsSearch) {
+            results.addAll(xteaService.getDefinitionRepository().findAllByActionsContaining(search));
+        }
+        for (String search : namesSearch) {
+            results.addAll(xteaService.getDefinitionRepository().findAllByNameLike(search));
+        }
+
+        Set<String> names = new HashSet<>();
+        Set<String> actions = new HashSet<>();
+
+        for (SceneEntityDefinition result : results) {
+            if (result.getName() == null || result.getActions() == null) continue;
+            names.add(result.getName());
+            for (String action : result.getActions()) {
+                if (action == null) continue;
+                actions.add(action);
+            }
+        }
+
+        System.out.println(names);
+        System.out.println(actions);
+    }
+
+
+
+
     @Override
     public void run(String... args) {
         try {
-            consumeJobs();
-            /*hpaPlugin.setGraph(buildHpa(1));
-            openUi();*/
+            dump();
+            hpaPlugin.setGraph(buildHpa(1));
+            openUi();
         } catch (Exception e) {
             e.printStackTrace();
         }

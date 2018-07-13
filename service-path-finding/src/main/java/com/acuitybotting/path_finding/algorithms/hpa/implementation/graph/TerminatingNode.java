@@ -1,10 +1,7 @@
 package com.acuitybotting.path_finding.algorithms.hpa.implementation.graph;
 
-import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
-import com.acuitybotting.path_finding.rs.custom_edges.CustomEdge;
-import com.acuitybotting.path_finding.rs.custom_edges.edges.PlayerTiedEdges;
-import com.acuitybotting.path_finding.rs.custom_edges.requirements.abstractions.Player;
+import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.EdgeType;
 
@@ -25,7 +22,7 @@ public class TerminatingNode extends HPANode {
         return this;
     }
 
-    private void connectTemporarily(HPANode start, HPANode end, List<Edge> path, boolean reverse){
+    private void connectTemporarily(HPANode start, HPANode end, List<TileEdge> path, boolean reverse){
         TerminatingEdge edge = new TerminatingEdge(start, end);
         if (path != null) edge.setPath(path, reverse);
         edge.setType(EdgeType.BASIC);
@@ -50,10 +47,9 @@ public class TerminatingNode extends HPANode {
             connectTemporarily(hpaNode, this, null, true);
         }
         else {
-            for (HPAGraph.InternalConnection internalConnection : graph.findInternalConnections(getHpaRegion(), this, 8)) {
+            for (HPAGraph.InternalConnection internalConnection : graph.findInternalConnections(getHpaRegion(), this, -1)) {
                 HPANode end = internalConnection.getEnd();
                 connectTemporarily(this, end, internalConnection.getPath(), false);
-
                 connectTemporarily(end, this, internalConnection.getPath(), true);
             }
         }

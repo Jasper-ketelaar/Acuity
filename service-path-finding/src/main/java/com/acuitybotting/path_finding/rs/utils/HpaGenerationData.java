@@ -10,21 +10,36 @@ import java.util.stream.Collectors;
 /**
  * Created by Zachary Herridge on 7/12/2018.
  */
-public class PathingSceneEntityUtil {
+public class HpaGenerationData {
 
     private static Set<String> planeChangeNames = new HashSet<>();
+
+    private static Set<String> doorNames = new HashSet<>();
+    private static Set<String> doorActions = new HashSet<>();
+
     private static Set<Location> doorLocationBlacklist = new HashSet<>();
     private static Set<Location> blockedOverride = new HashSet<>();
 
+
     static {
+        //Plane change names.
         planeChangeNames.add("ladder");
         planeChangeNames.add("stairs");
         planeChangeNames.add("staircase");
         planeChangeNames.add("stairwell");
 
+        //Door names.
+        doorNames.add("door");
+        doorNames.add("gate");
+
+        //Door actions
+        doorActions.add("open");
+
+        //Black listed door locations.
         blackListDoorLocation(3268, 3227, 0);
         blackListDoorLocation(3268, 3228, 0);
 
+        //Manually blocked locations.
         blockLocation(3258,3179, 0);
     }
 
@@ -55,18 +70,40 @@ public class PathingSceneEntityUtil {
 
     public static boolean isDoor(Location position, String name, String[] actions, Integer mapDoorFlag) {
         if (position != null && doorLocationBlacklist.contains(position)) return false;
+        if (actions == null || Arrays.stream(actions).noneMatch(s -> doorActions.contains(s.toLowerCase()))) return false;
+        if (name == null || !doorNames.contains(name.toLowerCase())) return false;
         return mapDoorFlag != null && mapDoorFlag != 0;
     }
 
-    public static void blockLocation(int x, int y, int z){
-        blockedOverride.add(new Location(x, y, z));
+    public static void blockLocation(int x, int y, int plane){
+        blockedOverride.add(new Location(x, y, plane));
     }
 
     public static void blackListDoorLocation(int x, int y, int plane){
         doorLocationBlacklist.add(new Location(x, y, plane));
     }
 
-    public static boolean isBlocked(int x, int y, int z){
-        return blockedOverride.contains(new Location(x, y, z));
+    public static boolean isBlocked(int x, int y, int plane){
+        return blockedOverride.contains(new Location(x, y, plane));
+    }
+
+    public static Set<String> getPlaneChangeNames() {
+        return planeChangeNames;
+    }
+
+    public static Set<String> getDoorNames() {
+        return doorNames;
+    }
+
+    public static Set<String> getDoorActions() {
+        return doorActions;
+    }
+
+    public static Set<Location> getDoorLocationBlacklist() {
+        return doorLocationBlacklist;
+    }
+
+    public static Set<Location> getBlockedOverride() {
+        return blockedOverride;
     }
 }

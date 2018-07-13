@@ -26,7 +26,7 @@ public class PathPlugin extends Plugin {
     private final AStarService aStarService;
 
     private Location l1, l2;
-    private List<Edge> path;
+    private List<? extends Edge> path;
     private AStarImplementation currentSearch;
 
     private Executor executor = ExecutorUtil.newExecutorPool(1);
@@ -78,7 +78,7 @@ public class PathPlugin extends Plugin {
         }
     }
 
-    private Optional<java.util.List<Edge>> findPath(Locateable start, Locateable end){
+    private Optional<List<? extends Edge>> findPath(Locateable start, Locateable end){
         currentSearch = aStarService.build();
         return currentSearch.findPath(
                 new LocateableHeuristic(),

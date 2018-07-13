@@ -30,7 +30,7 @@ public class AStarImplementation {
 
     private boolean ignoreStartBlocked = false;
 
-    public Optional<List<Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end) {
+    public Optional<List<? extends Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end) {
         Objects.requireNonNull(heuristicSupplier);
         Objects.requireNonNull(start);
         Objects.requireNonNull(end);
@@ -51,7 +51,7 @@ public class AStarImplementation {
 
     }
 
-    private Optional<List<Edge>> execute() {
+    private Optional<List<? extends Edge>> execute() {
         clear();
 
         open.add(new AStarStore(start, 0));

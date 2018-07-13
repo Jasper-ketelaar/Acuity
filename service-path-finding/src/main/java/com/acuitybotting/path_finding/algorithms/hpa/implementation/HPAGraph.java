@@ -9,6 +9,7 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAReg
 import com.acuitybotting.path_finding.rs.custom_edges.CustomEdge;
 import com.acuitybotting.path_finding.rs.custom_edges.edges.LocationTiedEdges;
 import com.acuitybotting.path_finding.rs.custom_edges.edges.PlayerTiedEdges;
+import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.domain.location.LocationPair;
@@ -34,7 +35,7 @@ public class HPAGraph {
 
     private Map<String, HPARegion> regions = new HashMap<>();
 
-    private int internalNodeConnectionLimit = 8;
+    private int internalNodeConnectionLimit = 4;
 
     private int customNodesAddedCount = 0;
     private int externalConnectionsCount = 0;
@@ -114,8 +115,13 @@ public class HPAGraph {
 
     private void addInternalConnections(HPARegion region, HPANode startNode) {
         for (InternalConnection internalConnection : findInternalConnections(region, startNode, internalNodeConnectionLimit)) {
-            String pathKey = RsEnvironment.getRsMap().addPath(internalConnection.getPath());
-            internalConnection.getStart().addHpaEdge(internalConnection.getEnd(), EdgeType.BASIC, internalConnection.getPath().size()).setPathKey(pathKey);
+            internalConnection.getStart()
+                    .addHpaEdge(internalConnection.getEnd(), EdgeType.BASIC, internalConnection.getPath().size())
+                    .setPathKey(RsEnvironment.getRsMap().addPath(internalConnection.getPath(), false));
+
+            internalConnection.getEnd()
+                    .addHpaEdge(internalConnection.getStart(), EdgeType.BASIC, internalConnection.getPath().size())
+                    .setPathKey(RsEnvironment.getRsMap().addPath(internalConnection.getPath(), true));
         }
     }
 
@@ -125,7 +131,7 @@ public class HPAGraph {
     public static class InternalConnection {
 
         private HPANode start, end;
-        private List<Edge> path;
+        private List<TileEdge> path;
 
     }
 
@@ -139,39 +145,49 @@ public class HPAGraph {
 
         int found = 0;
         for (HPANode endNode : endNodes) {
-            if (limit != 0 && found >= limit) break;
-
-            if (startNode.getHpaEdges().stream().anyMatch(edge -> edge.getEnd().equals(endNode))) {
-                found++;
-                continue;
+            if (limit > 0 && found >= limit) {
+                evaluateInternalConnection(internalConnections, region, startNode, endNodes.get(endNodes.size() - 1));
+                break;
             }
 
-            Boolean ignoreStartBlocked = RsEnvironment.getRsMap().getFlagAt(startNode.getLocation()).map(flag -> MapFlags.check(flag, MapFlags.PLANE_CHANGE_DOWN | MapFlags.PLANE_CHANGE_UP)).orElse(false);
-
-            List<Edge> path = findInternalPath(
-                    startNode.getLocation(),
-                    endNode.getLocation(),
-                    region,
-                    ignoreStartBlocked
-            );
-
-            if (path != null) {
-                found++;
-                internalConnectionCount++;
-
-                InternalConnection internalConnection = new InternalConnection();
-                internalConnection.setPath(path);
-                internalConnection.setStart(startNode);
-                internalConnection.setEnd(endNode);
-                internalConnections.add(internalConnection);
-            }
+            if (evaluateInternalConnection(internalConnections, region, startNode, endNode)) found++;
         }
 
         return internalConnections;
     }
 
-    public List<Edge> findInternalPath(Location start, Location end, HPARegion limit, boolean ignoreStartBlocked){
-        return pathFindingSupplier.findPath(
+    private boolean evaluateInternalConnection(Set<InternalConnection> internalConnections, HPARegion region, HPANode startNode, HPANode endNode){
+        if (startNode.getHpaEdges().stream().anyMatch(edge -> edge.getEnd().equals(endNode))) {
+            return true;
+        }
+
+        Boolean ignoreStartBlocked = RsEnvironment.getRsMap().getFlagAt(startNode.getLocation()).map(flag -> MapFlags.check(flag, MapFlags.PLANE_CHANGE_DOWN | MapFlags.PLANE_CHANGE_UP)).orElse(false);
+
+        List<TileEdge> path = findInternalPath(
+                startNode.getLocation(),
+                endNode.getLocation(),
+                region,
+                ignoreStartBlocked
+        );
+
+        if (path != null) {
+            internalConnectionCount++;
+
+            InternalConnection internalConnection = new InternalConnection();
+            internalConnection.setPath(path);
+            internalConnection.setStart(startNode);
+            internalConnection.setEnd(endNode);
+            internalConnections.add(internalConnection);
+            return true;
+        }
+
+        return false;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public List<TileEdge> findInternalPath(Location start, Location end, HPARegion limit, boolean ignoreStartBlocked){
+        return (List<TileEdge>) pathFindingSupplier.findPath(
                 start,
                 end,
                 edge -> limitToRegion(limit, edge),
@@ -231,10 +247,12 @@ public class HPAGraph {
 
     public List<LocationPair> findExternalConnections(HPARegion region, PathFindingSupplier pathFindingSupplier) {
         List<LocationPair> connections = new ArrayList<>();
-        connections.addAll(filterEdgeConnections(region.getEdgeConnections(0), pathFindingSupplier));
-        connections.addAll(filterEdgeConnections(region.getEdgeConnections(1), pathFindingSupplier));
-        connections.addAll(filterEdgeConnections(region.getEdgeConnections(2), pathFindingSupplier));
-        connections.addAll(filterEdgeConnections(region.getEdgeConnections(3), pathFindingSupplier));
+        for (int plane = 0; plane < RsRegion.Z; plane++) {
+            connections.addAll(filterEdgeConnections(region.getEdgeConnections(0, plane), pathFindingSupplier));
+            connections.addAll(filterEdgeConnections(region.getEdgeConnections(1, plane), pathFindingSupplier));
+            connections.addAll(filterEdgeConnections(region.getEdgeConnections(2, plane), pathFindingSupplier));
+            connections.addAll(filterEdgeConnections(region.getEdgeConnections(3, plane), pathFindingSupplier));
+        }
         return connections;
     }
 
