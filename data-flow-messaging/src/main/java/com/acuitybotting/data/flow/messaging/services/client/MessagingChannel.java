@@ -20,7 +20,7 @@ public interface MessagingChannel {
         return bind(null, null, queue, createQueue);
     }
 
-    default MessagingChannel bindQueueTo(String queue, String exchange, String routing) throws RuntimeException {
+    default MessagingChannel bindQueueToExchange(String queue, String exchange, String routing) throws RuntimeException {
         return bind(exchange, routing, queue, false);
     }
 
@@ -34,8 +34,12 @@ public interface MessagingChannel {
 
     void acknowledge(Message message) throws RuntimeException;
 
-    default void send(String queue, String body) throws RuntimeException {
+    default void sendToQueue(String queue, String body) throws RuntimeException {
         send("", queue, body);
+    }
+
+    default Future<Message> sendToQueue(String queue, String localQueue, String body) throws RuntimeException {
+        return send("", queue, localQueue, body);
     }
 
     default void send(String exchange, String routingKey, String body) throws RuntimeException {
@@ -50,14 +54,14 @@ public interface MessagingChannel {
         respond(message, null, body);
     }
 
-    default Future<Message> respond(Message message, String localTopic, String body) throws RuntimeException {
+    default Future<Message> respond(Message message, String localQueue, String body) throws RuntimeException {
         String responseTopic = message.getAttributes().get(RESPONSE_QUEUE);
         String responseId = message.getAttributes().get(RESPONSE_ID);
 
         Objects.requireNonNull(responseTopic);
         Objects.requireNonNull(responseId);
 
-        return send("", responseTopic, localTopic, responseId, body);
+        return send("", responseTopic, localQueue, responseId, body);
     }
 
     Future<Message> send(String targetExchange, String targetRouting, String localQueue, String futureId, String body) throws RuntimeException;
