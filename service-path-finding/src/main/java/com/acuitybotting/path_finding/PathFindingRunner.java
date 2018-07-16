@@ -1,8 +1,11 @@
 package com.acuitybotting.path_finding;
 
-import com.acuitybotting.data.flow.messaging.services.client.MessageConsumer;
+import com.acuitybotting.data.flow.messaging.services.Message;
+import com.acuitybotting.data.flow.messaging.services.client.MessagingChannel;
+import com.acuitybotting.data.flow.messaging.services.client.MessagingClient;
 import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitClient;
-import com.acuitybotting.data.flow.messaging.services.client.listener.MessagingClientAdapter;
+import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingChannelAdapter;
+import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingClientAdapter;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
@@ -140,11 +143,11 @@ public class PathFindingRunner implements CommandLineRunner {
         xteaService.exportXteas(171, new File(RsEnvironment.INFO_BASE, "xteas.txt"));
     }
 
-    private void consumeJobs(){
+    private void consumeJobs() {
         try {
-            loadRsMap();
+  /*          loadRsMap();
             HPAGraph hpaGraph = loadHpa(1);
-            hpaPathFindingService.setGraph(hpaGraph);
+            hpaPathFindingService.setGraph(hpaGraph);*/
 
             Gson outGson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Gson inGson = new Gson();
@@ -152,59 +155,71 @@ public class PathFindingRunner implements CommandLineRunner {
             RabbitClient rabbitClient = new RabbitClient();
             rabbitClient.setVirtualHost("AcuityBotting");
             rabbitClient.auth(host, username, password);
-            rabbitClient.getListeners().add(new MessagingClientAdapter(){
+            rabbitClient.getListeners().add(new MessagingClientAdapter() {
                 @Override
-                public void onConnect() {
-                    MessageConsumer consume = rabbitClient.consume("acuitybotting.work.find-path", false);
-                    consume.withAutoAcknowledge(true);
-                    consume.withCallback((messageConsumer, message) -> {
-                        try {
-                            PathRequest pathRequest = inGson.fromJson(message.getBody(), PathRequest.class);
-                            PathResult pathResult = new PathResult();
+                public void onConnect(MessagingClient client) {
+                    MessagingChannel channel = client.createChannel();
+                    channel.getListeners().add(new MessagingChannelAdapter() {
+                        @Override
+                        public void onConnect(MessagingChannel channel) {
+                            channel.consumeQueue("acuitybotting.ddd.find-path", false);
+                        }
 
+                        @Override
+                        public void onShutdown(MessagingChannel channel, Throwable cause) {
+                            channel.connect();
+                        }
+
+                        @Override
+                        public void onMessage(MessagingChannel channel, Message message) {
                             try {
-                                log.info("Finding path. {}", pathRequest);
-                                List<? extends Edge> path = hpaPathFindingService.findPath(pathRequest.getStart(), pathRequest.getEnd());
-                                log.info("Found path. {}", path);
-                                pathResult.setPath(path);
-                                pathResult.setSubPaths(new HashMap<>());
+                                PathRequest pathRequest = inGson.fromJson(message.getBody(), PathRequest.class);
+                                PathResult pathResult = new PathResult();
 
-                                if (path != null){
-                                    for (Edge edge : path) {
-                                        if (edge instanceof HPAEdge){
-                                            String pathKey = ((HPAEdge) edge).getPathKey();
-                                            List<Location> subPath = ((HPAEdge) edge).getPath();
-                                            if (pathKey != null && subPath != null){
-                                                pathResult.getSubPaths().put(pathKey, subPath);
+                                try {
+                                    log.info("Finding path. {}", pathRequest);
+                                    List<? extends Edge> path = hpaPathFindingService.findPath(pathRequest.getStart(), pathRequest.getEnd());
+                                    log.info("Found path. {}", path);
+                                    pathResult.setPath(path);
+                                    pathResult.setSubPaths(new HashMap<>());
+
+                                    if (path != null) {
+                                        for (Edge edge : path) {
+                                            if (edge instanceof HPAEdge) {
+                                                String pathKey = ((HPAEdge) edge).getPathKey();
+                                                List<Location> subPath = ((HPAEdge) edge).getPath();
+                                                if (pathKey != null && subPath != null) {
+                                                    pathResult.getSubPaths().put(pathKey, subPath);
+                                                }
                                             }
                                         }
                                     }
+
+                                } catch (Exception e) {
+                                    log.error("Error during finding path. {}", e);
+                                    pathResult.setError(e.getMessage());
                                 }
 
-                            } catch (Exception e) {
-                                log.error("Error during finding path. {}", e);
-                                pathResult.setError(e.getMessage());
+                                String json = outGson.toJson(pathResult);
+                                log.info("Responding. {} {}", message.getAttributes().get(RESPONSE_QUEUE), json);
+                                channel.respond(message, json);
+                            } catch (Throwable e) {
+                                log.error("Error during respond.", e);
                             }
-
-                            String json = outGson.toJson(pathResult);
-                            log.info("Responding. {} {}", message.getAttributes().get(RESPONSE_QUEUE), json);
-                            rabbitClient.respond(message, json);
-                        }
-                        catch (Throwable e){
-                            log.error("Error during respond.", e);
                         }
                     });
 
-                    consume.start();
+                    channel.connect();
                 }
             });
+
             rabbitClient.connect();
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
-    private void dump(){
+    private void dump() {
         xteaService.saveRegionMapsFromAfter(171);
         webImageProcessingService.saveImagesFromRegionMaps(RsEnvironment.getRsMap().getRegions().values(), new File(RsEnvironment.INFO_BASE + "\\img\\a2_regions"));
     }
@@ -216,7 +231,7 @@ public class PathFindingRunner implements CommandLineRunner {
         mapFrame.show();
     }
 
-    private void findStairDefs(){
+    private void findStairDefs() {
         String[] actionsSearch = new String[]{"Climb-up", "Climb-Up", "Climb-down", "Climb-Down", "Climb"};
         String[] namesSearch = new String[]{"Stair", "Stairs", "Ladder", "Staircase"};
 
@@ -244,7 +259,7 @@ public class PathFindingRunner implements CommandLineRunner {
         System.out.println(actions);
     }
 
-    private void findDoorDefs(){
+    private void findDoorDefs() {
         String[] actionsSearch = new String[]{"Open"};
         String[] namesSearch = new String[]{"Door", "Gate"};
 
@@ -273,14 +288,10 @@ public class PathFindingRunner implements CommandLineRunner {
     }
 
 
-
-
     @Override
     public void run(String... args) {
         try {
-            dump();
-            hpaPlugin.setGraph(buildHpa(1));
-            openUi();
+            consumeJobs();
         } catch (Exception e) {
             e.printStackTrace();
         }
