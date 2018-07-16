@@ -41,7 +41,7 @@ public class RabbitChannel implements MessagingChannel, ShutdownListener {
     }
 
     @Override
-    public void connect() throws RuntimeException {
+    public void connect() {
         rabbitClient.getExecutor().execute(this::doConnect);
     }
 

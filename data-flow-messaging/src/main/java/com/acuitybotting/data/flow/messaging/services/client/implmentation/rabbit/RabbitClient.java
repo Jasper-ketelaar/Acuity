@@ -50,7 +50,7 @@ public class RabbitClient implements MessagingClient {
     }
 
     @Override
-    public void connect() throws RuntimeException {
+    public void connect() {
         factory.setHost(endpoint);
         factory.setUsername(username);
         factory.setPassword(password);

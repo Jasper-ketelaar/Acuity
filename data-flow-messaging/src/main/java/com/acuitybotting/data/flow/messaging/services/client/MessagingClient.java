@@ -16,7 +16,7 @@ public interface MessagingClient {
 
     void auth(String endpoint, String username, String password);
 
-    void connect() throws RuntimeException;
+    void connect();
 
     List<MessagingClientListener> getListeners();
 

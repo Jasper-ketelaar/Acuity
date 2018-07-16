@@ -70,5 +70,5 @@ public interface MessagingChannel {
 
     List<MessagingChannelListener> getListeners();
 
-    void connect() throws RuntimeException;
+    void connect();
 }
