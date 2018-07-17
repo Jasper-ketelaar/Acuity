@@ -57,7 +57,7 @@ public class XteaService {
 
         getRegionMapRepository().deleteAll();
 
-        Set<String> regionIds = findUnique(revision).keySet();
+        Set<String> regionIds = findUniqueAfter(revision).keySet();
 
         ExecutorUtil.run(30, executor -> {
             for (String regionId : regionIds) {
@@ -82,12 +82,12 @@ public class XteaService {
         log.info("Finished RegionMap dump with {} regions.", RsEnvironment.getRsMap().getRegions().size());
     }
 
-    public Map<String, Set<Xtea>> findUnique(int rev) {
+    private Map<String, Set<Xtea>> findUniqueAfter(int rev) {
         return xteaRepository.findAllByRevisionGreaterThanEqual(rev).stream().collect(Collectors.groupingBy(object -> String.valueOf(object.getRegion()), Collectors.toSet()));
     }
 
-    public void exportXteas(int rev, File out) {
-        Set<Map.Entry<String, Set<Xtea>>> keySets = findUnique(rev).entrySet();
+    public void exportXteasGreaterThanRev(int rev, File out) {
+        Set<Map.Entry<String, Set<Xtea>>> keySets = findUniqueAfter(rev).entrySet();
 
         StringJoiner stringJoiner = new StringJoiner("\n");
         for (Map.Entry<String, Set<Xtea>> keySetEntry : keySets) {
@@ -97,6 +97,7 @@ public class XteaService {
             }
             stringJoiner.add(result.toString());
         }
+        log.info("Exported {} xteas to file {}.", keySets.size(), out);
 
         try {
             Files.write(out.toPath(), stringJoiner.toString().getBytes());

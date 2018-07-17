@@ -84,7 +84,7 @@ public class HpaPathFindingService {
         return true;
     }
 
-    private void loadRsMap() {
+    public void loadRsMap() {
         log.info("Started loading RsMap this may take a few moments..");
         for (RegionMap regionMap : xteaService.getRegionMapRepository().findAll()) {
             RsEnvironment.getRsMap().getRegions().put(Integer.valueOf(regionMap.getKey()), regionMap);
@@ -112,7 +112,7 @@ public class HpaPathFindingService {
 
     public void consumeJobs() {
         try {
-            loadHpa(1);
+           // loadHpa(1);
 
             Gson outGson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Gson inGson = new Gson();
@@ -127,7 +127,7 @@ public class HpaPathFindingService {
                     channel.getListeners().add(new MessagingChannelAdapter() {
                         @Override
                         public void onConnect(MessagingChannel channel) {
-                            channel.consumeQueue("acuitybotting.work.find-path", false);
+                            //channel.consumeQueue("acuitybotting.work.find-path", false);
                             channel.consumeQueue("acuitybotting.work.xtea-dump", false);
                         }
 
