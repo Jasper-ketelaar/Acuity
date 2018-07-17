@@ -1,6 +1,6 @@
 package com.acuitybotting.path_finding.rs.custom_edges.edges;
 
-import com.acuitybotting.path_finding.rs.custom_edges.CustomEdge;
+import com.acuitybotting.path_finding.rs.custom_edges.CustomEdgeData;
 import com.acuitybotting.path_finding.rs.custom_edges.interaction.Interaction;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.PlayerPredicate;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.abstractions.Player;
@@ -14,32 +14,32 @@ import java.util.HashSet;
  */
 public class PlayerTiedEdges {
 
-    private static Collection<CustomEdge> customEdges = new HashSet<>();
+    private static Collection<CustomEdgeData> customEdgeData = new HashSet<>();
 
     static {
-        customEdges.add(
-                new CustomEdge()
+        customEdgeData.add(
+                new CustomEdgeData()
                         .setEnd(new Location(3221, 3218, 0))
                         .setInteraction(new Interaction(Interaction.SPELL).setSpellName("HOME_TELEPORT"))
-                        .withRequirement((PlayerPredicate) Player::isModernSpellbook)
+                        .withRequirement(Player::isModernSpellbook)
         );
 
-        customEdges.add(
-                new CustomEdge()
+        customEdgeData.add(
+                new CustomEdgeData()
                         .setEnd(new Location(3212, 3424, 0))
                         .setInteraction(new Interaction(Interaction.SPELL).setSpellName("VARROCK_TELEPORT"))
                         .withRequirement(Player::isModernSpellbook)
         );
 
-        customEdges.add(
-                new CustomEdge()
+        customEdgeData.add(
+                new CustomEdgeData()
                         .setEnd(new Location(2757, 3480, 0))
                         .setInteraction(new Interaction(Interaction.SPELL).setSpellName("CAMELOT_TELEPORT"))
                         .withRequirement(Player::isModernSpellbook)
         );
     }
 
-    public static Collection<CustomEdge> getEdges() {
-        return customEdges;
+    public static Collection<CustomEdgeData> getEdges() {
+        return customEdgeData;
     }
 }

@@ -86,7 +86,7 @@ public class PathFindingRunner implements CommandLineRunner {
                         RsEnvironment.getRsMap().getNode(start),
                         RsEnvironment.getRsMap().getNode(end),
                         predicate,
-                        ignoreStartBlocked
+                        ignoreStartBlocked ? Collections.singletonMap(TileNode.IGNORE_BLOCKED, start) : Collections.emptyMap()
                 );
             }
 
@@ -178,11 +178,11 @@ public class PathFindingRunner implements CommandLineRunner {
 
                                 try {
                                     log.info("Finding path. {}", pathRequest);
-                                    List<? extends Edge> path = hpaPathFindingService.findPath(pathRequest.getStart(), pathRequest.getEnd());
+                                    pathResult = hpaPathFindingService.findPath(pathRequest.getStart(), pathRequest.getEnd(), pathRequest.getRsPlayer());
+                                    List<? extends Edge> path = pathResult.getPath();
                                     log.info("Found path. {}", path);
-                                    pathResult.setPath(path);
-                                    pathResult.setSubPaths(new HashMap<>());
 
+                                    pathResult.setSubPaths(new HashMap<>());
                                     if (path != null) {
                                         for (Edge edge : path) {
                                             if (edge instanceof HPAEdge) {

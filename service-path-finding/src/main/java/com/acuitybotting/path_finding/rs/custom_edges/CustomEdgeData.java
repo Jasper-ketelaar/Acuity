@@ -11,7 +11,7 @@ import java.util.HashSet;
 /**
  * Created by Zachary Herridge on 6/21/2018.
  */
-public class CustomEdge {
+public class CustomEdgeData {
 
     @Expose
     private Location start, end;
@@ -24,7 +24,7 @@ public class CustomEdge {
         return start;
     }
 
-    public CustomEdge setStart(Location start) {
+    public CustomEdgeData setStart(Location start) {
         this.start = start;
         return this;
     }
@@ -33,12 +33,12 @@ public class CustomEdge {
         return end;
     }
 
-    public CustomEdge setEnd(Location end) {
+    public CustomEdgeData setEnd(Location end) {
         this.end = end;
         return this;
     }
 
-    public CustomEdge withRequirement(PlayerPredicate predicate){
+    public CustomEdgeData withRequirement(PlayerPredicate predicate){
         playerPredicates.add(predicate);
         return this;
     }
@@ -47,7 +47,7 @@ public class CustomEdge {
         return playerPredicates;
     }
 
-    public CustomEdge setPlayerPredicates(Collection<PlayerPredicate> playerPredicates) {
+    public CustomEdgeData setPlayerPredicates(Collection<PlayerPredicate> playerPredicates) {
         this.playerPredicates = playerPredicates;
         return this;
     }
@@ -56,7 +56,7 @@ public class CustomEdge {
         return interaction;
     }
 
-    public CustomEdge setInteraction(Interaction interaction) {
+    public CustomEdgeData setInteraction(Interaction interaction) {
         this.interaction = interaction;
         return this;
     }

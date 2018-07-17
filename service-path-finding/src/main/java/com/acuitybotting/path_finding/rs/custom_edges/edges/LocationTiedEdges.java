@@ -1,6 +1,7 @@
 package com.acuitybotting.path_finding.rs.custom_edges.edges;
 
-import com.acuitybotting.path_finding.rs.custom_edges.CustomEdge;
+import com.acuitybotting.path_finding.rs.custom_edges.CustomEdgeData;
+import com.acuitybotting.path_finding.rs.custom_edges.requirements.abstractions.Player;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -10,13 +11,13 @@ import java.util.HashSet;
  */
 public class LocationTiedEdges {
 
-    private static Collection<CustomEdge> customEdges = new HashSet<>();
+    private static Collection<CustomEdgeData> customEdgeData = new HashSet<>();
 
     static {
 
     }
 
-    public static Collection<CustomEdge> getEdges(){
-        return customEdges;
+    public static Collection<CustomEdgeData> getEdges(){
+        return customEdgeData;
     }
 }

@@ -1,13 +1,15 @@
 package com.acuitybotting.path_finding.algorithms.graph;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 public interface Node {
 
     default Collection<Edge> getNeighbors() {
-        return getNeighbors(false);
+        return getNeighbors(Collections.emptyMap());
     }
 
-    Collection<Edge> getNeighbors(boolean ignoreSelfBlocked);
+    Collection<Edge> getNeighbors(Map<String, Object> args);
 
 }

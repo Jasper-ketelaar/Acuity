@@ -33,7 +33,7 @@ public class HPANode implements Node, Locateable {
     }
 
     @Override
-    public Set<Edge> getNeighbors(boolean ignoreSelfBlocked) {
+    public Set<Edge> getNeighbors(Map<String, Object> args) {
         if (temporaryEdges.size() == 0) return hpaEdges;
 
         Set<Edge> combined = new HashSet<>(hpaEdges);
@@ -58,7 +58,6 @@ public class HPANode implements Node, Locateable {
         this.type = type;
         return this;
     }
-
 
     @Override
     public boolean equals(Object o) {

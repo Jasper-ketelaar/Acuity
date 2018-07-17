@@ -2,6 +2,7 @@ package com.acuitybotting.path_finding.algorithms.hpa.implementation.graph;
 
 
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
+import com.acuitybotting.path_finding.rs.custom_edges.CustomEdgeData;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.PlayerPredicate;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.abstractions.Player;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -28,21 +29,11 @@ public class HPAEdge implements Edge {
     @Expose
     private String pathKey;
 
-    private Collection<PlayerPredicate> playerPredicates;
-    private Player player;
+    private CustomEdgeData customEdgeData;
 
     public HPAEdge(HPANode start, HPANode end) {
         this.start = start;
         this.end = end;
-    }
-
-    @Override
-    public boolean evaluate() {
-        if (playerPredicates == null) return true;
-        for (PlayerPredicate playerPredicate : playerPredicates) {
-            if (!playerPredicate.test(player)) return false;
-        }
-        return true;
     }
 
     public boolean isInternal(){
@@ -69,9 +60,9 @@ public class HPAEdge implements Edge {
         return this;
     }
 
-    public void setPredicates(Player player, Collection<PlayerPredicate> playerPredicates) {
-        this.player = player;
-        this.playerPredicates = playerPredicates;
+    public HPAEdge setCustomEdgeData(CustomEdgeData customEdgeDataData) {
+        this.customEdgeData = customEdgeDataData;
+        return this;
     }
 
     public List<Location> getPath() {

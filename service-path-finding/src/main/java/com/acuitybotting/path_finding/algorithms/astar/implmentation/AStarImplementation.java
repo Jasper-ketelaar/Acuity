@@ -28,7 +28,7 @@ public class AStarImplementation {
 
     private Set<Node> evaluated = new HashSet<>();
 
-    private boolean ignoreStartBlocked = false;
+    private Map<String, Object> args = Collections.emptyMap();
 
     public Optional<List<? extends Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end) {
         Objects.requireNonNull(heuristicSupplier);
@@ -74,7 +74,7 @@ public class AStarImplementation {
                 return Optional.ofNullable(path);
             }
 
-            for (Edge edge : current.getNode().getNeighbors(ignoreStartBlocked && current.getNode().equals(start))) {
+            for (Edge edge : current.getNode().getNeighbors(args)) {
                 if (edgePredicate != null && !edgePredicate.test(edge)) continue;
                 if (!edge.evaluate()) continue;
 
@@ -135,8 +135,8 @@ public class AStarImplementation {
         return this;
     }
 
-    public AStarImplementation setIgnoreStartBlocked(boolean ignoreStartBlocked) {
-        this.ignoreStartBlocked = ignoreStartBlocked;
+    public AStarImplementation setArgs(Map<String, Object> args) {
+        this.args = args;
         return this;
     }
 }

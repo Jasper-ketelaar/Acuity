@@ -12,10 +12,7 @@ import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.acuitybotting.path_finding.rs.utils.Direction.*;
 
@@ -26,6 +23,8 @@ import static com.acuitybotting.path_finding.rs.utils.Direction.*;
 @Setter
 @Getter
 public class TileNode implements Node, Locateable {
+
+    public static final String IGNORE_BLOCKED = "ignoreBlocked";
 
     @Expose
     private Location location;
@@ -49,7 +48,9 @@ public class TileNode implements Node, Locateable {
         return getLocation().getPlane();
     }
 
-    public Collection<Edge> getNeighbors(boolean ignoreSelfBlocked) {
+    public Collection<Edge> getNeighbors(Map<String, Object> args) {
+        boolean ignoreSelfBlocked = getLocation().equals(args.getOrDefault(IGNORE_BLOCKED, null));
+
         Set<Edge> edges = new HashSet<>(8);
         boolean east = addEdge(edges,EAST, ignoreSelfBlocked);
         boolean west = addEdge(edges,WEST, ignoreSelfBlocked);

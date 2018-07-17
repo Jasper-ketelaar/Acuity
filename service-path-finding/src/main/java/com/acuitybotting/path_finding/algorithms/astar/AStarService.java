@@ -8,9 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 
 @Getter
@@ -21,12 +19,16 @@ public class AStarService {
     private boolean debugMode;
     private int maxAttempts = 50000;
 
-    public Optional<List<? extends Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, boolean ignoreStartBlocked) {
-        return findPath(heuristicSupplier, start, end, null, ignoreStartBlocked);
+    public Optional<List<? extends Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end) {
+        return findPath(heuristicSupplier, start, end, Collections.emptyMap());
     }
 
-    public Optional<List<? extends Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Predicate<Edge> edgePredicate, boolean ignoreStartBlocked) {
-        return build().setEdgePredicate(edgePredicate).setIgnoreStartBlocked(ignoreStartBlocked).findPath(heuristicSupplier, start, end);
+    public Optional<List<? extends Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Map<String, Object> args) {
+        return findPath(heuristicSupplier, start, end, null, args);
+    }
+
+    public Optional<List<? extends Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end, Predicate<Edge> edgePredicate, Map<String, Object> args) {
+        return build().setEdgePredicate(edgePredicate).setArgs(args).findPath(heuristicSupplier, start, end);
     }
 
     public AStarImplementation build(){

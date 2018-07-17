@@ -128,7 +128,7 @@ public class RabbitClient implements MessagingClient {
 
     @Override
     public boolean isConnected() {
-        return connection != null || connection.isOpen();
+        return connection != null && connection.isOpen();
     }
 
     @Override

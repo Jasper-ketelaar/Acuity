@@ -6,7 +6,7 @@ import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
-import com.acuitybotting.path_finding.rs.custom_edges.CustomEdge;
+import com.acuitybotting.path_finding.rs.custom_edges.CustomEdgeData;
 import com.acuitybotting.path_finding.rs.custom_edges.edges.LocationTiedEdges;
 import com.acuitybotting.path_finding.rs.custom_edges.edges.PlayerTiedEdges;
 import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
