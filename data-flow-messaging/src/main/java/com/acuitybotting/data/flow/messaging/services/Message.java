@@ -9,7 +9,7 @@ public class Message {
 
     private String id;
     private String source;
-    private String deliveryTag;
+    private long rabbitTag;
     private String body;
     private Map<String, String> attributes;
 
@@ -40,13 +40,13 @@ public class Message {
         return this;
     }
 
-    public String getDeliveryTag() {
-        return deliveryTag;
+    public Message setRabbitTag(long rabbitTag) {
+        this.rabbitTag = rabbitTag;
+        return this;
     }
 
-    public Message setDeliveryTag(String deliveryTag) {
-        this.deliveryTag = deliveryTag;
-        return this;
+    public long getRabbitTag() {
+        return rabbitTag;
     }
 
     public String getSource() {
@@ -62,7 +62,8 @@ public class Message {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Message{");
         sb.append("id='").append(id).append('\'');
-        sb.append(", deliveryTag='").append(deliveryTag).append('\'');
+        sb.append(", source='").append(source).append('\'');
+        sb.append(", rabbitTag=").append(rabbitTag);
         sb.append(", body='").append(body).append('\'');
         sb.append(", attributes=").append(attributes);
         sb.append('}');

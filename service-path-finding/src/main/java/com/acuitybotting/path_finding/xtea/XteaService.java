@@ -2,6 +2,7 @@ package com.acuitybotting.path_finding.xtea;
 
 
 import com.acuitybotting.common.utils.ExecutorUtil;
+import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitClient;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
@@ -37,22 +38,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class XteaService {
 
-    private static final String QUEUE_URL = "https://sqs.us-east-1.amazonaws.com/604080725100/acuitybotting-xtea-dump.fifo";
-
     private final SceneEntityDefinitionRepository definitionRepository;
     private final XteaRepository xteaRepository;
 
     private final RegionMapRepository regionMapRepository;
 
     private Gson gson = new Gson();
-
-    private static List<String> stairNames = new ArrayList<>();
-
-    static {
-        stairNames.add("stairs");
-        stairNames.add("ladder");
-        stairNames.add("stair");
-    }
 
     @Autowired
     public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionMapRepository regionMapRepository) {
@@ -225,7 +216,7 @@ public class XteaService {
 
                     SceneEntityDefinition baseDefinition = getSceneEntityDefinition(location.getId()).orElseThrow(() -> new RuntimeException("Failed to load " + location.getId() + "."));
 
-                    boolean doorFlag = locationType >= 0 && locationType <= 3 && HpaGenerationData.isDoor(location.getPosition().toLocation(), baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getMapDoorFlag());
+                    boolean doorFlag = HpaGenerationData.isDoor(location.getPosition().toLocation(), baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getMapDoorFlag());
 
                     if (doorFlag){
                         doorActions.addAll(Arrays.asList(baseDefinition.getActions()));
@@ -376,6 +367,9 @@ public class XteaService {
     }
 
     public void consumeQueue() {
+
+        RabbitClient rabbitClient = new RabbitClient();
+
        /* int[] emptyKeys = {0, 0, 0, 0};
 
         clientService.setDeleteMessageOnConsume(false).consumeQueue(QUEUE_URL, message -> {

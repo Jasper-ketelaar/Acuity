@@ -1,4 +1,4 @@
-package com.acuitybotting.path_finding.rs.custom_edges.requirements.implementation;
+package com.acuitybotting.path_finding.rs.custom_edges.requirements.implementations;
 
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.abstractions.Player;
 import com.acuitybotting.path_finding.service.domain.abstractions.player.RSPlayer;

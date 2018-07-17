@@ -59,6 +59,7 @@ public class RabbitChannel implements MessagingChannel, ShutdownListener {
                     rabbitChannel = rabbitClient.getConnection().createChannel();
                     rabbitClient.getLog().accept("Channel opened.");
                     rabbitChannel.addShutdownListener(this);
+                    rabbitChannel.basicQos(6);
 
                     rabbitConsumer = new DefaultConsumer(rabbitChannel) {
                         @Override
@@ -103,7 +104,10 @@ public class RabbitChannel implements MessagingChannel, ShutdownListener {
             if (message == null) message = new Message();
             if (message.getAttributes() == null) message.setAttributes(new HashMap<>());
 
-            message.setDeliveryTag(String.valueOf(envelope.getDeliveryTag()));
+            message.getAttributes().put("envelope.exchange", envelope.getExchange());
+            message.getAttributes().put("envelope.routing", envelope.getRoutingKey());
+
+            message.setRabbitTag(envelope.getDeliveryTag());
 
             if (properties.getHeaders() != null) {
                 for (Map.Entry<String, Object> header : properties.getHeaders().entrySet()) {
@@ -174,7 +178,7 @@ public class RabbitChannel implements MessagingChannel, ShutdownListener {
             try {
                 synchronized (queueConsumeLock) {
                     if (!queueConsumeMap.containsKey(queue)) {
-                        String consumeId = channel.basicConsume(queue, rabbitConsumer);
+                        String consumeId = channel.basicConsume(queue, false, rabbitConsumer);
                         rabbitClient.getLog().accept("Consuming queue named '" + queue + "' with consume id '" + consumeId + "'.");
                     }
                 }
@@ -215,7 +219,8 @@ public class RabbitChannel implements MessagingChannel, ShutdownListener {
         try {
             Channel channel = getChannel();
             if (channel == null || !channel.isOpen()) throw new RuntimeException("Not connected to RabbitMQ.");
-            channel.basicAck(Long.parseLong(message.getDeliveryTag()), true);
+            rabbitClient.getLog().accept("Ack: " + message.getRabbitTag());
+            channel.basicAck(message.getRabbitTag(), false);
         } catch (Throwable e) {
             throw new RuntimeException("Error during acknowledging message: " + message + ".", e);
         }
@@ -284,6 +289,7 @@ public class RabbitChannel implements MessagingChannel, ShutdownListener {
 
     @Override
     public void shutdownCompleted(ShutdownSignalException shutdownEvent) {
+        rabbitClient.getLog().accept("Channel shutdown complete. " + shutdownEvent);
         for (MessagingChannelListener listener : listeners) {
             try {
                 listener.onShutdown(this, shutdownEvent.getCause());
