@@ -8,14 +8,12 @@ import com.acuitybotting.path_finding.web_processing.WebImageProcessingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 
 @Component
 @Slf4j
-@PropertySource("classpath:general-worker-rabbit.credentials")
 public class PathFindingRunner implements CommandLineRunner {
 
     private final WebImageProcessingService webImageProcessingService;
@@ -45,7 +43,7 @@ public class PathFindingRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            openUi();
+            hpaPathFindingService.consumeJobs();
         } catch (Exception e) {
             e.printStackTrace();
         }

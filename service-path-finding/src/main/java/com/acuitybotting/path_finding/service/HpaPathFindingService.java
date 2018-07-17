@@ -38,6 +38,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -49,6 +50,7 @@ import static com.acuitybotting.data.flow.messaging.services.client.MessagingCli
 @Setter
 @Service
 @Slf4j
+@PropertySource("classpath:general-worker-rabbit.credentials")
 public class HpaPathFindingService {
 
     private HPAGraph graph;
@@ -118,7 +120,6 @@ public class HpaPathFindingService {
             Gson inGson = new Gson();
 
             RabbitClient rabbitClient = new RabbitClient();
-            rabbitClient.setVirtualHost("AcuityBotting");
             rabbitClient.auth(host, username, password);
             rabbitClient.getListeners().add(new MessagingClientAdapter() {
                 @Override
@@ -127,8 +128,11 @@ public class HpaPathFindingService {
                     channel.getListeners().add(new MessagingChannelAdapter() {
                         @Override
                         public void onConnect(MessagingChannel channel) {
-                            //channel.consumeQueue("acuitybotting.work.find-path", false);
+                            channel.consumeQueue("acuitybotting.work.find-path", false);
                             channel.consumeQueue("acuitybotting.work.xtea-dump", false);
+
+                            channel.consumeQueue("tempQueue", true);
+                            channel.bindQueueToExchange("tempQueue", "amq.rabbitmq.event", "queue.*");
                         }
 
                         @Override

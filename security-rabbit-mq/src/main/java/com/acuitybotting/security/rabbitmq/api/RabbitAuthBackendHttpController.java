@@ -48,7 +48,7 @@ public class RabbitAuthBackendHttpController {
     @RequestMapping("vhost")
     public String vhost(VirtualHostCheck check) {
         log.info("Checking vhost access with {}", check);
-        return "AcuityBotting".equals(check.getVhost()) ? ACCEPTED : REFUSED;
+        return "/".equals(check.getVhost()) ? ACCEPTED : REFUSED;
     }
 
     @RequestMapping("resource")
