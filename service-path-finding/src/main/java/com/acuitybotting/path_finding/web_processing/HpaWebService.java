@@ -92,7 +92,7 @@ public class HpaWebService {
             HPANode startNode = startRegion.getOrCreateNode(startSavedNode.getLocation(), startSavedNode.getType());
             HPANode endNode = endRegion.getOrCreateNode(endSavedNode.getLocation(), endSavedNode.getType());
 
-            startNode.addHpaEdge(endNode, EdgeType.BASIC, savedEdge.getCost()).setPathKey(savedEdge.getPathKey());
+            startNode.addHpaEdge(endNode, savedEdge.getType(), savedEdge.getCost()).setPathKey(savedEdge.getPathKey());
             edgeCount++;
         }
         log.info("Loaded {} SavedEdge(s).", edgeCount);
@@ -188,6 +188,7 @@ public class HpaWebService {
         savedEdge.setStartKey(startNode.getKey());
         savedEdge.setEndKey(endNode.getKey());
         savedEdge.setCost(hpaEdge.getCost());
+        savedEdge.setType(hpaEdge.getType());
         return savedEdge;
     }
 

@@ -6,9 +6,6 @@ import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.graph.Node;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
-import com.acuitybotting.path_finding.rs.custom_edges.CustomEdgeData;
-import com.acuitybotting.path_finding.rs.custom_edges.edges.LocationTiedEdges;
-import com.acuitybotting.path_finding.rs.custom_edges.edges.PlayerTiedEdges;
 import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
 import com.acuitybotting.path_finding.rs.domain.location.Locateable;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -156,6 +153,7 @@ public class HPAGraph {
         return internalConnections;
     }
 
+    @SuppressWarnings("unchecked")
     private boolean evaluateInternalConnection(Set<InternalConnection> internalConnections, HPARegion region, HPANode startNode, HPANode endNode){
         if (startNode.getHpaEdges().stream().anyMatch(edge -> edge.getEnd().equals(endNode))) {
             return true;
@@ -163,7 +161,7 @@ public class HPAGraph {
 
         Boolean ignoreStartBlocked = RsEnvironment.getRsMap().getFlagAt(startNode.getLocation()).map(flag -> MapFlags.check(flag, MapFlags.PLANE_CHANGE_DOWN | MapFlags.PLANE_CHANGE_UP)).orElse(false);
 
-        List<TileEdge> path = findInternalPath(
+        List<TileEdge> path = (List<TileEdge>) findInternalPath(
                 startNode.getLocation(),
                 endNode.getLocation(),
                 region,
@@ -185,9 +183,8 @@ public class HPAGraph {
     }
 
 
-    @SuppressWarnings("unchecked")
-    public List<TileEdge> findInternalPath(Location start, Location end, HPARegion limit, boolean ignoreStartBlocked){
-        return (List<TileEdge>) pathFindingSupplier.findPath(
+    public List<? extends Edge> findInternalPath(Location start, Location end, HPARegion limit, boolean ignoreStartBlocked){
+        return pathFindingSupplier.findPath(
                 start,
                 end,
                 edge -> limitToRegion(limit, edge),

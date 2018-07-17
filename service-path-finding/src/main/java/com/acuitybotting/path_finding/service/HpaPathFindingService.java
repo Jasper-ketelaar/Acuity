@@ -94,7 +94,7 @@ public class HpaPathFindingService {
         log.info("Finished loading RsMap with {} regions.", RsEnvironment.getRsMap().getRegions().size());
     }
 
-    private HPAGraph loadHpa(int version) {
+    public HPAGraph loadHpa(int version) {
         loadRsMap();
         graph = initGraph();
         hpaWebService.loadInto(graph, version, true);
@@ -102,7 +102,7 @@ public class HpaPathFindingService {
         return graph;
     }
 
-    private HPAGraph buildHpa(int version) {
+    public HPAGraph buildHpa(int version) {
         loadRsMap();
         graph = initGraph();
         graph.build();
@@ -114,7 +114,7 @@ public class HpaPathFindingService {
 
     public void consumeJobs() {
         try {
-           // loadHpa(1);
+            loadHpa(1);
 
             Gson outGson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
             Gson inGson = new Gson();
@@ -130,9 +130,6 @@ public class HpaPathFindingService {
                         public void onConnect(MessagingChannel channel) {
                             channel.consumeQueue("acuitybotting.work.find-path", false);
                             channel.consumeQueue("acuitybotting.work.xtea-dump", false);
-
-                            channel.consumeQueue("tempQueue", true);
-                            channel.bindQueueToExchange("tempQueue", "amq.rabbitmq.event", "queue.*");
                         }
 
                         @Override
@@ -205,6 +202,7 @@ public class HpaPathFindingService {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public PathResult findPath(Location startLocation, Location endLocation, RSPlayer rsPlayer) throws Exception {
         HPARegion startRegion = graph.getRegionContaining(startLocation);
         HPARegion endRegion = graph.getRegionContaining(endLocation);
@@ -214,7 +212,7 @@ public class HpaPathFindingService {
 
         PathResult pathResult = new PathResult();
         if (startRegion.equals(endRegion)) {
-            List<TileEdge> internalPath = graph.findInternalPath(startLocation, endLocation, startRegion, true);
+            List<Edge> internalPath = (List<Edge>) graph.findInternalPath(startLocation, endLocation, startRegion, true);
             if (internalPath != null) {
                 pathResult.setPath(internalPath);
                 return pathResult;
@@ -242,7 +240,7 @@ public class HpaPathFindingService {
                     });
 
             List<? extends Edge> hpaPath = aStarImplementation.findPath(new LocateableHeuristic(), startNode, endNode).orElse(null);
-            pathResult.setPath(hpaPath);
+            pathResult.setPath((List<Edge>) hpaPath);
             pathResult.setAStarImplementation(aStarImplementation);
             return pathResult;
         } finally {

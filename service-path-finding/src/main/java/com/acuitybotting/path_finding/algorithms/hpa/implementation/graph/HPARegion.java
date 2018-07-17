@@ -85,7 +85,7 @@ public class HPARegion {
     }
 
     public HPANode getOrCreateNode(Location location, int type){
-        return nodes.computeIfAbsent(location, location1 -> new HPANode(this, location1)).setType(type);
+        return nodes.computeIfAbsent(location, location1 -> new HPANode(this, location1).setType(type));
     }
 
     public String getKey(){

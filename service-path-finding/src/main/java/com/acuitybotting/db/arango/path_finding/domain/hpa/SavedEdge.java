@@ -24,4 +24,5 @@ public class SavedEdge {
     private String startKey, endKey;
     private String pathKey;
     private Double cost;
+    private Integer type;
 }
