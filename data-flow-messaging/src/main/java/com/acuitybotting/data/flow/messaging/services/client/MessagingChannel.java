@@ -16,17 +16,17 @@ import static com.acuitybotting.data.flow.messaging.services.client.MessagingCli
  */
 public interface MessagingChannel {
 
-    default MessagingChannel consumeQueue(String queue, boolean createQueue) throws RuntimeException{
-        return bind(null, null, queue, createQueue);
+    default MessagingChannel consumeQueue(String queue, boolean createQueue, boolean autoAcknowledge) throws RuntimeException{
+        return bind(null, null, queue, createQueue, autoAcknowledge);
     }
 
     default MessagingChannel bindQueueToExchange(String queue, String exchange, String routing) throws RuntimeException {
-        return bind(exchange, routing, queue, false);
+        return bind(exchange, routing, queue, false, false);
     }
 
     MessagingChannel stopConsuming(String queue) throws RuntimeException;
 
-    MessagingChannel bind(String exchange, String routing, String queue, boolean createQueue) throws RuntimeException;
+    MessagingChannel bind(String exchange, String routing, String queue, boolean createQueue, boolean autoAcknowledge) throws RuntimeException;
 
     MessagingChannel close() throws RuntimeException;
 

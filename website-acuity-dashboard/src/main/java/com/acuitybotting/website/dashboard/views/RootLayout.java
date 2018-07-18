@@ -1,5 +1,8 @@
 package com.acuitybotting.website.dashboard.views;
 
+import com.acuitybotting.website.dashboard.components.general.nav.NavigationButton;
+import com.acuitybotting.website.dashboard.views.navigation.LeftMenu;
+import com.acuitybotting.website.dashboard.views.navigation.TopMenu;
 import com.acuitybotting.website.dashboard.views.user.Profile;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
@@ -26,10 +29,12 @@ import com.vaadin.flow.theme.lumo.Lumo;
 @StyleSheet("/acuity.css")
 public class RootLayout extends VerticalLayout implements RouterLayout {
 
+    private TopMenu topMenu = new TopMenu();
+    private LeftMenu leftMenu = new LeftMenu();
     private HorizontalLayout content = new HorizontalLayout();
     private VerticalLayout rootContent = new VerticalLayout();
 
-    public RootLayout(){
+    public RootLayout() {
         setSizeFull();
         setSpacing(false);
         setMargin(false);
@@ -37,55 +42,25 @@ public class RootLayout extends VerticalLayout implements RouterLayout {
 
         getClassNames().add("acuity-root");
 
-        add(createTopMenu());
-
         rootContent.getClassNames().add("acuity-root-content");
         rootContent.setSizeFull();
         rootContent.setMargin(false);
         rootContent.setPadding(false);
         rootContent.setSpacing(false);
 
-
-        content.add(createLeft(), rootContent);
+        content.add(leftMenu, rootContent);
         content.expand(rootContent);
+
         content.setSizeFull();
-        add(content);
-
-    }
-
-    private Component createLeft(){
-        VerticalLayout leftMenu = new VerticalLayout();
-        leftMenu.getClassNames().add("acuity-left-menu");
-        leftMenu.setWidth("250px");
-        leftMenu.setHeight("100%");
-        leftMenu.setMargin(false);
-        leftMenu.setSpacing(false);
-        leftMenu.setPadding(false);
-
-        Button profile = new Button("Profile", VaadinIcon.HOME.create());
-        profile.setWidth("100%");
-        profile.getClassNames().add("acuity-nav-button");
-        leftMenu.add(profile);
-
-        return leftMenu;
-    }
-
-    private Component createTopMenu(){
-        HorizontalLayout topMenu = new HorizontalLayout();
-        topMenu.getClassNames().add("acuity-top-menu");
-        topMenu.setWidth("100%");
-        topMenu.setHeight("50px");
-        topMenu.setMargin(false);
-        topMenu.setSpacing(false);
-        topMenu.add(new Span("Acuity Botting"));
-        return topMenu;
+        add(topMenu, content);
     }
 
     @Override
     public void showRouterLayoutContent(HasElement content) {
         rootContent.removeAll();
-        Component component = content.getElement().getComponent().get();
-        rootContent.add(component);
-        rootContent.expand(component);
+        content.getElement().getComponent().ifPresent(component -> {
+            rootContent.add(component);
+            rootContent.expand(component);
+        });
     }
 }

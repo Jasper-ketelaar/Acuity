@@ -1,6 +1,5 @@
 package com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit;
 
-import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.data.flow.messaging.services.Message;
 import com.acuitybotting.data.flow.messaging.services.client.MessagingChannel;
 import com.acuitybotting.data.flow.messaging.services.client.MessagingClient;
@@ -160,7 +159,7 @@ public class RabbitChannel implements MessagingChannel, ShutdownListener {
     }
 
     @Override
-    public MessagingChannel bind(String exchange, String routing, String queue, boolean createQueue) throws RuntimeException {
+    public MessagingChannel bind(String exchange, String routing, String queue, boolean createQueue, boolean autoAcknowledge) throws RuntimeException {
         Channel channel = getChannel();
         if (channel == null || !channel.isOpen()) throw new RuntimeException("Not connected to RabbitMQ.");
 
@@ -178,8 +177,9 @@ public class RabbitChannel implements MessagingChannel, ShutdownListener {
             try {
                 synchronized (queueConsumeLock) {
                     if (!queueConsumeMap.containsKey(queue)) {
-                        String consumeId = channel.basicConsume(queue, false, rabbitConsumer);
+                        String consumeId = channel.basicConsume(queue, autoAcknowledge, rabbitConsumer);
                         rabbitClient.getLog().accept("Consuming queue named '" + queue + "' with consume id '" + consumeId + "'.");
+                        queueConsumeMap.put(queue, consumeId);
                     }
                 }
             } catch (IOException e) {

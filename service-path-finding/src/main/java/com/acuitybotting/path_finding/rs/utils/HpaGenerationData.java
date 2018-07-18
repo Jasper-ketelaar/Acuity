@@ -30,6 +30,7 @@ public class HpaGenerationData {
 
         //Door names.
         doorNames.add("door");
+        doorNames.add("large door");
         doorNames.add("gate");
 
         //Door actions

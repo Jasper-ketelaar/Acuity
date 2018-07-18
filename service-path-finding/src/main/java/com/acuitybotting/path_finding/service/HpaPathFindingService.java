@@ -128,8 +128,8 @@ public class HpaPathFindingService {
                     channel.getListeners().add(new MessagingChannelAdapter() {
                         @Override
                         public void onConnect(MessagingChannel channel) {
-                            channel.consumeQueue("acuitybotting.work.find-path", false);
-                            channel.consumeQueue("acuitybotting.work.xtea-dump", false);
+                            channel.consumeQueue("acuitybotting.work.find-path", false, false);
+                            channel.consumeQueue("acuitybotting.work.xtea-dump", false, false);
                         }
 
                         @Override

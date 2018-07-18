@@ -23,11 +23,11 @@ import java.util.Collections;
  */
 @RestController
 @Slf4j
-@RequestMapping(path = "/auth", method = { RequestMethod.GET, RequestMethod.POST })
+@RequestMapping(path = "/auth", method = {RequestMethod.GET, RequestMethod.POST})
 public class RabbitAuthBackendHttpController {
 
     private static final String REFUSED = "deny";
-    private static final String ACCEPTED = "allow ";
+    private static final String ACCEPTED = "allow";
 
     private final AcuityJwtService acuityJwtService;
 
@@ -41,7 +41,7 @@ public class RabbitAuthBackendHttpController {
         log.info("Trying to authenticate user {}", username);
         AcuityPrincipal acuityPrincipal = acuityJwtService.getPrincipal(password).orElse(null);
         if (acuityPrincipal == null) return REFUSED;
-        if (username.equals(acuityPrincipal.getKey())) return ACCEPTED + StringUtils.collectionToDelimitedString(Collections.emptyList(), " ");
+        if (username.equals(acuityPrincipal.getKey())) return ACCEPTED + StringUtils.collectionToDelimitedString(Collections.emptyList(), " ", " ", "");
         return REFUSED;
     }
 
@@ -70,5 +70,4 @@ public class RabbitAuthBackendHttpController {
 
         return REFUSED;
     }
-
 }

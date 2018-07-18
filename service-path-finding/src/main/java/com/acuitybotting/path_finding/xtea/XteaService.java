@@ -2,7 +2,6 @@ package com.acuitybotting.path_finding.xtea;
 
 
 import com.acuitybotting.common.utils.ExecutorUtil;
-import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitClient;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
@@ -43,6 +42,9 @@ public class XteaService {
 
     private final RegionMapRepository regionMapRepository;
 
+    private Map<Integer, SceneEntityDefinition> sceneEntityCache = new HashMap<>();
+    private Map<String, RsRegion> regionCache = new HashMap<>();
+
     private Gson gson = new Gson();
 
     @Autowired
@@ -74,7 +76,7 @@ public class XteaService {
         for (RegionMap regionMap : RsEnvironment.getRsMap().getRegions().values()) {
             try {
                 getRegionMapRepository().save(regionMap);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 log.error("Error during save. " + regionMap, e);
             }
         }
@@ -106,13 +108,9 @@ public class XteaService {
         }
     }
 
-    private Map<Integer, SceneEntityDefinition> cache = new HashMap<>();
-
     public Optional<SceneEntityDefinition> getSceneEntityDefinition(int id) {
-        return Optional.ofNullable(cache.computeIfAbsent(id, integer -> definitionRepository.findById(String.valueOf(id)).orElse(null)));
+        return Optional.ofNullable(sceneEntityCache.computeIfAbsent(id, integer -> definitionRepository.findById(String.valueOf(id)).orElse(null)));
     }
-
-    private Map<String, RsRegion> regionCache = new HashMap<>();
 
     public Optional<RsRegion> getRegion(int id) {
         File file = new File(RsEnvironment.INFO_BASE, "\\json\\regions\\" + id + ".json");
@@ -151,7 +149,6 @@ public class XteaService {
                 Arrays.fill(axisFlags, 1);
             }
         }
-        ;
         regionMap.setFlags(flags);
         return regionMap;
     }
@@ -169,8 +166,6 @@ public class XteaService {
                 for (int regionY = 0; regionY < RsRegion.Y; regionY++) {
                     int setting = rsRegion.getTileSettings()[plane][regionX][regionY];
 
-
-
                     boolean bridge = plane + 1 < 4 && (rsRegion.getTileSettings()[plane + 1][regionX][regionY] == 2);
                     if (!bridge && setting == 1  || HpaGenerationData.isBlocked(regionMap.getBaseX() + regionX, regionMap.getBaseY() + regionY, plane)) {
                         //blocked
@@ -186,10 +181,7 @@ public class XteaService {
                 }
             }
         }
-
     }
-
-    public static Set<String> doorActions = new HashSet<>();
 
     public void applyLocations(int regionId) {
         RsRegion rsRegion = getRegion(regionId).orElse(null);
@@ -220,7 +212,6 @@ public class XteaService {
                     boolean doorFlag = HpaGenerationData.isDoor(location.getPosition().toLocation(), baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getMapDoorFlag());
 
                     if (doorFlag){
-                        doorActions.addAll(Arrays.asList(baseDefinition.getActions()));
                         addFlag(location.getPosition(), plane, MapFlags.DOOR_FLAG);
                     }
 
@@ -365,26 +356,5 @@ public class XteaService {
                 }
             }
         }
-    }
-
-    public void consumeQueue() {
-
-        RabbitClient rabbitClient = new RabbitClient();
-
-       /* int[] emptyKeys = {0, 0, 0, 0};
-
-        clientService.setDeleteMessageOnConsume(false).consumeQueue(QUEUE_URL, message -> {
-            try {
-                Xtea[] xteas = gson.fromJson(message.getBody(), Xtea[].class);
-                for (Xtea xtea : xteas) {
-                    if (xtea.getKeys() == null || Arrays.equals(xtea.getKeys(), emptyKeys)) continue;
-                    xteaRepository.save(xtea);
-                    log.info("Saved Xtea Key {}.", xtea);
-                }
-                clientService.deleteMessage(QUEUE_URL, message);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });*/
     }
 }
