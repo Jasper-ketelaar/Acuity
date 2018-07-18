@@ -7,9 +7,15 @@ import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbi
 import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitClient;
 import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingChannelAdapter;
 import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingClientAdapter;
+import com.acuitybotting.website.dashboard.views.RootLayout;
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.spring.SpringVaadinSession;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +36,16 @@ public class DashboardRabbitService implements CommandLineRunner {
     @Value("${rabbit.password}")
     private String password;
 
+    private final ApplicationEventPublisher publisher;
+    private final ConfigurableApplicationContext applicationContext;
+
     private RabbitChannel rabbitChannel;
+
+    @Autowired
+    public DashboardRabbitService(ApplicationEventPublisher publisher, ConfigurableApplicationContext applicationContext) {
+        this.publisher = publisher;
+        this.applicationContext = applicationContext;
+    }
 
     private void connect(){
         try {
@@ -46,11 +61,13 @@ public class DashboardRabbitService implements CommandLineRunner {
                         public void onConnect(MessagingChannel channel) {
                             channel.consumeQueue("testQueue", true, true);
                             channel.bindQueueToExchange("testQueue", "amq.rabbitmq.event", "queue.#");
+                            channel.bindQueueToExchange("testQueue", "acuitybotting.general", "user.*.services.bot-control.set-status");
                         }
 
                         @Override
                         public void onMessage(MessagingChannel channel, Message message) {
-                            System.out.println(message);
+                            String queueName = message.getAttributes().get("header.name");
+                            RootLayout.getGlobalEventBus().post(message);
                         }
                     });
                     rabbitChannel.connect();

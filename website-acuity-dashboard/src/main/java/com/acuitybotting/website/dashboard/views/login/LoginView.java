@@ -7,10 +7,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * Created by Zachary Herridge on 6/27/2018.
  */
+@UIScope
 @Route(value = "login", layout = RootLayout.class)
 public class LoginView extends VerticalLayout{
 
