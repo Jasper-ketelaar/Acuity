@@ -2,19 +2,19 @@ package com.acuitybotting.website.dashboard.views.login;
 
 import com.acuitybotting.website.dashboard.views.RootLayout;
 import com.acuitybotting.website.dashboard.views.user.Profile;
+
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.annotation.UIScope;
+
 
 /**
  * Created by Zachary Herridge on 6/27/2018.
  */
-@UIScope
 @Route(value = "login", layout = RootLayout.class)
-public class LoginView extends VerticalLayout{
+public class LoginView extends VerticalLayout {
 
     public LoginView() {
         setMargin(false);

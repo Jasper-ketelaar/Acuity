@@ -17,7 +17,6 @@ import java.util.UUID;
  * Created by Zachary Herridge on 6/1/2018.
  */
 @Service
-@PropertySource("classpath:sqs.credentials")
 public class BotControlManagementService {
 
     private final AcuityIdentityService acuityIdentityService;

@@ -3,6 +3,8 @@ package com.acuitybotting.website.dashboard.views;
 import com.acuitybotting.website.dashboard.views.navigation.LeftMenu;
 import com.acuitybotting.website.dashboard.views.navigation.TopMenu;
 import com.google.common.eventbus.EventBus;
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -63,5 +65,17 @@ public class RootLayout extends VerticalLayout implements RouterLayout {
 
     public static EventBus getGlobalEventBus() {
         return globalEventBus;
+    }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        System.out.println("Root attached");
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        super.onDetach(detachEvent);
+        System.out.println("Root detached");
     }
 }

@@ -9,8 +9,8 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @PropertySource("classpath:arango.credentials")
-@EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango.acuity" })
-public class ArangoDBConfigAcuity extends AbstractArangoConfiguration{
+@EnableArangoRepositories(basePackages = {"com.acuitybotting.db.arango.acuity"})
+public class ArangoDBConfigAcuity extends AbstractArangoConfiguration {
 
     @Value("${arango.host}")
     private String host;

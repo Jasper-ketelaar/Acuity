@@ -9,12 +9,10 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.spring.annotation.UIScope;
 
 /**
  * Created by Zachary Herridge on 6/27/2018.
  */
-@UIScope
 @Route(value = "profile", layout = RootLayout.class)
 public class Profile extends Div implements UsersOnly {
 
