@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -48,6 +49,7 @@ public class BotControlManagementService {
         registeredConnection.setPrincipalKey(userId);
         registeredConnection.setConnectionId(connectionId);
         registeredConnection.setConnectionType(type);
+        registeredConnection.setAttributes(new HashMap<>());
 
 
         long now = System.currentTimeMillis();

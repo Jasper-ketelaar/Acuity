@@ -26,12 +26,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserDbService {
 
+    public static final String CONNECTIONS_GROUP = "acuity.registered.connections";
     private final ArangoOperations arangoOperations;
     private final UserDefinedDocumentRepository repository;
     private final RegisteredConnectionRepository registeredConnectionRepository;
     private final Gson gson = new Gson();
-
-    public static final String CONNECTIONS_GROUP = "acuity.registered.connections";
 
     public UserDbService(ArangoOperations operations, UserDefinedDocumentRepository repository, RegisteredConnectionRepository registeredConnectionRepository) {
         this.arangoOperations = operations;
@@ -39,18 +38,19 @@ public class UserDbService {
         this.registeredConnectionRepository = registeredConnectionRepository;
     }
 
-    private UserDocument map(RegisteredConnection registeredConnection){
-        UserDocument document = new UserDocument();
-        document.setSubDocument(gson.toJson(registeredConnection));
-        return document;
-    }
-
-    public void handle(MessageEvent messageEvent, ScriptStorageRequest request, String userId){
-        log.info("Handling db request {} for user {}.", request, userId);
-        if (request.getType() == ScriptStorageRequest.SAVE){
+    public void save(String userId, ScriptStorageRequest request) {
+        String group = request.getGroup();
+        if (group.equals(CONNECTIONS_GROUP)){
+            RegisteredConnection registeredConnection = registeredConnectionRepository.findByPrincipalKeyAndConnectionId(userId, request.getId()).orElse(null);
+            if (registeredConnection == null) return;
+            registeredConnection.getAttributes().put(request.getKey(), request.getDocument());
+            registeredConnection.setLastHeartbeatTime(System.currentTimeMillis());
+            registeredConnectionRepository.save(registeredConnection);
+        }
+        else {
             UserDocument userDocument = new UserDocument();
             userDocument.setUserId(userId);
-            userDocument.setSubGroup(request.getGroup());
+            userDocument.setSubGroup(group);
             userDocument.setSubKey(request.getKey());
             userDocument.setSubDocument(request.getDocument());
             userDocument.setSubHash(userDocument.getUserId() + "_" + userDocument.getSubGroup() + "_" + userDocument.getSubKey());
@@ -63,30 +63,54 @@ public class UserDbService {
             String query = "UPSERT " + upsertQuery + " INSERT " + document + " REPLACE " + document + " IN UserDocument";
             arangoOperations.query(query, null, null, null);
         }
-        else if (request.getType() == ScriptStorageRequest.DELETE_BY_KEY){
-            repository.deleteAllByUserIdAndSubGroupAndSubKey(userId, request.getGroup(), request.getKey());
-        }
-        else if (request.getType() == ScriptStorageRequest.LOAD_BY_KEY){
-            String group = request.getGroup();
-            UserDocument document;
-            if (group.equals(CONNECTIONS_GROUP)) document = registeredConnectionRepository.findByPrincipalKeyAndConnectionId(userId, request.getKey()).map(this::map).orElse(null);
-            else document = repository.findByUserIdAndSubGroupAndSubKey(userId, request.getGroup(), request.getKey()).orElse(null);
+    }
 
-            messageEvent.getChannel().respond(messageEvent.getMessage(), document == null ? "" : gson.toJson(document));
-        }
-        else if (request.getType() == ScriptStorageRequest.LOAD_BY_GROUP){
-            String group = request.getGroup();
-            Set<UserDocument> result;
-            if (group.equals(CONNECTIONS_GROUP)) result = registeredConnectionRepository.findAllByPrincipalKeyAndLastHeartbeatTimeGreaterThan(userId, System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(30)).stream().map(this::map).collect(Collectors.toSet());
-            else result = repository.findAllByUserIdAndSubGroup(userId, request.getGroup());
+    private void delete(String userId, ScriptStorageRequest request) {
+        repository.deleteAllByUserIdAndSubGroupAndSubKey(userId, request.getGroup(), request.getKey());
+    }
 
-            messageEvent.getChannel().respond(messageEvent.getMessage(), gson.toJson(result));
+    private UserDocument loadByKey(String userId, ScriptStorageRequest request) {
+        String group = request.getGroup();
+        UserDocument document;
+        if (group.equals(CONNECTIONS_GROUP))
+            document = registeredConnectionRepository.findByPrincipalKeyAndConnectionId(userId, request.getKey()).map(this::connectionToUserDoc).orElse(null);
+        else
+            document = repository.findByUserIdAndSubGroupAndSubKey(userId, request.getGroup(), request.getKey()).orElse(null);
+        return document;
+    }
+
+    private Set<UserDocument> loadByGroup(String userId, ScriptStorageRequest request) {
+        String group = request.getGroup();
+        Set<UserDocument> result;
+        if (group.equals(CONNECTIONS_GROUP))
+            result = registeredConnectionRepository.findAllByPrincipalKeyAndLastHeartbeatTimeGreaterThan(userId, System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(30)).stream().map(this::connectionToUserDoc).collect(Collectors.toSet());
+        else result = repository.findAllByUserIdAndSubGroup(userId, request.getGroup());
+        return result;
+    }
+
+    private UserDocument connectionToUserDoc(RegisteredConnection registeredConnection) {
+        UserDocument document = new UserDocument();
+        document.setSubDocument(gson.toJson(registeredConnection));
+        return document;
+    }
+
+    public void handle(MessageEvent messageEvent, ScriptStorageRequest request, String userId) {
+        log.info("Handling db request {} for user {}.", request, userId);
+        if (request.getType() == ScriptStorageRequest.SAVE) {
+            save(userId, request);
+        } else if (request.getType() == ScriptStorageRequest.DELETE_BY_KEY) {
+            delete(userId, request);
+        } else if (request.getType() == ScriptStorageRequest.LOAD_BY_KEY) {
+            UserDocument userDocument = loadByKey(userId, request);
+            messageEvent.getChannel().respond(messageEvent.getMessage(), userDocument == null ? "" : gson.toJson(userDocument));
+        } else if (request.getType() == ScriptStorageRequest.LOAD_BY_GROUP) {
+            messageEvent.getChannel().respond(messageEvent.getMessage(), gson.toJson(loadByGroup(userId, request)));
         }
     }
 
     @EventListener
-    public void handleScriptStorageRequest(MessageEvent messageEvent){
-        if (messageEvent.getRouting().endsWith(".services.acuity-db.request")){
+    public void handleScriptStorageRequest(MessageEvent messageEvent) {
+        if (messageEvent.getRouting().endsWith(".services.acuity-db.request")) {
             String userId = RoutingUtil.routeToUserId(messageEvent.getRouting());
             handle(messageEvent, gson.fromJson(messageEvent.getMessage().getBody(), ScriptStorageRequest.class), userId);
             messageEvent.getChannel().acknowledge(messageEvent.getMessage());

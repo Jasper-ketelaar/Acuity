@@ -16,6 +16,7 @@ public class ScriptStorageRequest {
 
     private Integer type;
 
+    private String id;
     private String group;
     private String key;
 

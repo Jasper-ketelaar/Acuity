@@ -30,4 +30,6 @@ public class RegisteredConnection {
 
     private long connectionTime;
     private long lastHeartbeatTime;
+
+    private Map<String, String> attributes;
 }
