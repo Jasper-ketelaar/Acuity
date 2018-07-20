@@ -7,6 +7,7 @@ import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbi
 import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitClient;
 import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingChannelAdapter;
 import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingClientAdapter;
+import com.acuitybotting.data.flow.messaging.services.events.MessageEvent;
 import com.acuitybotting.website.dashboard.views.RootLayout;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,9 +64,8 @@ public class DashboardRabbitService implements CommandLineRunner {
                         }
 
                         @Override
-                        public void onMessage(MessagingChannel channel, Message message) {
-                            String queueName = message.getAttributes().get("header.name");
-                            RootLayout.getGlobalEventBus().post(message);
+                        public void onMessage(MessageEvent messageEvent) {
+                            RootLayout.getGlobalEventBus().post(messageEvent.getMessage());
                         }
                     });
                     rabbitChannel.connect();

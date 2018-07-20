@@ -9,17 +9,18 @@ import org.springframework.data.annotation.Id;
 /**
  * Created by Zachary Herridge on 7/19/2018.
  */
-@Document("UserDefinedDocument")
+@Document("UserDocument")
 @Getter
 @Setter
 @ToString
-public class UserDefinedDocument {
+public class UserDocument {
 
     @Id
-    private String _key;
+    private String key;
 
     private String userId;
     private String subGroup;
     private String subKey;
     private String subDocument;
+    private String subHash;
 }

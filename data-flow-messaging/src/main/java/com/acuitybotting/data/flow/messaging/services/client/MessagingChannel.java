@@ -2,6 +2,7 @@ package com.acuitybotting.data.flow.messaging.services.client;
 
 import com.acuitybotting.data.flow.messaging.services.Message;
 import com.acuitybotting.data.flow.messaging.services.client.listeners.MessagingChannelListener;
+import com.acuitybotting.data.flow.messaging.services.events.MessageEvent;
 import com.acuitybotting.data.flow.messaging.services.futures.MessageFuture;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public interface MessagingChannel {
         send("", queue, body);
     }
 
-    default Future<Message> sendToQueue(String queue, String localQueue, String body) throws RuntimeException {
+    default Future<MessageEvent> sendToQueue(String queue, String localQueue, String body) throws RuntimeException {
         return send("", queue, localQueue, body);
     }
 
@@ -46,7 +47,7 @@ public interface MessagingChannel {
         send(exchange, routingKey, null, null, body);
     }
 
-    default Future<Message> send(String exchange, String routingKey, String localQueue, String body) throws RuntimeException {
+    default Future<MessageEvent> send(String exchange, String routingKey, String localQueue, String body) throws RuntimeException {
         return send(exchange, routingKey, localQueue, null, body);
     }
 
@@ -54,7 +55,7 @@ public interface MessagingChannel {
         respond(message, null, body);
     }
 
-    default Future<Message> respond(Message message, String localQueue, String body) throws RuntimeException {
+    default Future<MessageEvent> respond(Message message, String localQueue, String body) throws RuntimeException {
         String responseTopic = message.getAttributes().get(RESPONSE_QUEUE);
         String responseId = message.getAttributes().get(RESPONSE_ID);
 
@@ -64,7 +65,7 @@ public interface MessagingChannel {
         return send("", responseTopic, localQueue, responseId, body);
     }
 
-    Future<Message> send(String targetExchange, String targetRouting, String localQueue, String futureId, String body) throws RuntimeException;
+    Future<MessageEvent> send(String targetExchange, String targetRouting, String localQueue, String futureId, String body) throws RuntimeException;
 
     MessageFuture getMessageFuture(String id);
 

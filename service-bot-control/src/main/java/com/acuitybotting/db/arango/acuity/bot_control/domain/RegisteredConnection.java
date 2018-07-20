@@ -14,25 +14,20 @@ import java.util.Map;
 /**
  * Created by Zachary Herridge on 6/1/2018.
  */
-@Document("BotInstance")
+@Document("RegisteredConnection")
 @Getter
 @Setter
 @ToString
-public class BotInstance {
+public class RegisteredConnection {
 
     @Id
     private String id;
 
-    @Key
-    private String key;
-
     private String principalKey;
 
-    private String queueUrl;
-    private String queueAuth;
+    private String connectionId;
+    private String connectionType;
 
     private long connectionTime;
     private long lastHeartbeatTime;
-
-    private Map<String, Object> attributes = new HashMap<>();
 }

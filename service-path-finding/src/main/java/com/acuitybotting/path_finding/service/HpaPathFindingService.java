@@ -6,6 +6,7 @@ import com.acuitybotting.data.flow.messaging.services.client.MessagingClient;
 import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitClient;
 import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingChannelAdapter;
 import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingClientAdapter;
+import com.acuitybotting.data.flow.messaging.services.events.MessageEvent;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.path_finding.algorithms.astar.AStarService;
@@ -138,9 +139,10 @@ public class HpaPathFindingService {
                         }
 
                         @Override
-                        public void onMessage(MessagingChannel channel, Message message) {
+                        public void onMessage(MessageEvent messageEvent) {
                             try {
-                                String routing = message.getAttributes().getOrDefault("envelope.routing", "");
+                                String routing = messageEvent.getRouting();
+                                Message message = messageEvent.getMessage();
 
                                 if (routing.endsWith("xtea-dump")) {
                                     int[] emptyKeys = {0, 0, 0, 0};

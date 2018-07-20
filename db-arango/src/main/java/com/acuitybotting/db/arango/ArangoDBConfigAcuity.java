@@ -31,6 +31,6 @@ public class ArangoDBConfigAcuity extends AbstractArangoConfiguration {
 
     @Override
     public String database() {
-        return "AcuityBotting";
+        return "AcuityBotting-1";
     }
 }

@@ -1,49 +1,67 @@
 package com.acuitybotting.bot_control.services.managment;
 
-import com.acuitybotting.db.arango.acuity.bot_control.domain.BotInstance;
-import com.acuitybotting.db.arango.acuity.bot_control.repositories.BotInstanceRepository;
-import com.acuitybotting.db.arango.acuity.identities.service.AcuityIdentityService;
-import com.acuitybotting.security.acuity.jwt.domain.AcuityPrincipal;
+import com.acuitybotting.data.flow.messaging.services.events.MessageEvent;
+import com.acuitybotting.data.flow.messaging.services.identity.RoutingUtil;
+import com.acuitybotting.db.arango.acuity.bot_control.domain.RegisteredConnection;
+import com.acuitybotting.db.arango.acuity.bot_control.repositories.RegisteredConnectionRepository;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Created by Zachary Herridge on 6/1/2018.
  */
 @Service
+@Slf4j
 public class BotControlManagementService {
 
-    private final AcuityIdentityService acuityIdentityService;
-    private final BotInstanceRepository botInstanceRepository;
+    private final RegisteredConnectionRepository registeredConnectionRepository;
+    private final Gson gson = new Gson();
 
     @Autowired
-    public BotControlManagementService(AcuityIdentityService acuityIdentityService, BotInstanceRepository botInstanceRepository) {
-        this.acuityIdentityService = acuityIdentityService;
-        this.botInstanceRepository = botInstanceRepository;
+    public BotControlManagementService(RegisteredConnectionRepository registeredConnectionRepository) {
+
+        this.registeredConnectionRepository = registeredConnectionRepository;
     }
 
-    public BotInstance register(AcuityPrincipal acuityPrincipal, String remoteIp) {
-        Objects.requireNonNull(acuityPrincipal);
+    public RegisteredConnection register(String userId, JsonObject registration) {
+        Objects.requireNonNull(userId);
 
-        BotInstance botInstance = new BotInstance();
+        String connectionId = registration.get("connectionId").getAsString();
+        String type = registration.get("type").getAsString();
+        Objects.requireNonNull(connectionId);
+        Objects.requireNonNull(type);
 
-        Map<String, Object> attributes = new HashMap<>();
-        if (remoteIp != null) attributes.put("connectIp", remoteIp);
+        RegisteredConnection registeredConnection = new RegisteredConnection();
+        registeredConnection.setPrincipalKey(userId);
+        registeredConnection.setConnectionId(connectionId);
+        registeredConnection.setConnectionType(type);
 
-        botInstance.setAttributes(attributes);
-        botInstance.setPrincipalKey(acuityPrincipal.getKey());
-        botInstance.setConnectionTime(System.currentTimeMillis());
 
-        return botInstanceRepository.save(botInstance);
+        long now = System.currentTimeMillis();
+        registeredConnection.setConnectionTime(now);
+        registeredConnection.setLastHeartbeatTime(now);
+
+        registeredConnectionRepository.save(registeredConnection);
+
+        log.info("Registered connection {} for user {}.", registeredConnection, userId);
+
+        return registeredConnection;
     }
 
-    private String key(){
-        return UUID.randomUUID().toString().replaceAll("-", "");
+    @EventListener
+    public void handleConnectionRegistration(MessageEvent messageEvent){
+        if (messageEvent.getRouting().endsWith(".connections.register")){
+            String userId = RoutingUtil.routeToUserId(messageEvent.getRouting());
+            JsonObject registration = gson.fromJson(messageEvent.getMessage().getBody(), JsonObject.class);
+            register(userId, registration);
+            messageEvent.getChannel().acknowledge(messageEvent.getMessage());
+        }
     }
 }

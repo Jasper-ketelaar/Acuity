@@ -4,6 +4,7 @@ import com.acuitybotting.data.flow.messaging.services.Message;
 import com.acuitybotting.data.flow.messaging.services.client.MessagingChannel;
 import com.acuitybotting.data.flow.messaging.services.client.MessagingClient;
 import com.acuitybotting.data.flow.messaging.services.client.listeners.MessagingChannelListener;
+import com.acuitybotting.data.flow.messaging.services.events.MessageEvent;
 import com.acuitybotting.data.flow.messaging.services.futures.MessageFuture;
 import com.rabbitmq.client.*;
 
@@ -120,17 +121,21 @@ public class RabbitChannel implements MessagingChannel, ShutdownListener {
                 message.getAttributes().put("properties.correlation-id", properties.getCorrelationId());
 
 
+            MessageEvent messageEvent = new MessageEvent();
+            messageEvent.setMessage(message);
+            messageEvent.setChannel(this);
+
             String futureId = message.getAttributes().get(MessagingClient.FUTURE_ID);
             if (futureId != null) {
                 MessageFuture messageFuture = rabbitClient.getMessageFutures().get(futureId);
                 if (messageFuture != null) {
-                    messageFuture.complete(message);
+                    messageFuture.complete(messageEvent);
                 }
             }
 
             for (MessagingChannelListener listener : listeners) {
                 try {
-                    listener.onMessage(this, message);
+                    listener.onMessage(messageEvent);
                 } catch (Exception e) {
                     rabbitClient.getExceptionHandler().accept(e);
                 }
@@ -219,7 +224,6 @@ public class RabbitChannel implements MessagingChannel, ShutdownListener {
         try {
             Channel channel = getChannel();
             if (channel == null || !channel.isOpen()) throw new RuntimeException("Not connected to RabbitMQ.");
-            rabbitClient.getLog().accept("Ack: " + message.getRabbitTag());
             channel.basicAck(message.getRabbitTag(), false);
         } catch (Throwable e) {
             throw new RuntimeException("Error during acknowledging message: " + message + ".", e);
@@ -227,7 +231,7 @@ public class RabbitChannel implements MessagingChannel, ShutdownListener {
     }
 
     @Override
-    public Future<Message> send(String targetExchange, String targetRouting, String localQueue, String futureId, String body) throws RuntimeException {
+    public Future<MessageEvent> send(String targetExchange, String targetRouting, String localQueue, String futureId, String body) throws RuntimeException {
         Channel channel = getChannel();
         if (channel == null || !channel.isOpen()) throw new RuntimeException("Not connected to RabbitMQ.");
 

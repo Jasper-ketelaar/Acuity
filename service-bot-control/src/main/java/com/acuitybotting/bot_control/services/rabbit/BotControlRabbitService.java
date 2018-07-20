@@ -1,7 +1,6 @@
-package com.acuitybotting.bot_control.services.managment;
+package com.acuitybotting.bot_control.services.rabbit;
 
-import com.acuitybotting.bot_control.domain.ScriptStorageRequest;
-import com.acuitybotting.data.flow.messaging.services.Message;
+import com.acuitybotting.bot_control.services.user.db.UserDbService;
 import com.acuitybotting.data.flow.messaging.services.client.MessagingChannel;
 import com.acuitybotting.data.flow.messaging.services.client.MessagingClient;
 import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitChannel;
@@ -9,8 +8,6 @@ import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbi
 import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingChannelAdapter;
 import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingClientAdapter;
 import com.acuitybotting.data.flow.messaging.services.events.MessageEvent;
-import com.acuitybotting.data.flow.messaging.services.identity.RoutingUtil;
-import com.acuitybotting.db.arango.acuity.bot_control.repositories.UserDefinedDocumentRepository;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -42,14 +38,9 @@ public class BotControlRabbitService implements CommandLineRunner {
 
     private RabbitChannel rabbitChannel;
 
-    private Gson gson = new Gson();
-
-    private final UserDbService userDbService;
-
     @Autowired
-    public BotControlRabbitService(ApplicationEventPublisher publisher, UserDbService userDbService) {
+    public BotControlRabbitService(ApplicationEventPublisher publisher) {
         this.publisher = publisher;
-        this.userDbService = userDbService;
     }
 
     private void connect() {
@@ -68,15 +59,12 @@ public class BotControlRabbitService implements CommandLineRunner {
                             channel.consumeQueue(localQueue, true, true);
                             channel.bindQueueToExchange(localQueue, "amq.rabbitmq.event", "queue.#");
 
-
-                            channel.consumeQueue("acuitybotting.work.script-storage.request", false, false);
+                            channel.consumeQueue("acuitybotting.work.acuity-db.request", false, false);
+                            channel.consumeQueue("acuitybotting.work.connections", false, false);
                         }
 
                         @Override
-                        public void onMessage(MessagingChannel channel, Message message) {
-                            MessageEvent messageEvent = new MessageEvent()
-                                    .setChannel(channel)
-                                    .setMessage(message);
+                        public void onMessage(MessageEvent messageEvent) {
                             publisher.publishEvent(messageEvent);
                         }
                     });
@@ -87,17 +75,6 @@ public class BotControlRabbitService implements CommandLineRunner {
             rabbitClient.connect();
         } catch (Throwable e) {
             log.error("Error during dashboard RabbitMQ setup.", e);
-        }
-    }
-
-
-    @EventListener
-    public void handleScriptStorageRequest(MessageEvent messageEvent){
-        System.out.println("Got message event: " + messageEvent.getRouting());
-        if (messageEvent.getRouting().endsWith(".services.script-storage.request")){
-            String userId = RoutingUtil.routeToUserId(messageEvent.getRouting());
-            userDbService.handle(messageEvent, gson.fromJson(messageEvent.getMessage().getBody(), ScriptStorageRequest.class), userId);
-            messageEvent.getChannel().acknowledge(messageEvent.getMessage());
         }
     }
 

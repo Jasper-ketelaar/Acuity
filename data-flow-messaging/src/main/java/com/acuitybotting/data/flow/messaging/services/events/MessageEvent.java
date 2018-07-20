@@ -30,7 +30,7 @@ public class MessageEvent {
     }
 
     public String getRouting(){
-        return String.valueOf(message.getAttributes().get("envelope.routing"));
+        return String.valueOf(message.getAttributes().getOrDefault("envelope.routing", ""));
     }
 
     @Override
