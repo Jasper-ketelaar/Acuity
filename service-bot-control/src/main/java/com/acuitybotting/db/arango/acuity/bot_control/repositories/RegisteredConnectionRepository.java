@@ -11,4 +11,10 @@ import java.util.Optional;
  */
 public interface RegisteredConnectionRepository extends ArangoRepository<RegisteredConnection> {
 
+
+    @Query("FOR c IN  RegisteredConnection\n" +
+            "FILTER c.principalKey == @0 AND c.connectionId == @1\n" +
+            "UPDATE c._key WITH {lastHeartbeatTime : @2} IN RegisteredConnection")
+    void updateHeartbeat(String principalKey, String connectionId, long heartbeat);
+
 }

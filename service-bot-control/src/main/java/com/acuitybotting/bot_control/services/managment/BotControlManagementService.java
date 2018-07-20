@@ -26,8 +26,14 @@ public class BotControlManagementService {
 
     @Autowired
     public BotControlManagementService(RegisteredConnectionRepository registeredConnectionRepository) {
-
         this.registeredConnectionRepository = registeredConnectionRepository;
+    }
+
+    public void heartbeat(String userId, JsonObject heartbeat){
+        String connectionId = heartbeat.get("connectionId").getAsString();
+        Objects.requireNonNull(connectionId);
+        registeredConnectionRepository.updateHeartbeat(userId, connectionId, System.currentTimeMillis());
+        log.info("Updated heartbeat for connection {} for user {}.", connectionId, userId);
     }
 
     public RegisteredConnection register(String userId, JsonObject registration) {
@@ -57,11 +63,15 @@ public class BotControlManagementService {
 
     @EventListener
     public void handleConnectionRegistration(MessageEvent messageEvent){
+        String userId = RoutingUtil.routeToUserId(messageEvent.getRouting());
+        JsonObject body = gson.fromJson(messageEvent.getMessage().getBody(), JsonObject.class);
+
         if (messageEvent.getRouting().endsWith(".connections.register")){
-            String userId = RoutingUtil.routeToUserId(messageEvent.getRouting());
-            JsonObject registration = gson.fromJson(messageEvent.getMessage().getBody(), JsonObject.class);
-            register(userId, registration);
+            register(userId, body);
             messageEvent.getChannel().acknowledge(messageEvent.getMessage());
+        }
+        else if (messageEvent.getRouting().endsWith(".connections.heartbeat")){
+            heartbeat(userId, body);
         }
     }
 }
