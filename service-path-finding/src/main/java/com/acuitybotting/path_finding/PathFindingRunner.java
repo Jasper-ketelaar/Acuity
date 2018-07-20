@@ -43,7 +43,7 @@ public class PathFindingRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            hpaPathFindingService.consumeJobs();
+            dump();
         } catch (Exception e) {
             e.printStackTrace();
         }

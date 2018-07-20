@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango.path_finding" })
 @PropertySource("classpath:arango.credentials")
+@EnableArangoRepositories(basePackages = { "com.acuitybotting.db.arango.path_finding" })
 public class ArangoDBConfigPathFinding extends AbstractArangoConfiguration{
 
     @Value("${arango.host}")
@@ -36,6 +36,6 @@ public class ArangoDBConfigPathFinding extends AbstractArangoConfiguration{
 
     @Override
     public String database() {
-        return "AcuityBotting";
+        return "AcuityBotting-Path-Finding-1";
     }
 }
