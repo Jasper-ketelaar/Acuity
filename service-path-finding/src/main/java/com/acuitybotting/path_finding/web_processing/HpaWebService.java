@@ -1,14 +1,9 @@
 package com.acuitybotting.path_finding.web_processing;
 
-import com.acuitybotting.common.utils.ExecutorUtil;
-import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedEdge;
-import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedNode;
-import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedPath;
-import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedRegion;
-import com.acuitybotting.db.arango.path_finding.repositories.hpa.EdgeRepository;
-import com.acuitybotting.db.arango.path_finding.repositories.hpa.NodeRepository;
-import com.acuitybotting.db.arango.path_finding.repositories.hpa.PathRepository;
-import com.acuitybotting.db.arango.path_finding.repositories.hpa.RegionRepository;
+import com.acuitybotting.path_finding.domain.hpa.SavedEdge;
+import com.acuitybotting.path_finding.domain.hpa.SavedNode;
+import com.acuitybotting.path_finding.domain.hpa.SavedPath;
+import com.acuitybotting.path_finding.domain.hpa.SavedRegion;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
@@ -18,9 +13,7 @@ import com.acuitybotting.path_finding.enviroment.PathingEnviroment;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.EdgeType;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -33,19 +26,6 @@ import java.util.function.Supplier;
 @Slf4j
 @Service
 public class HpaWebService {
-
-    private final RegionRepository regionRepository;
-    private final NodeRepository nodeRepository;
-    private final EdgeRepository edgeRepository;
-    private final PathRepository pathRepository;
-
-    @Autowired
-    public HpaWebService(RegionRepository regionRepository, NodeRepository nodeRepository, EdgeRepository edgeRepository, PathRepository pathRepository) {
-        this.regionRepository = regionRepository;
-        this.nodeRepository = nodeRepository;
-        this.edgeRepository = edgeRepository;
-        this.pathRepository = pathRepository;
-    }
 
     public void deleteVersion(int version) {
         PathingEnviroment.deleteAll(PathingEnviroment.EDGES);

@@ -5,7 +5,6 @@ import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.RegionMap;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.SceneEntityDefinition;
 import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
-import com.acuitybotting.db.arango.path_finding.repositories.xtea.RegionMapRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.SceneEntityDefinitionRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
 import com.acuitybotting.path_finding.enviroment.PathingEnviroment;
@@ -39,24 +38,19 @@ public class XteaService {
     private final SceneEntityDefinitionRepository definitionRepository;
     private final XteaRepository xteaRepository;
 
-    private final RegionMapRepository regionMapRepository;
-
     private Map<Integer, SceneEntityDefinition> sceneEntityCache = new HashMap<>();
     private Map<String, RsRegion> regionCache = new HashMap<>();
 
     private Gson gson = new Gson();
 
     @Autowired
-    public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository, RegionMapRepository regionMapRepository) {
+    public XteaService(SceneEntityDefinitionRepository definitionRepository, XteaRepository xteaRepository) {
         this.definitionRepository = definitionRepository;
         this.xteaRepository = xteaRepository;
-        this.regionMapRepository = regionMapRepository;
     }
 
     public void saveRegionMapsFromAfter(int revision){
         log.info("Starting RegionMap dump.");
-
-        getRegionMapRepository().deleteAll();
 
         Set<String> regionIds = findUniqueAfter(revision).keySet();
 
