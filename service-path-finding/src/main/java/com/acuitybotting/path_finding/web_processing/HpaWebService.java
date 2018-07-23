@@ -58,7 +58,8 @@ public class HpaWebService {
     public HPAGraph loadInto(HPAGraph graph, int version, boolean loadPaths) {
         log.info("Starting load of HPA graph version {} into {}.", version, graph);
 
-        for (SavedRegion savedRegion : PathingEnviroment.loadAllFrom(PathingEnviroment.REGIONS, SavedRegion.class)) {
+
+        for (SavedRegion savedRegion : PathingEnviroment.loadFrom(PathingEnviroment.REGIONS, "regions_" + version, SavedRegion[].class).orElse(null)) {
             HPARegion region = new HPARegion(graph, savedRegion.getRoot(), savedRegion.getWidth(), savedRegion.getHeight());
             graph.getRegions().put(region.getKey(), region);
         }
@@ -66,21 +67,21 @@ public class HpaWebService {
         log.info("Loaded {} SavedRegion(s).", graph.getRegions().size());
 
         Map<String, SavedNode> nodeMap = new HashMap<>();
-        for (SavedNode savedNode : PathingEnviroment.loadAllFrom(PathingEnviroment.NODES, SavedNode.class)) {
+        for (SavedNode savedNode : PathingEnviroment.loadFrom(PathingEnviroment.NODES, "nodes_" + version, SavedNode[].class).orElse(null)) {
             nodeMap.put(savedNode.getKey(), savedNode);
         }
 
         log.info("Loaded {} SavedNode(s).", nodeMap.size());
 
         if (loadPaths) {
-            for (SavedPath savedPath : PathingEnviroment.loadAllFrom(PathingEnviroment.PATHS, SavedPath.class)) {
+            for (SavedPath savedPath : PathingEnviroment.loadFrom(PathingEnviroment.PATHS, "paths_" + version, SavedPath[].class).orElse(null)) {
                 RsEnvironment.getRsMap().getPathMap().put(savedPath.getKey(), savedPath.getPath());
             }
             log.info("Loaded {} SavedPath(s).", RsEnvironment.getRsMap().getPathMap().size());
         }
 
         int edgeCount = 0;
-        for (SavedEdge savedEdge : PathingEnviroment.loadAllFrom(PathingEnviroment.EDGES, SavedEdge.class)) {
+        for (SavedEdge savedEdge : PathingEnviroment.loadFrom(PathingEnviroment.EDGES, "edges_" + version, SavedEdge[].class).orElse(null)) {
             SavedNode startSavedNode = nodeMap.get(savedEdge.getStartKey());
             SavedNode endSavedNode = nodeMap.get(savedEdge.getEndKey());
 

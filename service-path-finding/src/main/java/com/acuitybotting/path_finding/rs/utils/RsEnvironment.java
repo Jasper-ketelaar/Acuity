@@ -1,5 +1,6 @@
 package com.acuitybotting.path_finding.rs.utils;
 
+import com.acuitybotting.path_finding.enviroment.PathingEnviroment;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +24,6 @@ public class RsEnvironment {
     private static RsMap rsMap = new RsMap();
 
     private static int regionImageBase = 0;
-    private static File[] regionImageBases = new File[]{new File(INFO_BASE, "\\img\\a2_regions\\"), new File(INFO_BASE, "\\img\\regions\\"), new File(INFO_BASE, "\\img\\a_regions\\")};
 
     private static Map<String, BufferedImage> regionImageMap = new HashMap<>();
 
@@ -48,7 +48,7 @@ public class RsEnvironment {
     }
 
     public static File getRegionImageBase() {
-        return regionImageBases[getRegionImageBaseIndex()];
+        return PathingEnviroment.IMG_DIRECTORIES[getRegionImageBaseIndex()];
     }
 
     public static int getRegionImageBaseIndex() {

@@ -23,8 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
@@ -74,9 +72,7 @@ public class XteaService {
             }
         });
 
-        for (RegionMap regionMap : RsEnvironment.getRsMap().getRegions().values()) {
-            PathingEnviroment.save(PathingEnviroment.REGION_MAP, regionMap.getKey(), regionMap);
-        }
+        PathingEnviroment.save(PathingEnviroment.REGION_FLAGS, "flags", RsEnvironment.getRsMap().getRegions().values());
 
         log.info("Finished RegionMap dump with {} regions.", RsEnvironment.getRsMap().getRegions().size());
     }
@@ -112,16 +108,7 @@ public class XteaService {
     }
 
     public Optional<RsRegion> getRegion(int id) {
-        File file = new File(RsEnvironment.INFO_BASE, "\\json\\regions\\" + id + ".json");
-        if (!file.exists()) return Optional.empty();
-        return Optional.ofNullable(regionCache.computeIfAbsent(String.valueOf(id), s -> {
-            try {
-                return gson.fromJson(new FileReader(file), RsRegion.class);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }));
+        return Optional.ofNullable(regionCache.computeIfAbsent(String.valueOf(id), s -> PathingEnviroment.loadFrom(PathingEnviroment.REGION_INFO, String.valueOf(id), RsRegion.class).orElse(null)));
     }
 
     private void addFlag(RsLocationPosition location, int plane, int flag) {

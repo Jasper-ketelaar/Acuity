@@ -22,7 +22,6 @@ import com.acuitybotting.path_finding.enviroment.PathingEnviroment;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.PlayerPredicate;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.abstractions.Player;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.implementations.PlayerImplementation;
-import com.acuitybotting.path_finding.rs.domain.graph.TileEdge;
 import com.acuitybotting.path_finding.rs.domain.graph.TileNode;
 import com.acuitybotting.path_finding.rs.domain.location.LocateableHeuristic;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
@@ -90,7 +89,7 @@ public class HpaPathFindingService {
 
     public void loadRsMap() {
         log.info("Started loading RsMap this may take a few moments..");
-        for (RegionMap regionMap : PathingEnviroment.loadAllFrom(PathingEnviroment.REGION_MAP, RegionMap.class)) {
+        for (RegionMap regionMap : PathingEnviroment.loadFrom(PathingEnviroment.REGION_FLAGS, "flags", RegionMap[].class).orElse(null)) {
             RsEnvironment.getRsMap().getRegions().put(Integer.valueOf(regionMap.getKey()), regionMap);
         }
         log.info("Finished loading RsMap with {} regions.", RsEnvironment.getRsMap().getRegions().size());

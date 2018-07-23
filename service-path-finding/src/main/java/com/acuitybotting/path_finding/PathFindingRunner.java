@@ -8,6 +8,7 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.HpaPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.plugin.impl.PositionPlugin;
 import com.acuitybotting.path_finding.debugging.interactive_map.ui.MapFrame;
+import com.acuitybotting.path_finding.enviroment.PathingEnviroment;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
 import com.acuitybotting.path_finding.service.HpaPathFindingService;
 import com.acuitybotting.path_finding.web_processing.WebImageProcessingService;
@@ -42,12 +43,12 @@ public class PathFindingRunner implements CommandLineRunner {
     }
 
     private void exportXteas() {
-        hpaPathFindingService.getXteaService().exportXteasGreaterThanRev(171, RsEnvironment.INFO_BASE);
+        hpaPathFindingService.getXteaService().exportXteasGreaterThanRev(171, PathingEnviroment.XTEAS);
     }
 
     private void dump() {
         hpaPathFindingService.getXteaService().saveRegionMapsFromAfter(171);
-        webImageProcessingService.saveImagesFromRegionMaps(RsEnvironment.getRsMap().getRegions().values(), new File(RsEnvironment.INFO_BASE + "\\img\\a2_regions"));
+        webImageProcessingService.saveImagesFromRegionMaps(RsEnvironment.getRsMap().getRegions().values(), PathingEnviroment.ACUITY_RENDERINGS);
     }
 
     private MapFrame openUi() throws Exception {
@@ -60,7 +61,7 @@ public class PathFindingRunner implements CommandLineRunner {
     private void loadXteasIn() throws IOException {
         Gson gson = new Gson();
         JsonObject jsonObject = gson.fromJson(
-                Files.readAllLines(new File("C:\\Users\\zgher\\Desktop\\Map Info\\xteas.json").toPath()).stream().collect(Collectors.joining("")),
+                Files.readAllLines(new File(PathingEnviroment.BASE , "xteas.json").toPath()).stream().collect(Collectors.joining("")),
                 JsonObject.class
         );
 
@@ -103,7 +104,7 @@ public class PathFindingRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            hpaPathFindingService.buildHpa(1);
+            openUi().getMapPanel().addPlugin(new HpaPlugin(hpaPathFindingService.loadHpa(1)));
         } catch (Throwable e) {
             e.printStackTrace();
         }
