@@ -1,5 +1,6 @@
 package com.acuitybotting.path_finding.web_processing;
 
+import com.acuitybotting.common.utils.ExecutorUtil;
 import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedEdge;
 import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedNode;
 import com.acuitybotting.db.arango.path_finding.domain.hpa.SavedPath;
@@ -8,15 +9,16 @@ import com.acuitybotting.db.arango.path_finding.repositories.hpa.EdgeRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.hpa.NodeRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.hpa.PathRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.hpa.RegionRepository;
-import com.acuitybotting.db.arango.utils.ArangoUtils;
 import com.acuitybotting.path_finding.algorithms.graph.Edge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.HPAGraph;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPANode;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
+import com.acuitybotting.path_finding.enviroment.PathingEnviroment;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.EdgeType;
 import com.acuitybotting.path_finding.rs.utils.RsEnvironment;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,21 +48,17 @@ public class HpaWebService {
     }
 
     public void deleteVersion(int version) {
-        log.info("Starting to delete graph {}, initial sizes {}, {}, {}, {}.", version, regionRepository.count(), nodeRepository.count(), edgeRepository.count(), pathRepository.count());
-
-        regionRepository.deleteAllByWebVersion(version);
-        nodeRepository.deleteAllByWebVersion(version);
-        edgeRepository.deleteAllByWebVersion(version);
-        pathRepository.deleteAllByWebVersion(version);
-
-        log.info("Finished deleting graph {}, new sizes {}, {}, {}, {}.", version, regionRepository.count(), nodeRepository.count(), edgeRepository.count(), pathRepository.count());
+        PathingEnviroment.deleteAll(PathingEnviroment.EDGES);
+        PathingEnviroment.deleteAll(PathingEnviroment.NODES);
+        PathingEnviroment.deleteAll(PathingEnviroment.REGIONS);
+        PathingEnviroment.deleteAll(PathingEnviroment.PATHS);
     }
 
 
-    public HPAGraph loadInto(HPAGraph graph, int version, boolean loadPaths){
+    public HPAGraph loadInto(HPAGraph graph, int version, boolean loadPaths) {
         log.info("Starting load of HPA graph version {} into {}.", version, graph);
 
-        for (SavedRegion savedRegion : regionRepository.findAllByWebVersion(version)) {
+        for (SavedRegion savedRegion : PathingEnviroment.loadAllFrom(PathingEnviroment.REGIONS, SavedRegion.class)) {
             HPARegion region = new HPARegion(graph, savedRegion.getRoot(), savedRegion.getWidth(), savedRegion.getHeight());
             graph.getRegions().put(region.getKey(), region);
         }
@@ -68,21 +66,21 @@ public class HpaWebService {
         log.info("Loaded {} SavedRegion(s).", graph.getRegions().size());
 
         Map<String, SavedNode> nodeMap = new HashMap<>();
-        for (SavedNode savedNode : nodeRepository.findAllByWebVersion(version)) {
+        for (SavedNode savedNode : PathingEnviroment.loadAllFrom(PathingEnviroment.NODES, SavedNode.class)) {
             nodeMap.put(savedNode.getKey(), savedNode);
         }
 
         log.info("Loaded {} SavedNode(s).", nodeMap.size());
 
-        if (loadPaths){
-            for (SavedPath savedPath : pathRepository.findAllByWebVersion(version)) {
+        if (loadPaths) {
+            for (SavedPath savedPath : PathingEnviroment.loadAllFrom(PathingEnviroment.PATHS, SavedPath.class)) {
                 RsEnvironment.getRsMap().getPathMap().put(savedPath.getKey(), savedPath.getPath());
             }
             log.info("Loaded {} SavedPath(s).", RsEnvironment.getRsMap().getPathMap().size());
         }
 
         int edgeCount = 0;
-        for (SavedEdge savedEdge : edgeRepository.findAllByWebVersion(version)) {
+        for (SavedEdge savedEdge : PathingEnviroment.loadAllFrom(PathingEnviroment.EDGES, SavedEdge.class)) {
             SavedNode startSavedNode = nodeMap.get(savedEdge.getStartKey());
             SavedNode endSavedNode = nodeMap.get(savedEdge.getEndKey());
 
@@ -142,7 +140,7 @@ public class HpaWebService {
                 savedEdge.setWebVersion(version);
 
                 List<Location> edgePath = RsEnvironment.getRsMap().getPath(hpaEdge);
-                if (edgePath != null){
+                if (edgePath != null) {
                     SavedPath savedPath = createSavedPath(keySupplier.get(), savedEdge, edgePath);
                     savedPath.setWebVersion(version);
                     savedEdge.setPathKey(savedPath.getKey());
@@ -155,26 +153,25 @@ public class HpaWebService {
 
         log.info("Finished processing {}, starting write to db.", graph);
 
-        int chunkSize = 300;
-
         long saveStartTime = System.currentTimeMillis();
+        int poolSize = 100;
 
         log.info("Saving {} regions.", savedRegions.size());
-        ArangoUtils.saveAll(regionRepository, chunkSize, savedRegions);
+        PathingEnviroment.save(PathingEnviroment.REGIONS, "regions_" + version, savedRegions);
 
         log.info("Saving {} nodes.", nodeMap.values().size());
-        ArangoUtils.saveAll(nodeRepository, chunkSize, nodeMap.values());
+        PathingEnviroment.save(PathingEnviroment.NODES, "nodes_" + version, nodeMap.values());
 
         log.info("Saving {} edges.", savedEdges.size());
-        ArangoUtils.saveAll(edgeRepository, chunkSize, savedEdges);
+        PathingEnviroment.save(PathingEnviroment.EDGES, "edges_" + version, savedEdges);
 
         log.info("Saving {} paths.", savedPaths.size());
-        ArangoUtils.saveAll(pathRepository, chunkSize, savedPaths);
+        PathingEnviroment.save(PathingEnviroment.PATHS, "paths_" + version, savedPaths);
 
         log.info("Finished saving of {} as version {} with {} regions, {} edges, {} paths, and {} nodes in {} seconds.", graph, version, savedRegions.size(), savedEdges.size(), savedPaths.size(), nodeMap.size(), (System.currentTimeMillis() - saveStartTime) / 1000);
     }
 
-    private SavedPath createSavedPath(String key, SavedEdge edge, List<Location> path){
+    private SavedPath createSavedPath(String key, SavedEdge edge, List<Location> path) {
         SavedPath savedPath = new SavedPath();
         savedPath.setKey(key);
         savedPath.setPath(path);

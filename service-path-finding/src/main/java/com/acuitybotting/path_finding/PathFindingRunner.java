@@ -103,7 +103,7 @@ public class PathFindingRunner implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            openUi();
+            hpaPathFindingService.buildHpa(1);
         } catch (Throwable e) {
             e.printStackTrace();
         }

@@ -8,6 +8,7 @@ import com.acuitybotting.db.arango.path_finding.domain.xtea.Xtea;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.RegionMapRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.SceneEntityDefinitionRepository;
 import com.acuitybotting.db.arango.path_finding.repositories.xtea.XteaRepository;
+import com.acuitybotting.path_finding.enviroment.PathingEnviroment;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.acuitybotting.path_finding.rs.utils.HpaGenerationData;
@@ -74,11 +75,7 @@ public class XteaService {
         });
 
         for (RegionMap regionMap : RsEnvironment.getRsMap().getRegions().values()) {
-            try {
-                getRegionMapRepository().save(regionMap);
-            } catch (Throwable e) {
-                log.error("Error during save. " + regionMap, e);
-            }
+            PathingEnviroment.save(PathingEnviroment.REGION_MAP, regionMap.getKey(), regionMap);
         }
 
         log.info("Finished RegionMap dump with {} regions.", RsEnvironment.getRsMap().getRegions().size());

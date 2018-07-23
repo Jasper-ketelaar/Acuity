@@ -18,6 +18,7 @@ import com.acuitybotting.path_finding.algorithms.hpa.implementation.PathFindingS
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPAEdge;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.HPARegion;
 import com.acuitybotting.path_finding.algorithms.hpa.implementation.graph.TerminatingNode;
+import com.acuitybotting.path_finding.enviroment.PathingEnviroment;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.PlayerPredicate;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.abstractions.Player;
 import com.acuitybotting.path_finding.rs.custom_edges.requirements.implementations.PlayerImplementation;
@@ -89,7 +90,7 @@ public class HpaPathFindingService {
 
     public void loadRsMap() {
         log.info("Started loading RsMap this may take a few moments..");
-        for (RegionMap regionMap : xteaService.getRegionMapRepository().findAll()) {
+        for (RegionMap regionMap : PathingEnviroment.loadAllFrom(PathingEnviroment.REGION_MAP, RegionMap.class)) {
             RsEnvironment.getRsMap().getRegions().put(Integer.valueOf(regionMap.getKey()), regionMap);
         }
         log.info("Finished loading RsMap with {} regions.", RsEnvironment.getRsMap().getRegions().size());
