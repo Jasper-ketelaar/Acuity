@@ -1,6 +1,5 @@
-package com.acuitybotting.db.arango;
+package com.acuitybotting.db.arango.config;
 
-import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDB.Builder;
 import com.arangodb.springframework.annotation.EnableArangoRepositories;
 import com.arangodb.springframework.config.AbstractArangoConfiguration;
@@ -27,7 +26,7 @@ public class ArangoDBConfigPathFinding extends AbstractArangoConfiguration{
 
     @Override
     public Builder arango() {
-        return new ArangoDB.Builder()
+        return new Builder()
                 .host(host, port)
                 .maxConnections(20)
                 .user(username)

@@ -20,7 +20,7 @@ public class SavedPath {
 
     @Id
     private String id;
-    @Key
+
     private String key;
 
     private String edgeKey;

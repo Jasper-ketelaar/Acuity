@@ -16,11 +16,10 @@ public class SceneEntityDefinition {
     @Id
     private String id;
 
-    @Key
-    private String key;
+    private Integer key;
 
     private Integer mapDoorFlag;
-    private Integer objectId;
+    private Integer identifier;
     private Integer ambient;
     private Integer ambientSoundId;
     private Integer animation;
@@ -45,10 +44,10 @@ public class SceneEntityDefinition {
     private Boolean projectileClipped;
     private Boolean rotated;
     private Boolean solid;
-    private int[] transformIds;
+    private Integer[] transformIds;
     private String[] actions;
-    private int[] colors;
-    private int[] newColors;
-    private int[] newTextures;
-    private int[] textures;
+    private Integer[] colors;
+    private Integer[] newColors;
+    private Integer[] newTextures;
+    private Integer[] textures;
 }

@@ -19,9 +19,6 @@ public class Xtea {
     @Id
     private String id;
 
-    @Key
-    private String key;
-
     private int revision;
     private int region;
     private int[] keys;
@@ -30,7 +27,6 @@ public class Xtea {
     public String toString() {
         return "Xtea{" +
                 "id='" + id + '\'' +
-                ", key='" + key + '\'' +
                 ", revision=" + revision +
                 ", region=" + region +
                 ", keys=" + Arrays.toString(keys) +

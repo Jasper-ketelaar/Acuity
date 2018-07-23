@@ -9,10 +9,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface SceneEntityDefinitionRepository extends ArangoRepository<SceneEntityDefinition>{
+
+    Optional<SceneEntityDefinition> findByKey(int identifier);
 
     Set<SceneEntityDefinition> findAllByActionsContaining(String action);
 

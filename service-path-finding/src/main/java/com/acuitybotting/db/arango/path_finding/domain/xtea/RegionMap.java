@@ -3,7 +3,6 @@ package com.acuitybotting.db.arango.path_finding.domain.xtea;
 import com.acuitybotting.path_finding.rs.domain.location.Location;
 import com.acuitybotting.path_finding.rs.utils.MapFlags;
 import com.arangodb.springframework.annotation.Document;
-import com.arangodb.springframework.annotation.Key;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -21,7 +20,6 @@ public class RegionMap {
     @Id
     private String id;
 
-    @Key
     private String key;
 
     private Integer baseX, baseY;

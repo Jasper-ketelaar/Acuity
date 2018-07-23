@@ -53,14 +53,17 @@ public class UserDbService {
             userDocument.setSubGroup(group);
             userDocument.setSubKey(request.getKey());
             userDocument.setSubDocument(request.getDocument());
-            userDocument.setSubHash(userDocument.getUserId() + "_" + userDocument.getSubGroup() + "_" + userDocument.getSubKey());
 
             Map<String, Object> queryMap = new HashMap<>();
-            queryMap.put("subHash", userDocument.getSubHash());
+            queryMap.put("userId", userDocument.getUserId());
+            queryMap.put("subGroup", userDocument.getSubGroup());
+            queryMap.put("subKey", userDocument.getSubKey());
+            if (request.getRev() != null) queryMap.put("_rev", request.getRev());
 
             String upsertQuery = gson.toJson(queryMap);
             String document = gson.toJson(userDocument);
             String query = "UPSERT " + upsertQuery + " INSERT " + document + " REPLACE " + document + " IN UserDocument";
+            log.info("Query: " + query);
             arangoOperations.query(query, null, null, null);
         }
     }

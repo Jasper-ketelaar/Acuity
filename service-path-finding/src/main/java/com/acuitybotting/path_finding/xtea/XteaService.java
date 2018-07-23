@@ -89,7 +89,8 @@ public class XteaService {
     }
 
     public void exportXteasGreaterThanRev(int rev, File out) {
-        Set<Map.Entry<String, Set<Xtea>>> keySets = findUniqueAfter(rev).entrySet();
+        Map<String, Set<Xtea>> uniqueAfter = findUniqueAfter(rev);
+        Set<Map.Entry<String, Set<Xtea>>> keySets = uniqueAfter.entrySet();
 
         StringJoiner stringJoiner = new StringJoiner("\n");
         for (Map.Entry<String, Set<Xtea>> keySetEntry : keySets) {
@@ -102,14 +103,15 @@ public class XteaService {
         log.info("Exported {} xteas to file {}.", keySets.size(), out);
 
         try {
-            Files.write(out.toPath(), stringJoiner.toString().getBytes());
+            Files.write(new File(out, "xteas.txt").toPath(), stringJoiner.toString().getBytes());
+            Files.write(new File(out, "xteas.json").toPath(), gson.toJson(uniqueAfter).getBytes());
         } catch (IOException e) {
             log.error("Error during exporting xteas.", e);
         }
     }
 
     public Optional<SceneEntityDefinition> getSceneEntityDefinition(int id) {
-        return Optional.ofNullable(sceneEntityCache.computeIfAbsent(id, integer -> definitionRepository.findById(String.valueOf(id)).orElse(null)));
+        return Optional.ofNullable(sceneEntityCache.computeIfAbsent(id, integer -> definitionRepository.findByKey(id).orElse(null)));
     }
 
     public Optional<RsRegion> getRegion(int id) {
@@ -316,7 +318,7 @@ public class XteaService {
                                 }
                             }
                         } else {
-                            if (baseDefinition.getProjectileClipped() && baseDefinition.getItemSupport() == 1) {
+                            if (baseDefinition.getItemSupport() == 1) {
                                 //addObject blocks walking
 
                                 int width;
@@ -333,8 +335,8 @@ public class XteaService {
 
                                 boolean override = false;
 
-                                boolean up = HpaGenerationData.isPositivePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
-                                boolean down = HpaGenerationData.isNegativePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getObjectId());
+                                boolean up = HpaGenerationData.isPositivePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getKey());
+                                boolean down = HpaGenerationData.isNegativePlaneChange(baseDefinition.getName(), baseDefinition.getActions(), baseDefinition.getKey());
 
                                 for (int xOff = 0; xOff < width; xOff++) {
                                     for (int yOff = 0; yOff < length; yOff++) {

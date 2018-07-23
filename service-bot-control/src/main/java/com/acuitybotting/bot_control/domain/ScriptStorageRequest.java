@@ -19,6 +19,7 @@ public class ScriptStorageRequest {
     private String id;
     private String group;
     private String key;
+    private String rev;
 
     private String document;
 }

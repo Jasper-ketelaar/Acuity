@@ -81,15 +81,12 @@ public class RegionPlugin extends Plugin {
             instancesAt.stream().sorted(Comparator.comparingInt(RsLocation::getType)).forEach(rsLocation -> {
                 SceneEntityDefinition baseDef = xteaService.getSceneEntityDefinition(rsLocation.getId()).orElse(null);
                 if (baseDef != null) {
-                    locationDebugs.add(baseDef.getName() + "/" + baseDef.getObjectId() + ": OT:" + rsLocation.getType() + " " + defToDebug(baseDef));
+                    locationDebugs.add(baseDef.getName() + "/" + baseDef.getIdentifier() + ": OT:" + rsLocation.getType() + " " + defToDebug(baseDef));
 
-                    int[] transformIds = baseDef.getTransformIds();
+                    Integer[] transformIds = baseDef.getTransformIds();
                     if (transformIds == null) return;
                     for (int transformId : transformIds) {
-                        SceneEntityDefinition subDef = xteaService.getSceneEntityDefinition(transformId).orElse(null);
-                        if (subDef != null) {
-                            locationDebugs.add("  " + subDef.getName() + "/" + subDef.getObjectId() + " " + defToDebug(baseDef));
-                        }
+                        xteaService.getSceneEntityDefinition(transformId).ifPresent(subDef -> locationDebugs.add("  " + subDef.getName() + "/" + subDef.getIdentifier() + " " + defToDebug(baseDef)));
                     }
 
                 }

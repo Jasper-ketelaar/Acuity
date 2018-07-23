@@ -21,7 +21,7 @@ public class SavedRegion {
 
     @Id
     private String id;
-    @Key
+
     private String key;
 
     private Integer webVersion;

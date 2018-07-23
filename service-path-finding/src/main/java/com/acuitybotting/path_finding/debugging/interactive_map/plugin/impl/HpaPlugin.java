@@ -40,6 +40,10 @@ public class HpaPlugin extends Plugin {
 
     private Color[] nodeColorings = new Color[]{Color.BLUE, Color.RED, Color.CYAN};
 
+    public HpaPlugin(HPAGraph hpaGraph) {
+        this.graph = hpaGraph;
+    }
+
     public void setGraph(HPAGraph graph) {
         this.graph = graph;
     }
