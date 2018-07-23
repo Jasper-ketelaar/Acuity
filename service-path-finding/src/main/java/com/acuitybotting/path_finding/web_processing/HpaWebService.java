@@ -180,6 +180,7 @@ public class HpaWebService {
         savedPath.setPath(path);
         savedPath.setEdgeKey(edge.getKey());
         return savedPath;
+
     }
 
     private SavedEdge createSavedEdge(String key, HPAEdge hpaEdge, SavedNode startNode, SavedNode endNode) {
