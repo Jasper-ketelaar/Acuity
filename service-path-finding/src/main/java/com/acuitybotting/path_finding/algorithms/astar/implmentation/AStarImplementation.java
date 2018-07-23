@@ -26,8 +26,6 @@ public class AStarImplementation {
     private Map<Node, Double> costCache = new HashMap<>();
     private PriorityQueue<AStarStore> open = new PriorityQueue<>();
 
-    private Set<Node> evaluated = new HashSet<>();
-
     private Map<String, Object> args = Collections.emptyMap();
 
     public Optional<List<? extends Edge>> findPath(AStarHeuristicSupplier heuristicSupplier, Node start, Node end) {
@@ -48,7 +46,6 @@ public class AStarImplementation {
         }
 
         return null;
-
     }
 
     private Optional<List<? extends Edge>> execute() {
@@ -79,8 +76,6 @@ public class AStarImplementation {
                 if (!edge.evaluate()) continue;
 
                 Node next = edge.getEnd();
-
-                evaluated.add(next);
 
                 double newCost = costCache.getOrDefault(current.getNode(), 0d) + heuristicSupplier.getHeuristic(start, current.getNode(), next, edge);
                 Double oldCost = costCache.get(next);
