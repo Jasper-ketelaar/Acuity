@@ -1,6 +1,5 @@
 package com.acuitybotting.bot_control.services.rabbit;
 
-import com.acuitybotting.bot_control.services.user.db.UserDbService;
 import com.acuitybotting.data.flow.messaging.services.client.MessagingChannel;
 import com.acuitybotting.data.flow.messaging.services.client.MessagingClient;
 import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbit.RabbitChannel;
@@ -8,7 +7,6 @@ import com.acuitybotting.data.flow.messaging.services.client.implmentation.rabbi
 import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingChannelAdapter;
 import com.acuitybotting.data.flow.messaging.services.client.listeners.adapters.MessagingClientAdapter;
 import com.acuitybotting.data.flow.messaging.services.events.MessageEvent;
-import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

@@ -10,11 +10,11 @@ import org.springframework.data.annotation.Id;
 /**
  * Created by Zachary Herridge on 7/19/2018.
  */
-@Document("UserDocument")
+@Document("RabbitDocument")
 @Getter
 @Setter
 @ToString
-public class UserDocument {
+public class RabbitDocument {
 
     @Id
     private String key;
@@ -22,7 +22,9 @@ public class UserDocument {
     @Rev
     private String revision;
 
-    private String userId;
+    private String database;
+    private String principalId;
+
     private String subGroup;
     private String subKey;
     private String subDocument;

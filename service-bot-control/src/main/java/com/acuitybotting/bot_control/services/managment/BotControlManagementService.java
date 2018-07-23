@@ -72,9 +72,5 @@ public class BotControlManagementService {
             register(userId, body);
             messageEvent.getChannel().acknowledge(messageEvent.getMessage());
         }
-        else if (messageEvent.getRouting().endsWith(".connections.heartbeat")){
-            heartbeat(userId, body);
-            messageEvent.getChannel().acknowledge(messageEvent.getMessage());
-        }
     }
 }
