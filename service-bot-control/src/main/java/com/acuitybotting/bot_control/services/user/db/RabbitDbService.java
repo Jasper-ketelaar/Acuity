@@ -7,6 +7,7 @@ import com.acuitybotting.db.arango.acuity.bot_control.domain.RabbitDocument;
 import com.acuitybotting.db.arango.acuity.bot_control.domain.RegisteredConnection;
 import com.acuitybotting.db.arango.acuity.bot_control.repositories.RegisteredConnectionRepository;
 import com.acuitybotting.db.arango.acuity.bot_control.repositories.RabbitDocumentRepository;
+import com.arangodb.model.AqlQueryOptions;
 import com.arangodb.springframework.core.ArangoOperations;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +39,14 @@ public class RabbitDbService {
         this.registeredConnectionRepository = registeredConnectionRepository;
     }
 
-    private boolean isAccessible(String userId, String db){
+    private boolean isWriteAccessible(String userId, String db){
         if (db == null) return false;
-        return "general-db".equals(db) || "script-settings".equals(db) || db.startsWith("user.db.");
+        return "script-settings".equals(db) || db.startsWith("user.db.");
+    }
+
+    private boolean isReadAccessible(String userId, String db){
+        if (db == null) return false;
+        return "registered-connections".equals(db) || "script-settings".equals(db) || db.startsWith("user.db.");
     }
 
     public void save(String userId, RabbitDbRequest request) {
@@ -51,7 +57,7 @@ public class RabbitDbService {
             registeredConnection.setLastHeartbeatTime(System.currentTimeMillis());
             registeredConnectionRepository.save(registeredConnection);
         }
-        else if (isAccessible(userId, request.getDatabase())){
+        else {
             RabbitDocument rabbitDocument = new RabbitDocument();
             rabbitDocument.setPrincipalId(userId);
             rabbitDocument.setSubGroup(request.getGroup());
@@ -70,7 +76,7 @@ public class RabbitDbService {
             String document = gson.toJson(rabbitDocument);
             String query = "UPSERT " + upsertQuery + " INSERT " + document + " REPLACE " + document + " IN RabbitDocument";
             log.info("Query: " + query);
-            arangoOperations.query(query, null, null, null);
+            arangoOperations.query(query, null, new AqlQueryOptions().count(true), null);
         }
     }
 
@@ -115,23 +121,27 @@ public class RabbitDbService {
     public void handle(MessageEvent messageEvent, RabbitDbRequest request, String userId) {
         log.info("Handling db request {} for user {}.", request, userId);
 
-        if (!isAccessible(userId, request.getDatabase())) return;
+        if (isWriteAccessible(userId, request.getDatabase())){
+            if (request.getType() == RabbitDbRequest.SAVE) {
+                if (isWriteAccessible(userId, request.getDatabase())) save(userId, request);
+            } else if (request.getType() == RabbitDbRequest.DELETE_BY_KEY) {
+                delete(userId, request);
+            }
+        }
 
-        if (request.getType() == RabbitDbRequest.SAVE) {
-            save(userId, request);
-        } else if (request.getType() == RabbitDbRequest.DELETE_BY_KEY) {
-            delete(userId, request);
-        } else if (request.getType() == RabbitDbRequest.FIND_BY_KEY) {
-            RabbitDocument rabbitDocument = loadByKey(userId, request);
-            messageEvent.getChannel().respond(messageEvent.getMessage(), rabbitDocument == null ? "" : gson.toJson(rabbitDocument));
-        } else if (request.getType() == RabbitDbRequest.FIND_BY_GROUP) {
-            messageEvent.getChannel().respond(messageEvent.getMessage(), gson.toJson(loadByGroup(userId, request)));
+        if (isReadAccessible(userId, request.getDatabase())){
+            if (request.getType() == RabbitDbRequest.FIND_BY_KEY) {
+                RabbitDocument rabbitDocument = loadByKey(userId, request);
+                messageEvent.getChannel().respond(messageEvent.getMessage(), rabbitDocument == null ? "" : gson.toJson(rabbitDocument));
+            } else if (request.getType() == RabbitDbRequest.FIND_BY_GROUP) {
+                messageEvent.getChannel().respond(messageEvent.getMessage(), gson.toJson(loadByGroup(userId, request)));
+            }
         }
     }
 
     @EventListener
     public void handleScriptStorageRequest(MessageEvent messageEvent) {
-        if (messageEvent.getRouting().endsWith(".services.acuity-db.request")) {
+        if (messageEvent.getRouting().contains(".services.acuity-db.request")) {
             String userId = RoutingUtil.routeToUserId(messageEvent.getRouting());
             handle(messageEvent, gson.fromJson(messageEvent.getMessage().getBody(), RabbitDbRequest.class), userId);
             messageEvent.getChannel().acknowledge(messageEvent.getMessage());
